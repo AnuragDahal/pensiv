@@ -1,3 +1,4 @@
+import { IUserModel } from "@/types/user";
 import mongoose from "mongoose";
 
 export const userSchema = new mongoose.Schema(
@@ -15,10 +16,6 @@ export const userSchema = new mongoose.Schema(
       required: true,
     },
     avatar: {
-      type: String,
-      required: false,
-    },
-    accessToken: {
       type: String,
       required: false,
     },
@@ -40,4 +37,4 @@ export const userSchema = new mongoose.Schema(
   }
 );
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<IUserModel>("User", userSchema);
