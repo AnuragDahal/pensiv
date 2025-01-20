@@ -1,27 +1,34 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const postSchema = new mongoose.Schema({
   userId: {
-    type: String,
+    type: Types.ObjectId,
     ref: "User",
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  shortDescription: {
+    type: String,
     required: true,
   },
   comments: {
     type: Array,
     ref: "Comment",
-    default: [],
   },
   postImage: {
     type: String,
     required: true,
   },
-  description: {
+  content: {
     type: String,
     required: true,
   },
   tags: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 

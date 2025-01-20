@@ -49,10 +49,10 @@ export interface IPost {
   userId: string | Types.ObjectId;
   title: string;
   shortdescription: string;
-  comments: Array<string>;
-  description: string;
+  comments?: Array<string>;
+  content: string;
   postImage: string;
-  tags: string;
+  tags?: string;
 }
 
 export interface IComment {

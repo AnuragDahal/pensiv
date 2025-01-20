@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { connect } from "@/db/connect";
 import authRouter from "@/routers/auth.routes";
+import postRouter from "@/routers/posts.routes";
 import { env } from "@/env";
 
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
+app.use ("/api/posts", postRouter);
 
 app.get("/", (req, res) => {
   res.send({ message: "Welcome!" });
