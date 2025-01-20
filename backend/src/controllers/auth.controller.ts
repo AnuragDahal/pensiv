@@ -1,5 +1,10 @@
 import { API_RESPONSES } from "@/constants/responses";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
+import {
+  generateTokens,
+  setCookies,
+  validateUserCredentials,
+} from "@/helpers/user";
 import { sendResponse } from "@/services/response.service";
 import { createUser, getUserByEmail } from "@/services/user.service";
 
@@ -10,8 +15,8 @@ export const userSignup = async (req: any, res: any) => {
     if (existingUser)
       return sendResponse({
         res,
-        status: HTTP_STATUS_CODES.BAD_REQUEST,
-        message: API_RESPONSES.CONFLICT_RESOURCE,
+        status: HTTP_STATUS_CODES.CONFLICT,
+        message: API_RESPONSES.USER_ALREADY_EXISTS,
       });
     const user = await createUser(req.body);
     return sendResponse({
@@ -28,5 +33,34 @@ export const userSignup = async (req: any, res: any) => {
         error: error,
         message: API_RESPONSES.USER_CREATION_FAILED,
       });
+  }
+};
+
+export const userLogin = async (req: any, res: any) => {
+  try {
+    const { email, password } = req.body;
+    const user = await validateUserCredentials(email, password);
+    const { accessToken, refreshToken } = await generateTokens(
+      user._id.toString()
+    );
+    setCookies(res, accessToken, refreshToken);
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.OK,
+      data: { accessToken, refreshToken },
+      message: API_RESPONSES.USER_LOGGED_IN,
+    });
+  } catch (error: any) {
+    const status =
+      error.message === API_RESPONSES.USER_NOT_FOUND ||
+      error.message === API_RESPONSES.UNAUTHORIZED
+        ? HTTP_STATUS_CODES.UNAUTHORIZED
+        : HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
+    return sendResponse({
+      res,
+      status,
+      error: error.message,
+      message: error.message,
+    });
   }
 };

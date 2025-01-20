@@ -1,4 +1,43 @@
 import { Types } from "mongoose";
+// {
+//   avatar: {
+//     type: String,
+//     required: false,
+//   },
+//   accessToken: {
+//     type: String,
+//     required: false,
+//   },
+//   refreshToken: {
+//     type: String,
+//     required: false,
+//   },
+//   otp: {
+//     type: Number,
+//     required: false,
+//   },
+//   verificationToken: {
+//     type: String,
+//     required: false,
+//   },
+// },
+// {
+//   timestamps: true,
+// }
+// );
+export interface IUserModel {
+  name: string;
+  email: string;
+  password: string;
+  avatar?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  otp?: number;
+  verificationToken?: string;
+  isPasswordCorrect(candidatePassword: string): Promise<boolean>;
+  generateAccessToken(): string;
+  generateRefreshToken(): string;
+}
 
 export interface IUser {
   name: string;
