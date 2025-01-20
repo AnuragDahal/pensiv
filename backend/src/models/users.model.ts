@@ -1,19 +1,43 @@
-import e from "express";
 import mongoose from "mongoose";
 
-export const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+export const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    avatar: {
+      type: String,
+      required: false,
+    },
+    accessToken: {
+      type: String,
+      required: false,
+    },
+    refreshToken: {
+      type: String,
+      required: false,
+    },
+    otp: {
+      type: Number,
+      required: false,
+    },
+    verificationToken: {
+      type: String,
+      required: false,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 export const User = mongoose.model("User", userSchema);
