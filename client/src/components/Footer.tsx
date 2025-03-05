@@ -1,163 +1,122 @@
 import React from "react";
 import Link from "next/link";
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { Instagram, Twitter, Facebook, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-const Footer = () => {
+const Footer: React.FC = () => {
   return (
-    <footer className="bg-blue-600 text-gray-300 py-12 w-full flex justify-center">
-      <div className="container mx-auto px-4">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-10 gap-6 md:gap-8 mb-8">
-          {/* Company Info */}
-          <div className="min-w-[200px] px-2 py-2 md:px-4 md:py-4">
-            <h3 className="text-white text-lg font-semibold mb-4">Personna</h3>
-            <p className="text-sm max-w-[250px]">
-              Empowering individuals through innovative solutions and
-              exceptional service.
+    <footer className="border-t border-border">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div className="md:col-span-2">
+            <Link href="/" className="text-2xl font-serif font-bold text-navy">
+              Pensieve
+            </Link>
+            <p className="mt-4 text-muted-foreground max-w-md">
+              A modern publishing platform where readers find dynamic thinking,
+              and where expert and undiscovered voices can share their writing.
             </p>
-            <div className="flex space-x-4 mt-4">
-              <a href="#" className="hover:text-white transition-colors">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                <Linkedin size={20} />
-              </a>
+            <div className="mt-6 flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full hover:bg-lavender/10 hover:text-navy"
+              >
+                <Twitter className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full hover:bg-lavender/10 hover:text-navy"
+              >
+                <Instagram className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full hover:bg-lavender/10 hover:text-navy"
+              >
+                <Facebook className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full hover:bg-lavender/10 hover:text-navy"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="min-w-[160px] px-2 py-2 md:px-4 md:py-4">
-            <h3 className="text-white text-lg font-semibold mb-4">
-              Quick Links
-            </h3>
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Navigation</h3>
             <ul className="space-y-2">
+              <li>
+                <Link
+                  href="/"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/articles"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Articles
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/create"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Write
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/about"
-                  className="text-sm hover:text-white transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Services
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/careers"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Careers
+                  About
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support */}
-          <div className="min-w-[160px] px-2 py-2 md:px-4 md:py-4">
-            <h3 className="text-white text-lg font-semibold mb-4">Support</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/faq"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/help"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Contact Us
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div className="min-w-[200px] px-2 py-2 md:px-4 md:py-4">
-            <h3 className="text-white text-lg font-semibold mb-4">Contact</h3>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2">
-                <Mail size={16} />
-                <span className="text-sm">info@personna.com</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone size={16} />
-                <span className="text-sm">+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <MapPin size={16} />
-                <span className="text-sm">
-                  123 Business Ave, Suite 100
-                  <br />
-                  New York, NY 10001
-                </span>
-              </li>
-            </ul>
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Subscribe</h3>
+            <p className="text-muted-foreground mb-4">
+              Get the latest articles and news delivered to your inbox.
+            </p>
+            <div className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="Your email"
+                className="rounded-full"
+              />
+              <Button className="rounded-full">Subscribe</Button>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="grid grid-cols-2 items-center pt-8 border-t border-gray-800 lg:flex lg:justify-between">
-          <div>
-            <p className="text-sm">&copy; 2025 Personna.</p>
-          </div>
-          <div className="flex gap-6">
+        <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} Pensieve. All rights reserved.</p>
+          <div className="flex gap-6 mt-4 md:mt-0">
             <Link
-              href="/privacy-policy"
-              className="text-sm hover:text-white transition-colors"
+              href="/privacy"
+              className="hover:text-foreground transition-colors"
             >
               Privacy Policy
             </Link>
             <Link
-              href="/terms-of-service"
-              className="text-sm hover:text-white transition-colors"
+              href="/terms"
+              className="hover:text-foreground transition-colors"
             >
               Terms of Service
-            </Link>
-            <Link
-              href="/cookies"
-              className="text-sm hover:text-white transition-colors"
-            >
-              Cookies Policy
             </Link>
           </div>
         </div>

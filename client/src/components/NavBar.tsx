@@ -1,32 +1,146 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { Menu, X, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bell, Search } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const NavBar = () => {
+const Navbar: React.FC = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="bg-black w-full px-6 text-white overflow-hidden flex py-6 justify-between md:justify-around items-center">
-      <div className="font-bold text-xl">MetaBlog</div>
-      <ul className="hidden md:flex md:gap-10">
-        <li>Home</li>
-        <li>Blog</li>
-        <li>SinglePost</li>
-        <li>Pages</li>
-        <li>Contact</li>
-      </ul>
-      <div className="md:flex gap-1 relative hidden">
-        <Search className="absolute top-1 left-1" />
-        <Input />
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "py-3 bg-background/80 backdrop-blur-lg shadow-sm"
+          : "py-5 bg-transparent"
+      }`}
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="text-2xl font-serif font-bold text-navy transition-all duration-300 hover:opacity-80"
+          >
+            Pensieve
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="link-underline font-medium">
+              Home
+            </Link>
+            <Link href="/articles" className="link-underline font-medium">
+              Articles
+            </Link>
+            <Link href="/create" className="link-underline font-medium">
+              Write
+            </Link>
+            <Link href="/about" className="link-underline font-medium">
+              About
+            </Link>
+          </nav>
+
+          <div className="hidden lg:flex items-center space-x-4">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search articles..."
+                className="rounded-full hidden md:flex w-48"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Search"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <Link href="/login">
+              <Button variant="outline" className="rounded-full">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button className="rounded-full">Sign Up</Button>
+            </Link>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </Button>
+        </div>
       </div>
-      <div className="flex gap-2 items-center">
-        <Bell fill=""/>
-        <Avatar className="w-[30px] h-[30px]">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>AD</AvatarFallback>
-        </Avatar>
-      </div>
-    </div>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 right-0 bg-background shadow-md animate-fade-in">
+          <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
+            <Link
+              href="/"
+              className="py-2 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              href="/articles"
+              className="py-2 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Articles
+            </Link>
+            <Link
+              href="/create"
+              className="py-2 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Write
+            </Link>
+            <Link
+              href="/about"
+              className="py-2 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
+            </Link>
+            <div className="flex flex-col space-y-2 pt-2 pb-4">
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full rounded-full">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full rounded-full">Sign Up</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 
-export default NavBar;
+export default Navbar;
