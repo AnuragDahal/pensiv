@@ -1,59 +1,54 @@
 import { API_RESPONSES } from "@/constants/responses";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
+import { APIError, asyncHandler } from "@/helpers/handler";
 import { createPost, getPostById } from "@/services/post.service";
 import { sendResponse } from "@/services/response.service";
+import { Request, Response } from "express";
 
-export const addNewPost = async (req: any, res: any) => {
-  try {
-    const post = await createPost(req.body);
-    if (!post) {
-      return sendResponse({
-        res,
-        status: HTTP_STATUS_CODES.BAD_REQUEST,
-        message: API_RESPONSES.RESOURCE_CREATION_FAILED,
-      });
-    }
-    post.userId = req.user._id;
-    await post.save({ validateBeforeSave: false });
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.CREATED,
-      message: API_RESPONSES.RESOURCE_CREATED,
-    });
-  } catch (error) {
-    if (error) {
-      return sendResponse({
-        res,
-        status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
-        error: error,
-        message: API_RESPONSES.INTERNAL_SERVER_ERROR,
-      });
-    }
+export const addNewPost = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user?._id) {
+    throw new APIError(
+      API_RESPONSES.UNAUTHORIZED,
+      HTTP_STATUS_CODES.UNAUTHORIZED
+    );
   }
-};
 
-export const getSinglePost = async (req: any, res: any) => {
-  try {
+  const postData = {
+    ...req.body,
+    userId: req.user._id,
+  };
+
+  const post = await createPost(postData);
+  if (!post) {
+    throw new APIError(
+      API_RESPONSES.RESOURCE_CREATION_FAILED,
+      HTTP_STATUS_CODES.BAD_REQUEST
+    );
+  }
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.CREATED,
+    message: API_RESPONSES.RESOURCE_CREATED,
+    data: post,
+  });
+});
+
+export const getSinglePost = asyncHandler(
+  async (req: Request, res: Response) => {
     const post = await getPostById(req.params.id).select("-__v");
     if (!post) {
-      return sendResponse({
-        res,
-        status: HTTP_STATUS_CODES.NOT_FOUND,
-        message: API_RESPONSES.RESOURCE_NOT_FOUND,
-      });
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
     }
+
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.OK,
       message: API_RESPONSES.RESOURCE_FETCHED,
       data: post,
     });
-  } catch (error: any) {
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
-      error: error.message || error,
-      message: API_RESPONSES.INTERNAL_SERVER_ERROR,
-    });
   }
-};
+);

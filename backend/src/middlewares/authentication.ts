@@ -1,29 +1,67 @@
 import { API_RESPONSES } from "@/constants/responses";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { env } from "@/env";
+import { env } from "@/config/env";
+import { APIError } from "@/helpers/handler";
 import { sendResponse } from "@/services/response.service";
-import { NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export const isAuthenticated = (req: any, res: any, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) {
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.UNAUTHORIZED,
-      message: API_RESPONSES.UNAUTHORIZED,
-    });
-  }
+interface JwtPayload {
+  _id: string;
+  email: string;
+  name: string;
+  iat?: number;
+  exp?: number;
+}
+
+export const isAuthenticated = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const decoded = jwt.verify(token, env.ACCESS_TOKEN_SECRET);
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+      throw new APIError(
+        API_RESPONSES.TOKEN_MISSING,
+        HTTP_STATUS_CODES.UNAUTHORIZED
+      );
+    }
+
+    if (!env.ACCESS_TOKEN_SECRET) {
+      throw new APIError(
+        "Access token secret not configured",
+        HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR
+      );
+    }
+
+    const decoded = jwt.verify(token, env.ACCESS_TOKEN_SECRET) as JwtPayload;
     req.user = decoded;
     next();
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return sendResponse({
+        res,
+        status: HTTP_STATUS_CODES.UNAUTHORIZED,
+        message: API_RESPONSES.UNAUTHORIZED,
+        error: API_RESPONSES.TOKEN_INVALID,
+      });
+    }
+
+    if (error instanceof APIError) {
+      return sendResponse({
+        res,
+        status: error.statusCode,
+        message: error.message,
+      });
+    }
+
     return sendResponse({
       res,
-      status: HTTP_STATUS_CODES.UNAUTHORIZED,
-      message: API_RESPONSES.UNAUTHORIZED,
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      message: API_RESPONSES.INTERNAL_SERVER_ERROR,
     });
   }
 };

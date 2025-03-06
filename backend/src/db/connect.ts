@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { env } from "@/env";
+import { env } from "@/config/env";
 export const connect = async () => {
   try {
     const connection = await mongoose.connect(env.MONGO_URI);
