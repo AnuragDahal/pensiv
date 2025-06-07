@@ -10,6 +10,14 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  category: {
+    type: String,
+    required: true,
+  },
+  coverImage: {
+    type: String,
+    required: true,
+  },
   shortDescription: {
     type: String,
     required: true,
@@ -27,7 +35,7 @@ const postSchema = new mongoose.Schema({
     required: true,
   },
   tags: {
-    type: String,
+    type: Array,
     required: false,
   },
 });

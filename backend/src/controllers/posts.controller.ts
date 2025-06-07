@@ -12,7 +12,6 @@ export const addNewPost = asyncHandler(async (req: Request, res: Response) => {
       HTTP_STATUS_CODES.UNAUTHORIZED
     );
   }
-
   const postData = {
     ...req.body,
     userId: req.user._id,
