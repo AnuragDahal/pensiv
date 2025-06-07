@@ -20,6 +20,13 @@ export const API_RESPONSES = {
   USER_LOGIN_FAILED: "Login failed, check your credentials",
   USER_OTP_RESENT: "OTP resent successfully",
 
+  // Authentication and Authorization
+  AUTHENTICATION_FAILED: "Authentication failed, check your credentials",
+  TOKEN_EXPIRED: "Token expired, please log in again",
+  TOKEN_INVALID: "Invalid token, please log in again",
+  HEADER_MISSING: "Authorization header missing",
+  TOKEN_MISSING: "Token missing in the request",
+
   // 2xx Success - General Resource Creation
   RESOURCE_ACCEPTED: "Resource accepted successfully",
   RESOURCE_CREATED: "Resource created successfully",

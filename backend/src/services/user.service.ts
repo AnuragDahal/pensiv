@@ -1,5 +1,5 @@
 import User from "@/models/users.model";
-import { IUser } from "@/types/user";
+import { IUser, IUserModel } from "@/types/user";
 import { Types } from "mongoose";
 
 export const getUsers = () => User.find();

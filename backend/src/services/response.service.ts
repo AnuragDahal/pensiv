@@ -2,12 +2,12 @@ import { IResponseData } from "@/types/response";
 
 export const sendResponse = (data: IResponseData) => {
   const { res, status, message, data: responseData, error } = data;
-
+  const isError = status >= 400;
   return res.status(status).json({
-    status: error ? "error" : "success",
+    status: isError ? "error" : "success",
     statusCode: status,
-    message: message || (error ? "An error occurred" : "Request successful"),
-    data: responseData,
+    message: message || (isError ? "An error occurred" : "Request successful"),
+    data: isError ? undefined : responseData,
     error: error
       ? typeof error === "string"
         ? error

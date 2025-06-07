@@ -1,30 +1,4 @@
 import { Types } from "mongoose";
-// {
-//   avatar: {
-//     type: String,
-//     required: false,
-//   },
-//   accessToken: {
-//     type: String,
-//     required: false,
-//   },
-//   refreshToken: {
-//     type: String,
-//     required: false,
-//   },
-//   otp: {
-//     type: Number,
-//     required: false,
-//   },
-//   verificationToken: {
-//     type: String,
-//     required: false,
-//   },
-// },
-// {
-//   timestamps: true,
-// }
-// );
 export interface IUserModel {
   name: string;
   email: string;

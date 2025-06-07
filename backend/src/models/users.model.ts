@@ -1,7 +1,7 @@
 import { IUserModel } from "@/types/user";
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import { env } from "@/env";
+import bcrypt from "bcryptjs";
+import { env } from "@/config/env";
 import jwt from "jsonwebtoken";
 
 export const userSchema = new mongoose.Schema<IUserModel>(

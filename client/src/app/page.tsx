@@ -189,11 +189,11 @@ const Index = () => {
                 just quality content.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input
+                {/* <input
                   type="email"
                   placeholder="Your email address"
                   className="px-4 py-3 rounded-full flex-1 border border-border focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                />
+                /> */}
                 <Button className="rounded-full px-6">Subscribe</Button>
               </div>
             </div>
