@@ -37,7 +37,7 @@ export function TagsInputField({ value, onChange }: TagsInputFieldProps) {
           <div className="flex flex-wrap gap-2 mt-2">
             {value.map((tag, index) => (
               <div
-                key={index}
+                key={tag}
                 className="flex items-center gap-1 bg-muted text-sm rounded-full px-3 py-1"
               >
                 <span>{tag}</span>

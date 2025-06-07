@@ -32,7 +32,7 @@ const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   category: z.string().min(1, "Category is required"),
-  tags: z.array(z.string().min(1, "tasg cannot be empty")).min(1),
+  tags: z.array(z.string().min(1, "tag cannot be empty")).min(1),
   coverImage: z.string().optional(),
 });
 

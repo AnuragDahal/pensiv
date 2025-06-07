@@ -25,7 +25,7 @@ export const uploadImage = async (
 
     // Use 'coverimages' bucket (without 's' at the end based on your error)
     const { data, error } = await supabase.storage
-      .from("coverimages")
+      .from(bucket)
       .upload(fileName, file, {
         cacheControl: "3600",
         upsert: false,
@@ -39,7 +39,7 @@ export const uploadImage = async (
     // Get the public URL - fix the construction
     const {
       data: { publicUrl },
-    } = supabase.storage.from("coverimages").getPublicUrl(fileName);
+    } = supabase.storage.from(bucket).getPublicUrl(fileName);
 
     return publicUrl;
   } catch (error) {
