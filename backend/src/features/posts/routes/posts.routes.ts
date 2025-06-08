@@ -1,5 +1,5 @@
 import { addNewPost, getSinglePost } from "../controllers/posts.controller";
-import { isAuthenticated, zodValidator } from "@/middlewares";
+import { isAuthenticated, zodValidator } from "@/shared/middlewares";
 import { postSchema } from "../schemas/posts.schemas";
 import { Router } from "express";
 
