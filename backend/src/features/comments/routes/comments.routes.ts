@@ -5,7 +5,7 @@ import {
   updateComment,
   deleteComment,
 } from "../controllers/comments.controller";
-import { isAuthenticated, zodValidator } from "@/shared/middlewares";
+import { isAuthenticated, zodValidator } from "@/middlewares";
 import { commentSchema } from "../schemas/comments.schemas";
 import { Router } from "express";
 

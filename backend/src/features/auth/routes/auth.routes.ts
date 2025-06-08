@@ -1,5 +1,5 @@
 import { userLogin, userSignup } from "../controllers/auth.controller";
-import { zodValidator } from "@/shared/middlewares";
+import { zodValidator } from "@/middlewares";
 import { loginSchema, signupSchema } from "../schemas/auth.schemas";
 import { Router } from "express";
 
