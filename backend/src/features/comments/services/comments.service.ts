@@ -1,4 +1,4 @@
-import { Comments } from "@/models/comments.model";
+import { Comments } from "../models/comment.model";
 import { IComment } from "@/types/user";
 import { Types } from "mongoose";
 
@@ -12,7 +12,10 @@ export const createComment = (comment: IComment) => {
 };
 export const deleteCommentById = (id: string | Types.ObjectId) =>
   Comments.findByIdAndDelete(id);
-export const updateCommentById = (id: string | Types.ObjectId, comment: IComment) => {
-    const updatedComment = Comments.findByIdAndUpdate(id, comment, { new: true });
-    return updatedComment;
-}
+export const updateCommentById = (
+  id: string | Types.ObjectId,
+  comment: IComment
+) => {
+  const updatedComment = Comments.findByIdAndUpdate(id, comment, { new: true });
+  return updatedComment;
+};

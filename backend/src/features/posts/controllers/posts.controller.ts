@@ -1,8 +1,8 @@
 import { API_RESPONSES } from "@/constants/responses";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { APIError, asyncHandler } from "@/helpers/handler";
-import { createPost, getPostById } from "@/services/post.service";
-import { sendResponse } from "@/services/response.service";
+import { APIError, asyncHandler } from "@/shared/utils";
+import { createPost, getPostById } from "../services/posts.service";
+import { sendResponse } from "@/shared/services/response.service";
 import { Request, Response } from "express";
 
 export const addNewPost = asyncHandler(async (req: Request, res: Response) => {

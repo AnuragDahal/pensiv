@@ -1,4 +1,4 @@
-import User from "@/models/users.model";
+import User from "../models/user.model";
 import { IUser, IUserModel } from "@/types/user";
 import { Types } from "mongoose";
 

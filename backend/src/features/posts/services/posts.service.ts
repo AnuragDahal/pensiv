@@ -1,4 +1,4 @@
-import { Post } from "@/models/post.models";
+import { Post } from "../models/post.model";
 import { IPost } from "@/types/user";
 import { Types } from "mongoose";
 

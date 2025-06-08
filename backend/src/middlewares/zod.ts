@@ -1,6 +1,6 @@
 import { API_RESPONSES } from "@/constants/responses";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { sendResponse } from "@/services/response.service";
+import { sendResponse } from "@/shared/services/response.service";
 import { NextFunction } from "express";
 import { ZodError, ZodSchema } from "zod";
 

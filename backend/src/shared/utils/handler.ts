@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { sendResponse } from "@/services/response.service";
+import { sendResponse } from "../services/response.service";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
 import { API_RESPONSES } from "@/constants/responses";
 

@@ -2,7 +2,7 @@ import { API_RESPONSES } from "@/constants/responses";
 import {
   generateAccessAndRefreshToken,
   getUserByEmail,
-} from "@/services/user.service";
+} from "@/features/auth/services/auth.service";
 
 export const validateUserCredentials = async (
   email: string,

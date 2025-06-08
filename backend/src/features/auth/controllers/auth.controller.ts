@@ -1,13 +1,13 @@
 import { API_RESPONSES } from "@/constants/responses";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { APIError, asyncHandler } from "@/helpers/handler";
+import { APIError, asyncHandler } from "@/shared/utils";
 import {
   generateTokens,
   setCookies,
   validateUserCredentials,
-} from "@/helpers/user";
-import { sendResponse } from "@/services/response.service";
-import { createUser, getUserByEmail } from "@/services/user.service";
+} from "@/shared/utils/auth";
+import { sendResponse } from "@/shared/services/response.service";
+import { createUser, getUserByEmail } from "../services/auth.service";
 import { Request, Response } from "express";
 
 export const userSignup = asyncHandler(async (req: Request, res: Response) => {

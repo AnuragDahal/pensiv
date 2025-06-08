@@ -1,6 +1,6 @@
-import { userLogin, userSignup } from "@/controllers/auth.controller";
-import { zodValidator } from "@/middlewares/zod";
-import { loginSchema, signupSchema } from "@/schemas/userSchemas";
+import { userLogin, userSignup } from "../controllers/auth.controller";
+import { zodValidator } from "@/middlewares";
+import { loginSchema, signupSchema } from "../schemas/auth.schemas";
 import { Router } from "express";
 
 const router = Router();
