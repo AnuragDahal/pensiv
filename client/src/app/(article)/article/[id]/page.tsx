@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 import ArticleCard from "@/app/(article)/_components/ArticleCard";
 import { Input } from "@/components/ui/input";
+import { Comme } from "next/font/google";
+import { CommentsForm } from "../../_components/forms/comments-form";
+import CommentCard from "../../_components/comment-card";
 
 // Mock data for article
 const article = {
@@ -400,66 +403,19 @@ const Article = () => {
                 </h3>
 
                 {/* Comment Form */}
-                <form onSubmit={handleCommentSubmit} className="mb-8">
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-10 w-10 mt-1">
-                      <AvatarImage
-                        src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60"
-                        alt="Your avatar"
-                      />
-                      <AvatarFallback>Y</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <Input
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Add a comment..."
-                        className="min-h-20 border rounded-lg py-3 px-4 w-full"
-                      />
-                      <div className="mt-3 flex justify-end">
-                        <Button type="submit" disabled={!newComment.trim()}>
-                          Submit
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </form>
+                <CommentsForm postId={article.id} />
 
                 {/* Comments List */}
                 <div className="space-y-6">
                   {comments.map((comment) => (
                     <div key={comment.id} className="animate-fade-in">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10 mt-1">
-                          <AvatarImage
-                            src={comment.author.avatar}
-                            alt={comment.author.name}
-                          />
-                          <AvatarFallback>
-                            {comment.author.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium">
-                              {comment.author.name}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {comment.date}
-                            </span>
-                          </div>
-                          <p className="text-sm">{comment.content}</p>
-                          <div className="mt-2 flex items-center gap-4">
-                            <button className="text-xs text-muted-foreground flex items-center hover:text-foreground">
-                              <Heart className="h-3 w-3 mr-1" />
-                              {comment.likes}
-                            </button>
-                            <button className="text-xs text-muted-foreground hover:text-foreground">
-                              Reply
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                      <CommentCard
+                        name={comment.author.name}
+                        avatar={comment.author.avatar}
+                        date={comment.date}
+                        content={comment.content}
+                        likes={comment.likes}
+                      />
                       {comment.id !== comments[comments.length - 1].id && (
                         <Separator className="my-6" />
                       )}
