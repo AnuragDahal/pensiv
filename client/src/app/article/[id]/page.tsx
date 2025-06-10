@@ -15,11 +15,9 @@ import {
   Calendar,
   Clock,
 } from "lucide-react";
-import ArticleCard from "@/app/(article)/_components/ArticleCard";
-import { Input } from "@/components/ui/input";
-import { Comme } from "next/font/google";
-import { CommentsForm } from "../../_components/forms/comments-form";
-import CommentCard from "../../_components/comment-card";
+import ArticleCard from "@/app/article/_components/ArticleCard";
+import { CommentsForm } from "../_components/forms/comments-form";
+import CommentCard from "../_components/comment-card";
 
 // Mock data for article
 const article = {
@@ -181,7 +179,6 @@ const initialComments = [
 const Article = () => {
   const { id } = useParams();
   const [comments, setComments] = useState(initialComments);
-  const [newComment, setNewComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(42);
@@ -197,26 +194,6 @@ const Article = () => {
 
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
-  };
-
-  const handleCommentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newComment.trim() === "") return;
-
-    const newCommentObj = {
-      id: `c${comments.length + 1}`,
-      author: {
-        name: "You",
-        avatar:
-          "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60",
-      },
-      content: newComment,
-      date: "Just now",
-      likes: 0,
-    };
-
-    setComments([newCommentObj, ...comments]);
-    setNewComment("");
   };
 
   return (
@@ -447,8 +424,6 @@ const Article = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

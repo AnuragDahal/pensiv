@@ -17,15 +17,19 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
 
 const loginFormSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
+
 export default function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const router = useRouter()
+  const router = useRouter();
+  const { login } = useAuthStore();
+
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -33,6 +37,7 @@ export default function LoginForm() {
       password: "",
     },
   });
+
   const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
     try {
       setIsLoading(true);
@@ -41,16 +46,27 @@ export default function LoginForm() {
         {
           email: values.email,
           password: values.password,
+        },
+        {
+          withCredentials: true, // Important for cookies
         }
       );
+
+      // Extract tokens from response
+      const { accessToken, refreshToken } = res.data.data;
+
+      // Store tokens in Zustand store
+      login({ accessToken, refreshToken });
+
       toast.success(res.data.message);
-      router.push('/')
+      router.push("/");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleShowPassword = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {

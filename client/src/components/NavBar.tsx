@@ -1,12 +1,17 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isLoggedIn, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +21,10 @@ const Navbar: React.FC = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <header
@@ -33,7 +42,6 @@ const Navbar: React.FC = () => {
           >
             Pensieve
           </Link>
-
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/" className="link-underline font-medium">
@@ -48,8 +56,7 @@ const Navbar: React.FC = () => {
             <Link href="/about" className="link-underline font-medium">
               About
             </Link>
-          </nav>
-
+          </nav>{" "}
           <div className="hidden lg:flex items-center space-x-4">
             <div className="relative">
               <Input
@@ -67,16 +74,66 @@ const Navbar: React.FC = () => {
               </Button>
             </div>
 
-            <Link href="/login">
-              <Button variant="outline" className="rounded-full">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button className="rounded-full">Sign Up</Button>
-            </Link>
+            {isLoggedIn ? (
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={user?.avatar}
+                      alt={user?.name || user?.email}
+                    />
+                    <AvatarFallback>
+                      {user?.name?.[0] || user?.email?.[0] || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium">
+                    {user?.name || user?.email}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              // <DropdownMenu>
+              //   <DropdownMenuTrigger asChild>
+              //     <Button
+              //       variant="ghost"
+              //       className="relative h-8 w-8 rounded-full"
+              //     >
+              //       <Avatar className="h-8 w-8">
+              //         <AvatarImage
+              //           src={user?.avatar}
+              //           alt={user?.name || user?.email}
+              //         />
+              //         <AvatarFallback>
+              //           {user?.name?.[0] || user?.email?.[0] || "U"}
+              //         </AvatarFallback>
+              //       </Avatar>
+              //     </Button>
+              //   </DropdownMenuTrigger>
+              //   <DropdownMenuContent className="w-56" align="end" forceMount>
+              //     <DropdownMenuItem asChild>
+              //       <Link href="/profile" className="flex items-center">
+              //         <User className="mr-2 h-4 w-4" />
+              //         Profile
+              //       </Link>
+              //     </DropdownMenuItem>
+              //     <DropdownMenuItem onClick={handleLogout}>
+              //       <LogOut className="mr-2 h-4 w-4" />
+              //       Log out
+              //     </DropdownMenuItem>
+              //   </DropdownMenuContent>
+              // </DropdownMenu>
+              <>
+                <Link href="/login">
+                  <Button variant="outline" className="rounded-full">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button className="rounded-full">Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
-
           {/* Mobile Menu Button */}
           <Button
             variant="ghost"
@@ -125,16 +182,44 @@ const Navbar: React.FC = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               About
-            </Link>
+            </Link>{" "}
             <div className="flex flex-col space-y-2 pt-2 pb-4">
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full rounded-full">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full rounded-full">Sign Up</Button>
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <div className="flex items-center space-x-2 px-2 py-1">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage
+                        src={user?.avatar}
+                        alt={user?.name || user?.email}
+                      />
+                      <AvatarFallback className="text-xs">
+                        {user?.name?.[0] || user?.email?.[0] || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium">
+                      {user?.name || user?.email}
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-full"
+                    onClick={handleLogout}
+                  >
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full rounded-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full rounded-full">Sign Up</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
