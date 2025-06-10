@@ -35,11 +35,11 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
         <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
           <div className="w-full md:w-1/2 lg:w-3/5 relative">
             <div className="relative overflow-hidden rounded-2xl group aspect-[4/3] md:aspect-[16/9]">
-              {/* <img
+              <img
                 src={coverImage}
                 alt={title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              /> */}
+              />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50" />
               <div className="absolute left-6 bottom-6 right-6">
                 <Badge className="mb-3 bg-accent text-white hover:bg-accent/90">

@@ -2,8 +2,8 @@
 import React from "react";
 import Navbar from "@/components/NavBar";
 import Hero from "@/components/Hero";
-import FeaturedArticle from "@/components/FeaturedArticle";
-import ArticleCard from "@/components/ArticleCard";
+import FeaturedArticle from "@/app/(article)/_components/FeaturedArticle";
+import ArticleCard from "@/app/(article)/_components/ArticleCard";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ const featuredArticle: ArticleProps = {
 };
 
 // Mock data for articles
-const articles  = [
+const articles: ArticleProps[] = [
   {
     id: "2",
     title: "The Art of Productivity: Achieving More with Less",

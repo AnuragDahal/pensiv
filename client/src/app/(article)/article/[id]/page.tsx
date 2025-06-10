@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import Navbar from "@/components/NavBar";
@@ -15,7 +15,7 @@ import {
   Calendar,
   Clock,
 } from "lucide-react";
-import ArticleCard from "@/components/ArticleCard";
+import ArticleCard from "@/app/(article)/_components/ArticleCard";
 import { Input } from "@/components/ui/input";
 
 // Mock data for article
