@@ -1,31 +1,10 @@
 "use client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { toast } from "sonner";
+import React from "react";
 import SignupForm from "./_components/signup-form";
 
 const Signup: React.FC = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate signup process
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Account created successfully!");
-      router.push("/");
-    }, 1500);
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -51,9 +30,7 @@ const Signup: React.FC = () => {
               Create an account to start writing and sharing
             </p>
           </div>
-
           <SignupForm />
-
           <div className="mt-8 text-center">
             <p className="text-muted-foreground">
               Already have an account?{" "}
