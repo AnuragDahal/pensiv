@@ -32,6 +32,7 @@ const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   category: z.string().min(1, "Category is required"),
+  shortDescription: z.string().min(1, "Short description is required"),
   tags: z.array(z.string().min(1, "tag cannot be empty")).min(1),
   coverImage: z.string().optional(),
 });
@@ -58,6 +59,7 @@ export default function CreateArticleForm() {
       content: "",
       category: "",
       coverImage: "",
+      shortDescription: "",
       tags: [],
     },
   });
@@ -66,7 +68,7 @@ export default function CreateArticleForm() {
     try {
       setIsLoading(true);
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/articles`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
         values
       );
       toast.success("Article created successfully!");
@@ -152,7 +154,23 @@ export default function CreateArticleForm() {
             </FormItem>
           )}
         />
-
+        <FormField
+          control={form.control}
+          name="shortDescription"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Excerpt</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Write a short description or excerpt for your article..."
+                  className="max-h-[50px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="content"
