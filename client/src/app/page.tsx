@@ -9,8 +9,22 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+interface ArticleProps {
+  id: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  category: string;
+  date: string;
+  estimatedReadTime: number;
+}
+
 // Mock data for featured article
-const featuredArticle = {
+const featuredArticle: ArticleProps = {
   id: "1",
   title: "The Future of Web Design: Minimalism Meets Functionality",
   excerpt:
@@ -28,7 +42,7 @@ const featuredArticle = {
 };
 
 // Mock data for articles
-const articles = [
+const articles  = [
   {
     id: "2",
     title: "The Art of Productivity: Achieving More with Less",
