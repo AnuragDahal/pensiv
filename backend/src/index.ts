@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import { corsOptions } from "./config/cors";
 import { asyncHandler } from "@/shared/utils";
+import { isAuthenticated } from "./middlewares";
 
 dotenv.config();
 
@@ -18,8 +19,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/posts", postsRoutes);
-app.use("/api/comments", commentsRoutes);
+app.use("/api/posts",isAuthenticated, postsRoutes);
+app.use("/api/comments",isAuthenticated, commentsRoutes);
 
 app.get(
   "/",

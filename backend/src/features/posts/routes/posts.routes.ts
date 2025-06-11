@@ -1,11 +1,11 @@
-import { addNewPost, getSinglePost } from "../controllers/posts.controller";
-import { isAuthenticated, zodValidator } from "@/middlewares";
-import { postSchema } from "../schemas/posts.schemas";
+import { zodValidator } from "@/middlewares";
 import { Router } from "express";
+import { addNewPost, getSinglePost } from "../controllers/posts.controller";
+import { postSchema } from "../schemas/posts.schemas";
 
 const router = Router();
 
-router.get("/:id", isAuthenticated, getSinglePost);
-router.post("/", isAuthenticated, zodValidator(postSchema), addNewPost);
+router.get("/:id", getSinglePost);
+router.post("/", zodValidator(postSchema), addNewPost);
 
 export default router;
