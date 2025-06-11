@@ -2,8 +2,10 @@ import React from "react";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
 
 const Hero: React.FC = () => {
+  const { isLoggedIn } = useAuth();
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -42,16 +44,29 @@ const Hero: React.FC = () => {
                 Start Reading
               </Button>
             </Link>
-            <Link href="/signup">
-              <Button
-                variant="outline"
-                className="rounded-full text-base px-6 py-6 group"
-                size="lg"
-              >
-                Start Writing
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
+            {isLoggedIn ? (
+              <Link href="/article/create">
+                <Button
+                  variant="outline"
+                  className="rounded-full text-base px-6 py-6 group"
+                  size="lg"
+                >
+                  Start Writing
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="rounded-full text-base px-6 py-6 group"
+                  size="lg"
+                >
+                  Start Writing
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

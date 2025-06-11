@@ -79,49 +79,22 @@ const Navbar: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={user?.avatar}
-                      alt={user?.name || user?.email}
+                      src={
+                        user?.avatar ||
+                        "https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg"
+                      }
+                      alt={user?.name || user?.email || "User Avatar"}
                     />
                     <AvatarFallback>
                       {user?.name?.[0] || user?.email?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm font-medium">
-                    {user?.name || user?.email}
+                    {user?.name || user?.email || "User"}
                   </span>
                 </div>
               </div>
             ) : (
-              // <DropdownMenu>
-              //   <DropdownMenuTrigger asChild>
-              //     <Button
-              //       variant="ghost"
-              //       className="relative h-8 w-8 rounded-full"
-              //     >
-              //       <Avatar className="h-8 w-8">
-              //         <AvatarImage
-              //           src={user?.avatar}
-              //           alt={user?.name || user?.email}
-              //         />
-              //         <AvatarFallback>
-              //           {user?.name?.[0] || user?.email?.[0] || "U"}
-              //         </AvatarFallback>
-              //       </Avatar>
-              //     </Button>
-              //   </DropdownMenuTrigger>
-              //   <DropdownMenuContent className="w-56" align="end" forceMount>
-              //     <DropdownMenuItem asChild>
-              //       <Link href="/profile" className="flex items-center">
-              //         <User className="mr-2 h-4 w-4" />
-              //         Profile
-              //       </Link>
-              //     </DropdownMenuItem>
-              //     <DropdownMenuItem onClick={handleLogout}>
-              //       <LogOut className="mr-2 h-4 w-4" />
-              //       Log out
-              //     </DropdownMenuItem>
-              //   </DropdownMenuContent>
-              // </DropdownMenu>
               <>
                 <Link href="/login">
                   <Button variant="outline" className="rounded-full">

@@ -19,7 +19,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Set up axios interceptors for automatic token handling
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
-        const { accessToken } = useAuthStore.getState();
+        const { accessToken, refreshToken } = useAuthStore.getState();
         if (accessToken && !isTokenExpired()) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
@@ -44,19 +44,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
             if (refreshToken) {
               const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
-                {},
+                {
+                  refreshToken,
+                },
                 { withCredentials: true }
               );
 
-              const {
-                accessToken: newAccessToken,
-                refreshToken: newRefreshToken,
-              } = response.data.data;
+              const { accessToken: newAccessToken } = response.data.data;
 
               // Update tokens in store
               updateTokens({
                 accessToken: newAccessToken,
-                refreshToken: newRefreshToken,
+                refreshToken: refreshToken, // Keep the existing refresh token
               });
 
               // Retry original request with new token
