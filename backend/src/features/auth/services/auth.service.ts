@@ -1,6 +1,9 @@
+import { APIError } from "@/shared";
 import User from "../models/user.model";
-import { IUser, IUserModel } from "@/types/user";
+import { IUser, IUserModel, UserWithId } from "@/types/user";
 import { Types } from "mongoose";
+import { API_RESPONSES } from "@/constants/responses";
+import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
 
 export const getUsers = () => User.find();
 export const getUserById = (id: string | Types.ObjectId) => User.findById(id);
@@ -31,4 +34,47 @@ export const generateAccessAndRefreshToken = async (
   } catch (error) {
     throw new Error("Error generating tokens");
   }
+};
+
+export const generateAccessToken = async (id: string | Types.ObjectId) => {
+  try {
+    const user = await getUserById(id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const accessToken = user.generateAccessToken();
+    return { accessToken };
+  } catch (error) {
+    throw new Error("Error generating access token");
+  }
+};
+
+export const getRefreshToken = async (userId: string | Types.ObjectId) => {
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user.refreshToken;
+};
+export const validateRefreshToken = async (refreshToken: string) => {
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    throw new APIError(
+      API_RESPONSES.TOKEN_INVALID,
+      HTTP_STATUS_CODES.UNAUTHORIZED
+    );
+  }
+  return user;
+};
+export const getUserByRefreshToken = async (
+  refreshToken: string
+): Promise<UserWithId | null> => {
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    throw new APIError(
+      API_RESPONSES.TOKEN_INVALID,
+      HTTP_STATUS_CODES.UNAUTHORIZED
+    );
+  }
+  return user;
 };

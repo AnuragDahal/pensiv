@@ -39,3 +39,13 @@ export interface ITag {
   name: string;
   posts: string[];
 }
+
+export interface UserWithId extends IUserModel {
+  _id: Types.ObjectId;
+}
+export interface PostWithId extends IPost {
+  _id: Types.ObjectId;
+}
+export interface CommentWithId extends IComment {
+  _id: Types.ObjectId;
+}
