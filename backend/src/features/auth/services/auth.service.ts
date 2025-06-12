@@ -36,19 +36,6 @@ export const generateAccessAndRefreshToken = async (
   }
 };
 
-export const generateAccessToken = async (id: string | Types.ObjectId) => {
-  try {
-    const user = await getUserById(id);
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const accessToken = user.generateAccessToken();
-    return { accessToken };
-  } catch (error) {
-    throw new Error("Error generating access token");
-  }
-};
-
 export const getRefreshToken = async (userId: string | Types.ObjectId) => {
   const user = await getUserById(userId);
   if (!user) {

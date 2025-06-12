@@ -1,21 +1,19 @@
 import { API_RESPONSES } from "@/constants/responses";
 import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
+import { sendResponse } from "@/shared/services/response.service";
 import { APIError, asyncHandler } from "@/shared/utils";
 import {
   generateTokens,
-  generateNewAccessToken,
   setCookies,
   validateUserCredentials,
 } from "@/shared/utils/auth";
-import { sendResponse } from "@/shared/services/response.service";
+import { Request, Response } from "express";
 import {
   createUser,
-  getRefreshToken,
   getUserByEmail,
   getUserByRefreshToken,
-  validateRefreshToken,
+  validateRefreshToken
 } from "../services/auth.service";
-import { Request, Response } from "express";
 
 export const userSignup = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -80,29 +78,20 @@ export const accessTokenRefresh = asyncHandler(
       );
     }
 
-    const newToken = await generateNewAccessToken(user._id.toString());
-    if (!newToken) {
+    const newTokens = await generateTokens(user._id.toString());
+    if (!newTokens) {
       throw new APIError(
         API_RESPONSES.RESOURCE_CREATION_FAILED,
         HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR
       );
     }
 
-    // Only set the access token cookie, keep the existing refresh token
-    const options = {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none" as const,
-      maxAge: 10 * 60 * 60 * 1000,
-    };
-    res.cookie("accessToken", newToken.accessToken, options);
+    setCookies(res, newTokens.accessToken, newTokens.refreshToken);
 
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.OK,
-      data: {
-        accessToken: newToken.accessToken,
-      },
+      data: newTokens.accessToken,
       message: API_RESPONSES.RESOURCE_ACCEPTED,
     });
   }

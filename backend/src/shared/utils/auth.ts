@@ -1,7 +1,6 @@
 import { API_RESPONSES } from "@/constants/responses";
 import {
   generateAccessAndRefreshToken,
-  generateAccessToken,
   getUserByEmail,
 } from "@/features/auth/services/auth.service";
 
@@ -28,14 +27,6 @@ export const generateTokens = async (userId: string) => {
     throw new Error(API_RESPONSES.RESOURCE_CREATION_FAILED);
   }
   return { accessToken, refreshToken };
-};
-
-export const generateNewAccessToken = async (userId: string) => {
-  const { accessToken } = await generateAccessToken(userId);
-  if (!accessToken) {
-    throw new Error(API_RESPONSES.RESOURCE_CREATION_FAILED);
-  }
-  return { accessToken };
 };
 
 export const setCookies = (
