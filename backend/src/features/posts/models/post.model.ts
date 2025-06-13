@@ -14,10 +14,12 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  comments: {
-    type: Array,
-    ref: "Comment",
-  },
+  comments: [
+    {
+      type: Types.ObjectId,
+      ref: "Comment",
+    },
+  ],
   postImage: {
     type: String,
     required: true,

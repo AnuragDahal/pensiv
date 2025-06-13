@@ -1,5 +1,4 @@
 import {
-  getAllComments,
   getSingleComment,
   addNewComment,
   updateComment,
@@ -11,7 +10,7 @@ import { Router } from "express";
 
 const router = Router();
 
-router.get("/", getAllComments);
+// router.get("/", getAllComments);
 router.get("/:id", getSingleComment);
 router.post("/", zodValidator(commentSchema), addNewComment);
 router.put("/:id", zodValidator(commentSchema), updateComment);

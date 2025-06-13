@@ -3,7 +3,11 @@ import { IPost } from "@/types/user";
 import { Types } from "mongoose";
 
 export const getPosts = () => Post.find();
-export const getPostById = (id: string | Types.ObjectId) => Post.findById(id);
+export const getPostById = (id: string | Types.ObjectId) =>
+  Post.findById(id).populate("comments");
+export const getPostsByUserId = (userId: string | Types.ObjectId) =>
+  Post.find({ userId }).populate("comments");
+export const getAllPosts = () => Post.find().populate("comments");
 export const createPost = async (post: IPost) => {
   const newPost = new Post(post);
   await newPost.save({ validateBeforeSave: false });

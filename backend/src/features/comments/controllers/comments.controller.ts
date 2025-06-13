@@ -10,19 +10,20 @@ import {
 } from "../services/comments.service";
 import { sendResponse } from "@/shared/services/response.service";
 import { Request, Response } from "express";
+import { getPostById } from "@/features/posts";
 
-export const getAllComments = asyncHandler(
-  async (req: Request, res: Response) => {
-    const comments = await getComments();
+// export const getAllComments = asyncHandler(
+//   async (req: Request, res: Response) => {
+//     const comments = await getComments();
 
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.OK,
-      data: comments,
-      message: API_RESPONSES.RESOURCE_FETCHED,
-    });
-  }
-);
+//     return sendResponse({
+//       res,
+//       status: HTTP_STATUS_CODES.OK,
+//       data: comments,
+//       message: API_RESPONSES.RESOURCE_FETCHED,
+//     });
+//   }
+// );
 
 export const getSingleComment = asyncHandler(
   async (req: Request, res: Response) => {
@@ -64,7 +65,15 @@ export const addNewComment = asyncHandler(
         HTTP_STATUS_CODES.BAD_REQUEST
       );
     }
-
+    const post = await getPostById(req.body.postId);
+    if (!post) {
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
+    }
+    post.comments.push(comment._id);
+    await post.save();
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.CREATED,

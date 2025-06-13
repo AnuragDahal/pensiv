@@ -39,7 +39,7 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-slow"
             style={{ animationDelay: "200ms" }}
           >
-            <Link href="/articles">
+            <Link href="/article">
               <Button className="rounded-full text-base px-6 py-6" size="lg">
                 Start Reading
               </Button>

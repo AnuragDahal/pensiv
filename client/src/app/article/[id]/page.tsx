@@ -20,7 +20,7 @@ import { CommentsForm } from "../_components/forms/comments-form";
 import CommentCard from "../_components/comment-card";
 
 // Mock data for article
-const article = {
+export const article = {
   id: "1",
   title: "The Future of Web Design: Minimalism Meets Functionality",
   content: `
