@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { cookieUtils } from "@/lib/utils";
 
 // User type
 type User = {
@@ -38,9 +39,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       user: null,
       accessToken: null,
-      refreshToken: null,
-
-      // Login action
+      refreshToken: null, // Login action
       login: (tokens, user) => {
         set({
           isAuthenticated: true,
@@ -48,6 +47,21 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: tokens.refreshToken,
           user: user || null,
         });
+
+        // Set tokens as cookies for middleware access
+        if (typeof document !== "undefined") {
+          // Set httpOnly-like cookies for security (though client-side cookies aren't truly httpOnly)
+          document.cookie = `accessToken=${
+            tokens.accessToken
+          }; Path=/; SameSite=Lax; Secure=${
+            location.protocol === "https:"
+          }; Max-Age=${7 * 24 * 60 * 60}`; // 7 days
+          document.cookie = `refreshToken=${
+            tokens.refreshToken
+          }; Path=/; SameSite=Lax; Secure=${
+            location.protocol === "https:"
+          }; Max-Age=${30 * 24 * 60 * 60}`; // 30 days
+        }
       },
 
       // Logout action
@@ -69,14 +83,26 @@ export const useAuthStore = create<AuthState>()(
       // Set user data
       setUser: (user) => {
         set({ user });
-      },
-
-      // Update tokens
+      }, // Update tokens
       updateTokens: (tokens) => {
         set({
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
         });
+
+        // Update cookies as well
+        if (typeof document !== "undefined") {
+          document.cookie = `accessToken=${
+            tokens.accessToken
+          }; Path=/; SameSite=Lax; Secure=${
+            location.protocol === "https:"
+          }; Max-Age=${7 * 24 * 60 * 60}`;
+          document.cookie = `refreshToken=${
+            tokens.refreshToken
+          }; Path=/; SameSite=Lax; Secure=${
+            location.protocol === "https:"
+          }; Max-Age=${30 * 24 * 60 * 60}`;
+        }
       },
 
       // Check if token is expired
@@ -91,13 +117,34 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           return true;
         }
-      },
-
-      // Initialize auth state
+      }, // Initialize auth state
       initializeAuth: () => {
         const { accessToken, isTokenExpired } = get();
+
+        // Check localStorage first, then cookies as fallback
         if (accessToken && !isTokenExpired()) {
           set({ isAuthenticated: true });
+        } else if (typeof document !== "undefined") {
+          // Check cookies if localStorage doesn't have valid tokens
+          const cookieAccessToken = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("accessToken="))
+            ?.split("=")[1];
+
+          const cookieRefreshToken = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("refreshToken="))
+            ?.split("=")[1];
+
+          if (cookieAccessToken && !isTokenExpired()) {
+            set({
+              isAuthenticated: true,
+              accessToken: cookieAccessToken,
+              refreshToken: cookieRefreshToken,
+            });
+          } else {
+            get().logout();
+          }
         } else {
           get().logout();
         }
