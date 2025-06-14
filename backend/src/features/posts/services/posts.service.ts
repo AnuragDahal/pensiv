@@ -2,7 +2,7 @@ import { Post } from "../models/post.model";
 import { IPost } from "@/types/user";
 import { Types } from "mongoose";
 
-export const getPosts = () => Post.find();
+export const getPosts = (filter: any = {}) => Post.find(filter);
 export const getPostById = (id: string | Types.ObjectId) =>
   Post.findById(id).populate("comments");
 export const getPostsByUserId = (userId: string | Types.ObjectId) =>

@@ -4,8 +4,10 @@ import { APIError, asyncHandler } from "@/shared/utils";
 import {
   createPost,
   getPostById,
+  getPosts,
   getPostsByUserId,
 } from "../services/posts.service";
+import { Post } from "../models/post.model";
 import { sendResponse } from "@/shared/services/response.service";
 import { Request, Response } from "express";
 
@@ -42,7 +44,14 @@ export const getSinglePost = asyncHandler(
   async (req: Request, res: Response) => {
     const post = await getPostById(req.params.id)
       .select("-__v")
-      .populate("comments");
+      .populate({
+        path: "comments",
+        populate: {
+          path: "userId",
+          select: "name email avatar",
+        },
+      })
+      .populate("userId", "name email avatar");
     if (!post) {
       throw new APIError(
         API_RESPONSES.RESOURCE_NOT_FOUND,
@@ -67,10 +76,15 @@ export const getAllPostsOfAuthenticatedUser = asyncHandler(
         HTTP_STATUS_CODES.UNAUTHORIZED
       );
     }
-
     const posts = await getPostsByUserId(req.user._id)
       .select("-__v")
-      .populate("comments");
+      .populate({
+        path: "comments",
+        populate: {
+          path: "userId",
+          select: "name email",
+        },
+      });
 
     if (!posts || posts.length === 0) {
       throw new APIError(
@@ -96,10 +110,15 @@ export const getAllPostByUserId = asyncHandler(
         HTTP_STATUS_CODES.BAD_REQUEST
       );
     }
-
     const posts = await getPostsByUserId(userId)
       .select("-__v")
-      .populate("comments");
+      .populate({
+        path: "comments",
+        populate: {
+          path: "userId",
+          select: "name email",
+        },
+      });
 
     if (!posts || posts.length === 0) {
       throw new APIError(
@@ -113,6 +132,77 @@ export const getAllPostByUserId = asyncHandler(
       status: HTTP_STATUS_CODES.OK,
       message: API_RESPONSES.RESOURCE_FETCHED,
       data: posts,
+    });
+  }
+);
+
+export const fetchAllPosts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { ...filters } = req.query;
+
+    // Build filter object
+    const filter: any = {};
+
+    // Search functionality - search in title, content, and shortDescription
+    if (filters.search) {
+      filter.$or = [
+        { title: { $regex: filters.search, $options: "i" } },
+        { content: { $regex: filters.search, $options: "i" } },
+        { shortDescription: { $regex: filters.search, $options: "i" } },
+      ];
+    }
+
+    // Filter by tags
+    if (filters.tags) {
+      filter.tags = { $regex: filters.tags, $options: "i" };
+    }
+
+    // Build sort object
+    const sort: any = {};
+    if (filters.sortBy) {
+      const order = filters.sortOrder === "desc" ? -1 : 1;
+      sort[filters.sortBy as string] = order;
+    } else {
+      sort.createdAt = -1; // Default sort by creation date, newest first
+    }
+
+    // Pagination
+    const pageNum = parseInt(filters.page as string, 10) || 1;
+    const limitNum = parseInt(filters.limit as string, 10) || 10;
+    const skip = (pageNum - 1) * limitNum; // Execute query
+    const posts = await getPosts(filter)
+      .select("-__v")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "userId",
+          select: "name email",
+        },
+      })
+      .populate("userId", "name email")
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum);
+    // Get total count for pagination
+    const totalPosts = await Post.countDocuments(filter);
+    const totalPages = Math.ceil(totalPosts / limitNum);
+
+    const responseData = {
+      posts,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalPosts,
+        hasNextPage: pageNum < totalPages,
+        hasPrevPage: pageNum > 1,
+      },
+    };
+
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.OK,
+      message: API_RESPONSES.RESOURCE_FETCHED,
+      data: responseData,
     });
   }
 );
