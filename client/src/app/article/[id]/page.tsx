@@ -186,7 +186,8 @@ const relatedArticles = [
 
 const Article = () => {
   const { id } = useParams();
-  const { accessToken } = useAuthStore((state) => state);
+  const { getTokens } = useAuthStore();
+  const { accessToken, refreshToken } = getTokens();
   const [article, setArticle] = useState<Article>({
     id: "",
     title: "",

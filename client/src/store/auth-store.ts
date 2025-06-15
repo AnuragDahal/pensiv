@@ -26,6 +26,10 @@ type AuthState = {
   logout: () => void;
   setUser: (user: User) => void;
   updateTokens: (tokens: { accessToken: string; refreshToken: string }) => void;
+  getTokens: () => {
+    accessToken: string | null;
+    refreshToken: string | null;
+  };
 
   // Session check
   isTokenExpired: () => boolean;
@@ -167,6 +171,13 @@ export const useAuthStore = create<AuthState>()(
             });
           }
         }
+      },
+      getTokens: () => {
+        const { accessToken, refreshToken } = get();
+        return {
+          accessToken: accessToken || null,
+          refreshToken: refreshToken || null,
+        };
       },
     }),
     {
