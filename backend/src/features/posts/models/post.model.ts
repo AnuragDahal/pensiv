@@ -1,37 +1,49 @@
 import mongoose, { Types } from "mongoose";
 
-const postSchema = new mongoose.Schema({
-  userId: {
-    type: Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  shortDescription: {
-    type: String,
-    required: true,
-  },
-  comments: [
-    {
+const postSchema = new mongoose.Schema(
+  {
+    userId: {
       type: Types.ObjectId,
-      ref: "Comment",
+      ref: "User",
+      required: true,
     },
-  ],
-  postImage: {
-    type: String,
-    required: true,
+    title: {
+      type: String,
+      required: true,
+    },
+    shortDescription: {
+      type: String,
+      required: true,
+    },
+    comments: [
+      {
+        type: Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
+    postImage: {
+      type: String,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    tags: {
+      type: String,
+      required: false,
+    },
   },
-  content: {
-    type: String,
-    required: true,
-  },
-  tags: {
-    type: String,
-    required: false,
-  },
-});
+  {
+    timestamps: true, // Automatically manage createdAt and updatedAt fields
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v; // Exclude version key
+      },
+    },
+  }
+);
 
 export const Post = mongoose.model("Post", postSchema);
