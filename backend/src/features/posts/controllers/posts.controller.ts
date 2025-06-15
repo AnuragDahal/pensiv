@@ -51,7 +51,7 @@ export const getSinglePost = asyncHandler(
           select: "name email avatar",
         },
       })
-      .populate("userId", "name email avatar");
+      .populate("userId", "name email avatar bio");
     if (!post) {
       throw new APIError(
         API_RESPONSES.RESOURCE_NOT_FOUND,
