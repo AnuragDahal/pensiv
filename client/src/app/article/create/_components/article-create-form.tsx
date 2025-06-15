@@ -72,7 +72,7 @@ export default function CreateArticleForm() {
         values
       );
       toast.success("Article created successfully!");
-      router.push(`/article/${res.data.id}`);
+      router.push(`/article/${res.data.data.id}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create article");
     } finally {

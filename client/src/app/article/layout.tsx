@@ -10,11 +10,9 @@ interface ArticleLayoutProps {
 export default function ArticleLayout({ children }: ArticleLayoutProps) {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </div>
+      <Navbar />
+      <div className="mt-10 pb-6">{children}</div>
+      <Footer />
     </ProtectedRoute>
   );
 }

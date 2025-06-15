@@ -4,10 +4,10 @@ import { Heart } from "lucide-react";
 
 interface CommentCardProps {
   name: string;
-  avatar: string;
+  avatar?: string;
   date: string;
   content: string;
-  likes: number;
+  likes?: number;
 }
 
 const CommentCard = ({ ...props }: CommentCardProps) => {
@@ -26,7 +26,7 @@ const CommentCard = ({ ...props }: CommentCardProps) => {
         <div className="mt-2 flex items-center gap-4">
           <button className="text-xs text-muted-foreground flex items-center hover:text-foreground">
             <Heart className="h-3 w-3 mr-1" />
-            {props.likes}
+            {props.likes ?? 0}
           </button>
           <button className="text-xs text-muted-foreground hover:text-foreground">
             Reply

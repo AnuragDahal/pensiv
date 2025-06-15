@@ -19,8 +19,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Set up axios interceptors for automatic token handling
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
-        const { accessToken, refreshToken } = useAuthStore.getState();
-        if (accessToken && !isTokenExpired()) {
+        const { accessToken, isAuthenticated } = useAuthStore.getState();
+        if (
+          accessToken &&
+          accessToken !== "null" &&
+          accessToken !== "undefined" &&
+          isAuthenticated &&
+          !isTokenExpired()
+        ) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
         // Always include credentials for cookie-based auth
@@ -39,32 +45,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
           originalRequest._retry = true;
 
           try {
-            // Attempt to refresh token
             const { refreshToken } = useAuthStore.getState();
-            if (refreshToken) {
-              const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
-                {
-                  refreshToken,
-                },
-                { withCredentials: true }
-              );
 
-              const { accessToken: newAccessToken } = response.data.data;
+            if (
+              !refreshToken ||
+              refreshToken === "null" ||
+              refreshToken === "undefined"
+            ) {
+              throw new Error("No refresh token available");
+            }
 
-              // Update tokens in store
+            // Attempt to refresh token
+            const response = await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
+              { refreshToken },
+              { withCredentials: true }
+            );
+
+            const {
+              accessToken: newAccessToken,
+              refreshToken: newRefreshToken,
+            } = response.data;
+
+            if (newAccessToken && newRefreshToken) {
               updateTokens({
                 accessToken: newAccessToken,
-                refreshToken: refreshToken, // Keep the existing refresh token
+                refreshToken: newRefreshToken,
               });
 
               // Retry original request with new token
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
               return axios(originalRequest);
+            } else {
+              throw new Error("Invalid token response");
             }
           } catch (refreshError) {
-            // Refresh failed, logout user
+            console.error("Token refresh failed:", refreshError);
             logout();
+            // Redirect to login if needed
             window.location.href = "/login";
           }
         }

@@ -108,45 +108,64 @@ export const useAuthStore = create<AuthState>()(
       // Check if token is expired
       isTokenExpired: () => {
         const { accessToken } = get();
-        if (!accessToken) return true;
+        if (
+          !accessToken ||
+          accessToken === "null" ||
+          accessToken === "undefined"
+        ) {
+          return true;
+        }
 
         try {
           const payload = JSON.parse(atob(accessToken.split(".")[1]));
           const currentTime = Date.now() / 1000;
           return payload.exp < currentTime;
-        } catch {
+        } catch (error) {
+          console.error("Error parsing token:", error);
           return true;
         }
       }, // Initialize auth state
+
       initializeAuth: () => {
-        const { accessToken, isTokenExpired } = get();
+        const storedData = localStorage.getItem("auth-storage");
+        if (storedData) {
+          try {
+            const parsed = JSON.parse(storedData);
+            const { accessToken, refreshToken, user, isAuthenticated } =
+              parsed.state || parsed;
 
-        // Check localStorage first, then cookies as fallback
-        if (accessToken && !isTokenExpired()) {
-          set({ isAuthenticated: true });
-        } else if (typeof document !== "undefined") {
-          // Check cookies if localStorage doesn't have valid tokens
-          const cookieAccessToken = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("accessToken="))
-            ?.split("=")[1];
-
-          const cookieRefreshToken = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("refreshToken="))
-            ?.split("=")[1];
-
-          if (cookieAccessToken && !isTokenExpired()) {
+            // Validate tokens are not null/undefined
+            if (
+              accessToken &&
+              accessToken !== "null" &&
+              refreshToken &&
+              refreshToken !== "null"
+            ) {
+              set({
+                accessToken,
+                refreshToken,
+                user,
+                isAuthenticated: true,
+              });
+            } else {
+              // Clear invalid tokens
+              set({
+                accessToken: null,
+                refreshToken: null,
+                user: null,
+                isAuthenticated: false,
+              });
+              localStorage.removeItem("auth-storage");
+            }
+          } catch (error) {
+            console.error("Error parsing auth data:", error);
             set({
-              isAuthenticated: true,
-              accessToken: cookieAccessToken,
-              refreshToken: cookieRefreshToken,
+              accessToken: null,
+              refreshToken: null,
+              user: null,
+              isAuthenticated: false,
             });
-          } else {
-            get().logout();
           }
-        } else {
-          get().logout();
         }
       },
     }),
