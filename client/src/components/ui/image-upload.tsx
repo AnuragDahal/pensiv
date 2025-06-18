@@ -7,6 +7,7 @@ import { Label } from "./label";
 import { Upload, X, Loader2 } from "lucide-react";
 import { uploadImage } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface ImageUploadProps {
   onImageUpload: (url: string) => void;
@@ -59,7 +60,7 @@ export default function ImageUpload({
         toast.error("Failed to upload image");
         setPreview(currentImage || null);
       }
-    } catch (error) {
+    } catch {
       toast.error("Upload failed");
       setPreview(currentImage || null);
     } finally {
@@ -110,10 +111,13 @@ export default function ImageUpload({
       <div className="mt-2">
         {preview ? (
           <div className="relative group">
-            <img
+            <Image
               src={preview}
               alt="Preview"
               className="w-full h-48 object-cover rounded-lg border"
+              fill
+              sizes="100vw"
+              priority
             />
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
               <Button

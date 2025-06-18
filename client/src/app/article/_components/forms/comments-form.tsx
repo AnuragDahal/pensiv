@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -24,7 +23,7 @@ interface CommentsFormProps {
 export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { user, accessToken } = useAuthStore(); // Get user and token from store
-  
+
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
     defaultValues: {
@@ -36,9 +35,9 @@ export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
   const onSubmit = async (data: z.infer<typeof commentSchema>) => {
     try {
       setIsLoading(true);
-      
+
       // Use correct API endpoint and token
-      const response = await axios.post(
+      await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
         data,
         {
@@ -48,17 +47,22 @@ export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
           },
         }
       );
-      
+
       form.reset();
       toast.success("Comment submitted successfully!");
-      
+
       // Call callback to refresh comments
       if (onCommentAdded) {
         onCommentAdded();
       }
-    } catch (error: any) {
-      console.error("Comment submission error:", error);
-      toast.error(error.response?.data?.message || "Failed to submit comment");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message || "Failed to submit comment"
+        );
+      } else {
+        toast.error("Failed to submit comment");
+      }
     } finally {
       setIsLoading(false);
     }

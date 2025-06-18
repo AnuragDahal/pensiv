@@ -50,7 +50,12 @@ export default function SignupForm() {
       );
       toast.success(res.data.message);
       router.push("/login");
-    } catch (error) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Signup failed");
+      } else {
+        toast.error("Signup failed");
+      }
     } finally {
       setIsLoading(false);
     }
