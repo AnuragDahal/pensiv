@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { useAuthStore } from "@/store/auth-store";
 
 const commentSchema = z.object({
   content: z.string().min(1, "Comment content is required"),
@@ -16,28 +18,49 @@ const commentSchema = z.object({
 
 interface CommentsFormProps {
   postId: string;
+  onCommentAdded?: () => void; // Add callback for refresh
 }
 
-export const CommentsForm = ({ postId }: CommentsFormProps) => {
+export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { user, accessToken } = useAuthStore(); // Get user and token from store
+  
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
     defaultValues: {
       content: "",
-      postId, // Using the postId prop that was passed in
+      postId,
     },
   });
 
   const onSubmit = async (data: z.infer<typeof commentSchema>) => {
     try {
-      await axios.post("/api/comments", data, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      setIsLoading(true);
+      
+      // Use correct API endpoint and token
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
+        data,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      
       form.reset();
       toast.success("Comment submitted successfully!");
+      
+      // Call callback to refresh comments
+      if (onCommentAdded) {
+        onCommentAdded();
+      }
     } catch (error: any) {
-      toast.error(error.response.data?.message || "Failed to submit comment");
+      console.error("Comment submission error:", error);
+      toast.error(error.response?.data?.message || "Failed to submit comment");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -52,24 +75,26 @@ export const CommentsForm = ({ postId }: CommentsFormProps) => {
               <div className="flex items-start gap-3">
                 <Avatar className="h-10 w-10 mt-1">
                   <AvatarImage
-                    src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&auto=format&fit=crop&q=60"
-                    alt="Your avatar"
+                    src={user?.avatar}
+                    alt={user?.name || "Your avatar"}
                   />
-                  <AvatarFallback>Y</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <Input
+                  <Textarea
                     {...field}
                     placeholder="Add a comment..."
-                    className="min-h-20 border rounded-lg py-3 px-4 w-full"
+                    className="min-h-20 border rounded-lg py-3 px-4 w-full resize-none"
                   />
                   <div className="mt-3 flex justify-end">
                     <Button
                       type="submit"
-                      disabled={!field.value}
+                      disabled={!field.value.trim() || isLoading}
                       className="bg-blue-600 text-white hover:bg-blue-700"
                     >
-                      Submit
+                      {isLoading ? "Submitting..." : "Post"}
                     </Button>
                   </div>
                 </div>

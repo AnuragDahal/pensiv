@@ -1,14 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import ArticleCard from "./_components/ArticleCard";
 import axios from "axios";
 
 const Articles = () => {
   useEffect(() => {
-    const res = axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`);
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`);
   }, []);
-
-  const [article, setArticle] = useState([]);
 
   return (
     <div className="mt-14 pt-4 md:pt-6 lg:pt-8 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

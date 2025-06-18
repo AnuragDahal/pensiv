@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
 import { useImageUpload } from "../hooks/use-image-upload";
+import Image from "next/image";
 
 interface ImageUploadFieldProps {
   onChange: (file?: File) => void;
@@ -63,10 +64,13 @@ export function ImageUploadField({ onChange }: ImageUploadFieldProps) {
             </div>
           ) : (
             <div className="relative rounded-xl overflow-hidden aspect-[2/1]">
-              <img
+              <Image
                 src={coverImage}
                 alt="Cover preview"
                 className="w-full h-full object-cover"
+                fill
+                sizes="100vw"
+                priority
               />
               <Button
                 type="button"

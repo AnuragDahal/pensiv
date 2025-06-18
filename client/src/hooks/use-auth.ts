@@ -13,7 +13,7 @@ export function useAuth() {
     accessToken,
     login,
     logout: storeLogout,
-    setUser,
+    // setUser,
     isTokenExpired,
   } = useAuthStore();
 

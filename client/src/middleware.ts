@@ -22,7 +22,6 @@ function isTokenExpired(token: string): boolean {
 function isAuthenticated(request: NextRequest): boolean {
   // Check for tokens in cookies first
   const accessTokenFromCookie = request.cookies.get("accessToken")?.value;
-  const refreshTokenFromCookie = request.cookies.get("refreshToken")?.value;
 
   if (accessTokenFromCookie && !isTokenExpired(accessTokenFromCookie)) {
     return true;

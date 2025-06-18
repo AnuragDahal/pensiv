@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
+import Image from "next/image";
 
 interface ArticleCardProps {
   id: string;
@@ -38,11 +39,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         }`}
       >
         <div className="relative aspect-video overflow-hidden">
-          <img
+          <Image
             src={coverImage}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
+            fill
+            sizes="100vw"
+            priority={featured}
           />
           <div className="absolute top-4 left-4">
             <Badge className="bg-accent text-white hover:bg-accent/90">

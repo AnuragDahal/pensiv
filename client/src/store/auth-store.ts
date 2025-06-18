@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { cookieUtils } from "@/lib/utils";
 
 // User type
 type User = {

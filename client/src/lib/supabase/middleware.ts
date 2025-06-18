@@ -9,8 +9,7 @@ export const createClient = (request: NextRequest) => {
       headers: request.headers,
     },
   });
-
-  const supabase = createServerClient(
+  createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Navbar from "@/components/NavBar";
-import Footer from "@/components/Footer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +19,7 @@ import CommentCard from "../_components/comment-card";
 import axios from "axios";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
+import Image from "next/image";
 
 // Mock data for article
 // export const article = {
@@ -187,7 +186,7 @@ const relatedArticles = [
 const Article = () => {
   const { id } = useParams();
   const { getTokens } = useAuthStore();
-  const { accessToken, refreshToken } = getTokens();
+  const { accessToken } = getTokens();
   const [article, setArticle] = useState<Article>({
     id: "",
     title: "",
@@ -246,7 +245,7 @@ const Article = () => {
     };
 
     fetchArticle();
-  }, [id]);
+  }, [id, accessToken]);
 
   const handleLike = () => {
     if (isLiked) {
@@ -301,10 +300,12 @@ const Article = () => {
               </div>
 
               <div className="relative aspect-[2/1] rounded-xl overflow-hidden mb-8">
-                <img
+                <Image
                   src={article.coverImage}
                   alt={article.title}
                   className="w-full h-full object-cover"
+                  width={1920}
+                  height={1080}
                 />
               </div>
             </div>

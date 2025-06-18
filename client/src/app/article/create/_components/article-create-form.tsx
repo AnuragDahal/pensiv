@@ -67,14 +67,20 @@ export default function CreateArticleForm() {
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
     try {
       setIsLoading(true);
-      const res = await axios.post(
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
         values
       );
       toast.success("Article created successfully!");
-      router.push(`/article/${res.data.data.id}`);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create article");
+      router.push(`/article/${response.data.data.id}`);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message || "Failed to create article"
+        );
+      } else {
+        toast.error("Failed to create article");
+      }
     } finally {
       setIsLoading(false);
     }
