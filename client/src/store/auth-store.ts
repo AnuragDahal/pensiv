@@ -148,7 +148,7 @@ export const useAuthStore = create<AuthState>()(
                 accessToken,
                 refreshToken,
                 user,
-                isAuthenticated: true,
+                // Removed: isAuthenticated: true,
               });
             } else {
               // Clear invalid tokens
@@ -156,7 +156,7 @@ export const useAuthStore = create<AuthState>()(
                 accessToken: null,
                 refreshToken: null,
                 user: null,
-                isAuthenticated: false,
+                // Removed: isAuthenticated: false,
               });
               localStorage.removeItem("auth-storage");
             }
@@ -186,7 +186,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
+        // Removed: isAuthenticated: state.isAuthenticated,
       }),
     }
   )
