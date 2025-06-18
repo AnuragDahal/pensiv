@@ -134,8 +134,7 @@ export const useAuthStore = create<AuthState>()(
         if (storedData) {
           try {
             const parsed = JSON.parse(storedData);
-            const { accessToken, refreshToken, user, isAuthenticated } =
-              parsed.state || parsed;
+            const { accessToken, refreshToken, user } = parsed.state || parsed;
 
             // Validate tokens are not null/undefined
             if (
@@ -148,7 +147,7 @@ export const useAuthStore = create<AuthState>()(
                 accessToken,
                 refreshToken,
                 user,
-                // Removed: isAuthenticated: true,
+                isAuthenticated: true,
               });
             } else {
               // Clear invalid tokens
@@ -156,7 +155,7 @@ export const useAuthStore = create<AuthState>()(
                 accessToken: null,
                 refreshToken: null,
                 user: null,
-                // Removed: isAuthenticated: false,
+                isAuthenticated: false,
               });
               localStorage.removeItem("auth-storage");
             }
@@ -186,7 +185,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
-        // Removed: isAuthenticated: state.isAuthenticated,
+        isAuthenticated: state.isAuthenticated,
       }),
     }
   )
