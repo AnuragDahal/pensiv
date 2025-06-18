@@ -1,11 +1,13 @@
-jobs:
-on: [ push, pull_request ]
 name: GitGuardian Secret Scanning
-ggshield:
-  runs-on: ubuntu-latest
-  steps:
-  - uses: actions/checkout@v4
-  - name: Scan for secrets with GitGuardian
-    uses: GitGuardian/ggshield-action@v1.23.0
-    env:
-      GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+on: [ push, pull_request ]
+
+jobs:
+  ggshield:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Scan for secrets with GitGuardian
+      uses: GitGuardian/ggshield-action@v1.23.0
+      env:
+        GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
