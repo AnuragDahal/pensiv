@@ -10,10 +10,11 @@ import { corsOptions } from "./config/cors";
 import { asyncHandler } from "./shared/utils";
 import { isAuthenticated } from "./middlewares";
 
+// Types are loaded automatically by TypeScript - no need to import
+
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors(corsOptions));
 app.use(express.json());

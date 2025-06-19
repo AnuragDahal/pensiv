@@ -1,6 +1,6 @@
 import { Comments } from "../models/comment.model";
 import { Post } from "../../posts/models/post.model";
-import { IComment } from "@/types/user";
+import { IComment } from "../../../types/user";
 import { Types } from "mongoose";
 
 export const getComments = () => Comments.find();

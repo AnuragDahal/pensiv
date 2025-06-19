@@ -4,7 +4,7 @@ import {
   updateComment,
   deleteComment,
 } from "../controllers/comments.controller";
-import { zodValidator } from "@/middlewares";
+import { zodValidator } from "../../../middlewares";
 import { commentSchema } from "../schemas/comments.schemas";
 import { Router } from "express";
 
