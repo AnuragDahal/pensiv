@@ -7,7 +7,7 @@
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "dev": "nodemon",
     "build": "tsc && tsc-alias",
-    "prod": "node dist/index.js",
+    "prod": "node -r tsconfig-paths/register dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -33,6 +33,7 @@
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
     "mongoose": "^8.9.5",
     "tsc-alias": "^1.8.16",
     "zod": "^3.24.1"

@@ -1,5 +1,5 @@
 import { Post } from "../models/post.model";
-import { IPost } from "@/types/user";
+import { IPost } from "../../../types/user";
 import { Types } from "mongoose";
 
 export const getPosts = (filter: any = {}) => Post.find(filter);

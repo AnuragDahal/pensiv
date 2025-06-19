@@ -1,9 +1,9 @@
-import { APIError } from "@/shared";
+import { APIError } from "../../../shared";
 import User from "../models/user.model";
-import { IUser, IUserModel, UserWithId } from "@/types/user";
+import { IUser, IUserModel, UserWithId } from "../../../types/user";
 import { Types } from "mongoose";
-import { API_RESPONSES } from "@/constants/responses";
-import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
+import { API_RESPONSES } from "../../../constants/responses";
+import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
 
 export const getUsers = () => User.find();
 export const getUserById = (id: string | Types.ObjectId) => User.findById(id);

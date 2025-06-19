@@ -1,4 +1,4 @@
-import { IResponseData } from "@/types/response";
+import { IResponseData } from "../../types/response";
 
 export const sendResponse = (data: IResponseData) => {
   const { res, status, message, data: responseData, error } = data;

@@ -1,6 +1,6 @@
-import { API_RESPONSES } from "@/constants/responses";
-import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { APIError, asyncHandler } from "@/shared/utils";
+import { API_RESPONSES } from "../../../constants/responses";
+import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
+import { APIError, asyncHandler } from "../../../shared/utils";
 import {
   createPost,
   getPostById,
@@ -8,7 +8,7 @@ import {
   getPostsByUserId,
 } from "../services/posts.service";
 import { Post } from "../models/post.model";
-import { sendResponse } from "@/shared/services/response.service";
+import { sendResponse } from "../../../shared/services/response.service";
 import { Request, Response } from "express";
 
 export const addNewPost = asyncHandler(async (req: Request, res: Response) => {

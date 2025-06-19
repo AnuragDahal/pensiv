@@ -1,6 +1,6 @@
-import { API_RESPONSES } from "@/constants/responses";
-import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { APIError, asyncHandler } from "@/shared/utils";
+import { API_RESPONSES } from "../../../constants/responses";
+import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
+import { APIError, asyncHandler } from "../../../shared/utils";
 import {
   createComment,
   getCommentById,
@@ -8,9 +8,9 @@ import {
   deleteCommentById,
   updateCommentById,
 } from "../services/comments.service";
-import { sendResponse } from "@/shared/services/response.service";
+import { sendResponse } from "../../../shared/services/response.service";
 import { Request, Response } from "express";
-import { getPostById } from "@/features/posts";
+import { getPostById } from "../../../features/posts";
 
 // export const getAllComments = asyncHandler(
 //   async (req: Request, res: Response) => {

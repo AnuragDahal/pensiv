@@ -1,8 +1,8 @@
-import { API_RESPONSES } from "@/constants/responses";
+import { API_RESPONSES } from "../../constants/responses";
 import {
   generateAccessAndRefreshToken,
   getUserByEmail,
-} from "@/features/auth/services/auth.service";
+} from "../../features/auth/services/auth.service";
 
 export const validateUserCredentials = async (
   email: string,

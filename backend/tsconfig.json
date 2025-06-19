@@ -12,6 +12,9 @@
       "@/*": ["src/*"]
     }
   },
+  "_moduleAliases": {
+    "@": "./dist"
+  },
   "tsc-alias": {
     "resolveFullPaths": true
   },

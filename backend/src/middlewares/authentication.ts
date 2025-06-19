@@ -1,8 +1,8 @@
-import { API_RESPONSES } from "@/constants/responses";
-import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { env } from "@/config/env";
-import { APIError } from "@/shared/utils";
-import { sendResponse } from "@/shared/services/response.service";
+import { API_RESPONSES } from "../constants/responses";
+import { HTTP_STATUS_CODES } from "../constants/statusCodes";
+import { env } from "../config/env";
+import { APIError } from "../shared/utils";
+import { sendResponse } from "../shared/services/response.service";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 

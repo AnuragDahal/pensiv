@@ -1,12 +1,12 @@
-import { API_RESPONSES } from "@/constants/responses";
-import { HTTP_STATUS_CODES } from "@/constants/statusCodes";
-import { sendResponse } from "@/shared/services/response.service";
-import { APIError, asyncHandler } from "@/shared/utils";
+import { API_RESPONSES } from "../../../constants/responses";
+import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
+import { sendResponse } from "../../../shared/services/response.service";
+import { APIError, asyncHandler } from "../../../shared/utils";
 import {
   generateTokens,
   setCookies,
   validateUserCredentials,
-} from "@/shared/utils/auth";
+} from "../../../shared/utils/auth";
 import { Request, Response } from "express";
 import {
   createUser,

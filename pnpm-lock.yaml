@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      module-alias:
+        specifier: ^2.2.3
+        version: 2.2.3
     devDependencies:
       husky:
         specifier: ^9.1.7
@@ -19,6 +23,11 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  module-alias@2.2.3:
+    resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
+
 snapshots:
 
   husky@9.1.7: {}
+
+  module-alias@2.2.3: {}

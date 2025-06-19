@@ -1,12 +1,13 @@
-import { connect } from "@/shared/database";
-import { authRoutes, postsRoutes, commentsRoutes } from "@/features";
-import { gracefulShutdown } from "@/shared/database/gracefulShutdown";
+import "module-alias/register";
+import { connect } from "./shared/database";
+import { authRoutes, postsRoutes, commentsRoutes } from "./features";
+import { gracefulShutdown } from "./shared/database/gracefulShutdown";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import { corsOptions } from "./config/cors";
-import { asyncHandler } from "@/shared/utils";
+import { asyncHandler } from "./shared/utils";
 import { isAuthenticated } from "./middlewares";
 
 dotenv.config();
@@ -33,9 +34,6 @@ connect()
         res.send("Hello, World!");
       })
     );
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
   })
   .catch((error: Error) => {
     console.error("Failed to connect to MongoDB:", error);
@@ -50,3 +48,5 @@ if (process.env.VERCEL || process.env.SERVERLESS) {
     });
   });
 }
+
+export default app;

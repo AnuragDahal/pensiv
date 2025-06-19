@@ -1,4 +1,4 @@
-import { zodValidator } from "@/middlewares";
+import { zodValidator }  from "../../../middlewares/zod";
 import { Router } from "express";
 import {
   addNewPost,
