@@ -1,5 +1,6 @@
 import { connect } from "@/shared/database";
 import { authRoutes, postsRoutes, commentsRoutes } from "@/features";
+import { gracefulShutdown } from "@/shared/database/gracefulShutdown";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -18,8 +19,20 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+// Ensure DB connection before mounting routes
 connect()
   .then(() => {
+    // Mount routes only after DB connection
+    app.use("/api/auth", authRoutes);
+    app.use("/api/posts", isAuthenticated, postsRoutes);
+    app.use("/api/comments", isAuthenticated, commentsRoutes);
+
+    app.get(
+      "/",
+      asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+        res.send("Hello, World!");
+      })
+    );
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
@@ -28,13 +41,12 @@ connect()
     console.error("Failed to connect to MongoDB:", error);
   });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/posts", isAuthenticated, postsRoutes);
-app.use("/api/comments", isAuthenticated, commentsRoutes);
-
-app.get(
-  "/",
-  asyncHandler(async (_req: Request, res: Response): Promise<void> => {
-    res.send("Hello, World!");
-  })
-);
+// Graceful shutdown for serverless (Vercel, etc.)
+if (process.env.VERCEL || process.env.SERVERLESS) {
+  ["SIGINT", "SIGTERM", "SIGUSR2"].forEach((signal) => {
+    process.on(signal, async () => {
+      await gracefulShutdown(signal);
+      process.exit(0);
+    });
+  });
+}

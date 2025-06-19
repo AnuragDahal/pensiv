@@ -13,14 +13,14 @@ export const zodValidator = (schema: ZodSchema) => {
       if (error instanceof ZodError) {
         const firstError = error.errors[0]; // Get the first error
         const formattedError = {
-          field: firstError.path.join("."),
+          field: firstError.path.join("."), 
           message: firstError.message,
         };
         return sendResponse({
           res,
           status: HTTP_STATUS_CODES.BAD_REQUEST,
           error: formattedError,
-          message: API_RESPONSES.BAD_REQUEST,
+          message: firstError.message,
         });
       }
       return sendResponse({
