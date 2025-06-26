@@ -41,6 +41,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         <div className="relative aspect-video overflow-hidden">
           <Image
             src={coverImage}
+            title={title}
+            aria-label="Article Cover Image"
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             fill

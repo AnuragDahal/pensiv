@@ -47,10 +47,10 @@ const Navbar: React.FC = () => {
             <Link href="/" className="link-underline font-medium">
               Home
             </Link>
-            <Link href="/articles" className="link-underline font-medium">
+            <Link href="/article" className="link-underline font-medium">
               Articles
             </Link>
-            <Link href="/create" className="link-underline font-medium">
+            <Link href="/article/create" className="link-underline font-medium">
               Write
             </Link>
             <Link href="/about" className="link-underline font-medium">
@@ -136,7 +136,7 @@ const Navbar: React.FC = () => {
               Home
             </Link>
             <Link
-              href="/articles"
+              href="/article"
               className="py-2 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
