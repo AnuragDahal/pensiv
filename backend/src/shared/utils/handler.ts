@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { sendResponse } from "../services/response.service";
-import { HTTP_STATUS_CODES } from "../../constants/statusCodes";
+import { NextFunction, Request, Response } from "express";
 import { API_RESPONSES } from "../../constants/responses";
+import { HTTP_STATUS_CODES } from "../../constants/statusCodes";
+import { sendResponse } from "../services/response.service";
 
 type AsyncFunction = (
   req: Request,

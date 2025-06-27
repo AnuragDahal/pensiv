@@ -1,16 +1,15 @@
+import { Request, Response } from "express";
 import { API_RESPONSES } from "../../../constants/responses";
 import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
+import { getPostById } from "../../../features/posts";
+import { sendResponse } from "../../../shared/services/response.service";
 import { APIError, asyncHandler } from "../../../shared/utils";
 import {
   createComment,
-  getCommentById,
-  getComments,
   deleteCommentById,
-  updateCommentById,
+  getCommentById,
+  updateCommentById
 } from "../services/comments.service";
-import { sendResponse } from "../../../shared/services/response.service";
-import { Request, Response } from "express";
-import { getPostById } from "../../../features/posts";
 
 // export const getAllComments = asyncHandler(
 //   async (req: Request, res: Response) => {

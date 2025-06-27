@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import ArticleCard from "./_components/ArticleCard";
 import axios from "axios";
-import { set } from "zod";
+
 
 interface Author {
   name: string;
@@ -69,7 +69,7 @@ const Articles = () => {
             estimatedReadTime={Math.ceil(
               article.content.split(" ").length / 200
             )}
-            featured={article.featured}
+            featured={article.featured || "true"}
           />
         ))}
       </div>

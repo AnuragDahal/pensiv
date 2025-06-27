@@ -1,9 +1,9 @@
-import { APIError } from "../../../shared";
-import User from "../models/user.model";
-import { IUser, IUserModel, UserWithId } from "../../../types/user";
 import { Types } from "mongoose";
 import { API_RESPONSES } from "../../../constants/responses";
 import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
+import { APIError } from "../../../shared";
+import { IUser, UserWithId } from "../../../types/user";
+import User from "../models/user.model";
 
 export const getUsers = () => User.find();
 export const getUserById = (id: string | Types.ObjectId) => User.findById(id);
@@ -32,6 +32,9 @@ export const generateAccessAndRefreshToken = async (
     await user.save({ validateBeforeSave: false });
     return { accessToken, refreshToken };
   } catch (error) {
+    if (error instanceof Error) {
+      throw new Error("Error generating tokens: " + error.message);
+    }
     throw new Error("Error generating tokens");
   }
 };

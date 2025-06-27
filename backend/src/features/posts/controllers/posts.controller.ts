@@ -10,6 +10,15 @@ import {
 import { Post } from "../models/post.model";
 import { sendResponse } from "../../../shared/services/response.service";
 import { Request, Response } from "express";
+import { FilterQuery } from "mongoose";
+
+interface Post {
+  title: string;
+  content: string;
+  shortDescription: string;
+  tags: string[];
+  userId: string;
+}
 
 export const addNewPost = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user?._id) {
@@ -140,7 +149,7 @@ export const fetchAllPosts = asyncHandler(
     const { ...filters } = req.query;
 
     // Build filter object
-    const filter: any = {};
+    const filter: FilterQuery<typeof Post> = {};
 
     // Search functionality - search in title, content, and shortDescription
     if (filters.search) {
