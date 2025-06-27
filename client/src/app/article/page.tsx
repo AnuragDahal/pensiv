@@ -69,7 +69,7 @@ const Articles = () => {
             estimatedReadTime={Math.ceil(
               article.content.split(" ").length / 200
             )}
-            featured={article.featured || "true"}
+            featured={article.featured}
           />
         ))}
       </div>
