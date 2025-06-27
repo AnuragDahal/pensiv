@@ -50,21 +50,6 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: tokens.refreshToken,
           user: user || null,
         });
-
-        // Set tokens as cookies for middleware access
-        if (typeof document !== "undefined") {
-          // Set httpOnly-like cookies for security (though client-side cookies aren't truly httpOnly)
-          document.cookie = `accessToken=${
-            tokens.accessToken
-          }; Path=/; SameSite=Lax; Secure=${
-            location.protocol === "https:"
-          }; Max-Age=${7 * 24 * 60 * 60}`; // 7 days
-          document.cookie = `refreshToken=${
-            tokens.refreshToken
-          }; Path=/; SameSite=Lax; Secure=${
-            location.protocol === "https:"
-          }; Max-Age=${30 * 24 * 60 * 60}`; // 30 days
-        }
       },
 
       // Logout action
@@ -75,12 +60,6 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           refreshToken: null,
         });
-
-        // Clear cookies
-        document.cookie =
-          "accessToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=None; Secure";
-        document.cookie =
-          "refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=None; Secure";
       },
 
       // Set user data
@@ -92,20 +71,6 @@ export const useAuthStore = create<AuthState>()(
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
         });
-
-        // Update cookies as well
-        if (typeof document !== "undefined") {
-          document.cookie = `accessToken=${
-            tokens.accessToken
-          }; Path=/; SameSite=Lax; Secure=${
-            location.protocol === "https:"
-          }; Max-Age=${7 * 24 * 60 * 60}`;
-          document.cookie = `refreshToken=${
-            tokens.refreshToken
-          }; Path=/; SameSite=Lax; Secure=${
-            location.protocol === "https:"
-          }; Max-Age=${30 * 24 * 60 * 60}`;
-        }
       },
 
       // Check if token is expired
