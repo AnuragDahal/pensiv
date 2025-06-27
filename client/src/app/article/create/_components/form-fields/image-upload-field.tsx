@@ -65,7 +65,7 @@ export function ImageUploadField({ onChange }: ImageUploadFieldProps) {
           ) : (
             <div className="relative rounded-xl overflow-hidden aspect-[2/1]">
               <Image
-                src={coverImage}
+                src={coverImage?? "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"}
                 alt="Cover preview"
                 className="w-full h-full object-cover"
                 fill

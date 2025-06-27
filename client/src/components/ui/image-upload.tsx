@@ -112,7 +112,10 @@ export default function ImageUpload({
         {preview ? (
           <div className="relative group">
             <Image
-              src={preview}
+              src={
+                preview ||
+                "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
+              }
               alt="Preview"
               className="w-full h-48 object-cover rounded-lg border"
               fill
