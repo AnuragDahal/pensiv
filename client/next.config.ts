@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["images.unsplash.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -19,6 +18,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "supabase.io",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
         port: "",
         pathname: "/**",
       },

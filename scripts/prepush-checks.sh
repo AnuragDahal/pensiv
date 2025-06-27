@@ -48,7 +48,7 @@ run_in_directory "backend" "pnpm audit --audit-level=high" "Backend security aud
 run_in_directory "client" "pnpm audit --audit-level=high" "Client security audit"
 
 # Format code
-run_in_directory "client" "pnpm format" "Client formatting"
-run_in_directory "backend" "pnpm format" "Backend formatting"
+# run_in_directory "client" "pnpm format" "Client formatting"
+# run_in_directory "backend" "pnpm format" "Backend formatting"
 
-echo "All pre-push checks passed!"
+echo "All pre-commit checks passed!"

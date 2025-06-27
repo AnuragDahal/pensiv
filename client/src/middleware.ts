@@ -7,6 +7,11 @@ const protectedRoutes = ["/article", "/dashboard", "/profile"];
 // Define public routes that should redirect if already authenticated
 const publicRoutes = ["/login", "/signup"];
 
+// Helper to check if a path matches a route exactly or as a subpath
+function matchRoute(path: string, route: string) {
+  return path === route || path.startsWith(route + "/");
+}
+
 // Function to check if token is expired
 function isTokenExpired(token: string): boolean {
   try {
@@ -40,14 +45,14 @@ function isAuthenticated(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check if the current path is a protected route
+  // Check if the current path is a protected route (exact or subpath)
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    matchRoute(pathname, route)
   );
 
-  // Check if the current path is a public route
+  // Check if the current path is a public route (exact or subpath)
   const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route)
+    matchRoute(pathname, route)
   );
 
   const userIsAuthenticated = isAuthenticated(request);

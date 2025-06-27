@@ -1,7 +1,7 @@
 "use client";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import ArticleCard from "./_components/ArticleCard";
-import axios from "axios";
 
 
 interface Author {

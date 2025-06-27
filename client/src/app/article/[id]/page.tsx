@@ -301,7 +301,7 @@ const Article = () => {
 
               <div className="relative aspect-[2/1] rounded-xl overflow-hidden mb-8">
                 <Image
-                  src={article.coverImage || "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"}
+                  src={article.coverImage??"https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"}
                   alt={article.title}
                   className="w-full h-full object-cover"
                   width={1920}
