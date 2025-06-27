@@ -1,40 +1,54 @@
 #!/bin/sh
 
-# Exit on error
 set -e
 
-# Lint client and backend
-cd client && pnpm lint && cd ..
-echo "Client lint passed!"
-cd backend && pnpm lint && cd ..
-echo "Backend lint passed!"
+# Store the root directory
+ROOT_DIR=$(pwd)
 
-# Type check client and backend
-cd client && pnpm tsc --noEmit && cd ..
-echo "Client type check passed!"
-cd backend && pnpm tsc --noEmit && cd ..
-echo "Backend type check passed!"
+echo "Starting pre-push checks from: $ROOT_DIR"
 
-# Run tests (if any)
-# cd client && pnpm test && cd ..
-# echo "Client tests passed!"
-# cd backend && pnpm test && cd ..
-# echo "Backend tests passed!"
+# Function to safely change directory and run command
+run_in_directory() {
+    local dir=$1
+    local command=$2
+    local description=$3
+    
+    if [ ! -d "$ROOT_DIR/$dir" ]; then
+        echo "Error: Directory '$dir' not found in $ROOT_DIR"
+        exit 1
+    fi
+    
+    echo "Running $description in $dir..."
+    cd "$ROOT_DIR/$dir"
+    
+    # Run the command and capture exit code
+    if eval "$command"; then
+        echo "$description passed!"
+        cd "$ROOT_DIR"
+    else
+        echo "$description FAILED!"
+        cd "$ROOT_DIR"
+        exit 1
+    fi
+}
+
+# Lint client and backend (this will fail due to your intentional error)
+run_in_directory "client" "pnpm lint" "Client lint"
+# run_in_directory "backend" "pnpm lint" "Backend lint"
+
+# Type check client and backend  
+run_in_directory "client" "pnpm tsc --noEmit" "Client type check"
+run_in_directory "backend" "pnpm tsc --noEmit" "Backend type check"
 
 # Build client
-cd client && pnpm build && cd ..
-echo "Client build passed!"
+run_in_directory "client" "pnpm build" "Client build"
 
-# Security audit (optional, uncomment if needed)
-cd backend && pnpm audit --audit-level=high && cd ..
-echo "Backend security audit passed!"
-
-cd client && pnpm audit --audit-level=high && cd ..
-echo "Client security audit passed!"
+# Security audit
+run_in_directory "backend" "pnpm audit --audit-level=high" "Backend security audit"
+run_in_directory "client" "pnpm audit --audit-level=high" "Client security audit"
 
 # Format code
-cd client && pnpm format && cd ..
-cd backend && pnpm format && cd ..
-echo "Code formatting passed!"
+run_in_directory "client" "pnpm format" "Client formatting"
+run_in_directory "backend" "pnpm format" "Backend formatting"
 
 echo "All pre-push checks passed!"
