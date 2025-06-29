@@ -1,6 +1,7 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface CommentCardProps {
   name: string;
@@ -28,9 +29,9 @@ const CommentCard = ({ ...props }: CommentCardProps) => {
             <Heart className="h-3 w-3 mr-1" />
             {props.likes ?? 0}
           </button>
-          <button className="text-xs text-muted-foreground hover:text-foreground">
+          <Button className="text-xs text-muted-foreground hover:text-foreground">
             Reply
-          </button>
+          </Button>
         </div>
       </div>
     </div>

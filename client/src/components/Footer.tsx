@@ -94,9 +94,9 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex gap-2">
               <Input
+                className="rounded-full"
                 type="email"
                 placeholder="Your email"
-                className="rounded-full"
               />
               <Button className="rounded-full">Subscribe</Button>
             </div>

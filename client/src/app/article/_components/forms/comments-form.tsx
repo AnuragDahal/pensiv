@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 
 const commentSchema = z.object({
@@ -22,7 +22,8 @@ interface CommentsFormProps {
 
 export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, accessToken } = useAuthStore(); // Get user and token from store
+  const { user, getTokens } = useAuthStore(); // Use getTokens for accessToken
+  const { accessToken } = getTokens();
 
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
@@ -32,11 +33,14 @@ export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
     },
   });
 
+  // Update postId in form if it changes
+  useEffect(() => {
+    form.setValue("postId", postId);
+  }, [postId]);
+
   const onSubmit = async (data: z.infer<typeof commentSchema>) => {
     try {
       setIsLoading(true);
-
-      // Use correct API endpoint and token
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
         data,
@@ -47,11 +51,8 @@ export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
           },
         }
       );
-
-      form.reset();
+      form.reset({ content: "", postId });
       toast.success("Comment submitted successfully!");
-
-      // Call callback to refresh comments
       if (onCommentAdded) {
         onCommentAdded();
       }

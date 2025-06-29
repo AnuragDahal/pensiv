@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
 import { useImageUpload } from "../hooks/use-image-upload";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
 
 interface ImageUploadFieldProps {
   onChange: (file?: File) => void;
@@ -49,7 +50,7 @@ export function ImageUploadField({ onChange }: ImageUploadFieldProps) {
                   Drag and drop an image, or{" "}
                   <label className="text-accent cursor-pointer hover:underline">
                     browse
-                    <input
+                    <Input
                       type="file"
                       accept="image/*"
                       className="hidden"

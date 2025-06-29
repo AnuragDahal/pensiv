@@ -247,6 +247,24 @@ const Article = () => {
     fetchArticle();
   }, [id, accessToken]);
 
+  // Add a function to refresh the article (comments)
+  const refreshArticle = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setArticle(response.data.data);
+    } catch (error) {
+      console.error("Error refreshing article:", error);
+    }
+  };
+
   const handleLike = () => {
     if (isLiked) {
       setLikeCount(likeCount - 1);
@@ -301,7 +319,10 @@ const Article = () => {
 
               <div className="relative aspect-[2/1] rounded-xl overflow-hidden mb-8">
                 <Image
-                  src={article.coverImage??"https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"}
+                  src={
+                    article.coverImage ??
+                    "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
+                  }
                   alt={article.title}
                   className="w-full h-full object-cover"
                   width={1920}
@@ -444,7 +465,10 @@ const Article = () => {
                 </h3>
 
                 {/* Comment Form */}
-                <CommentsForm postId={article.id} />
+                <CommentsForm
+                  postId={article.id}
+                  onCommentAdded={refreshArticle}
+                />
 
                 {/* Comments List */}
                 <div className="space-y-6">
