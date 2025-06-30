@@ -64,15 +64,6 @@ export const addNewComment = asyncHandler(
         HTTP_STATUS_CODES.BAD_REQUEST
       );
     }
-    const post = await getPostById(req.body.postId);
-    if (!post) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
-    post.comments.push(comment._id);
-    await post.save();
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.CREATED,
