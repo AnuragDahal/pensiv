@@ -8,7 +8,7 @@ import {
   createComment,
   deleteCommentById,
   getCommentById,
-  updateCommentById
+  updateCommentById,
 } from "../services/comments.service";
 
 // export const getAllComments = asyncHandler(
@@ -111,6 +111,34 @@ export const deleteComment = asyncHandler(
       status: HTTP_STATUS_CODES.OK,
       message: API_RESPONSES.RESOURCE_DELETED,
       data: null,
+    });
+  }
+);
+
+export const createCommentReply = asyncHandler(
+  async (req: Request, res: Response) => {
+    const comment = await getCommentById(req.params.id);
+    if (!comment) {
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
+    }
+
+    const replyData = {
+      ...req.body,
+      userId: req.user?._id,
+      commentId: req.params.id,
+    };
+
+    comment.replies.push(replyData);
+    await comment.save({ validateBeforeSave: false });
+
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.CREATED,
+      message: API_RESPONSES.RESOURCE_CREATED,
+      data: comment,
     });
   }
 );

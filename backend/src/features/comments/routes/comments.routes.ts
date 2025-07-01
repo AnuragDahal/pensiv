@@ -1,12 +1,13 @@
-import {
-  getSingleComment,
-  addNewComment,
-  updateComment,
-  deleteComment,
-} from "../controllers/comments.controller";
-import { zodValidator } from "../../../middlewares";
-import { commentSchema } from "../schemas/comments.schemas";
 import { Router } from "express";
+import { zodValidator } from "../../../middlewares";
+import {
+  addNewComment,
+  createCommentReply,
+  deleteComment,
+  getSingleComment,
+  updateComment,
+} from "../controllers/comments.controller";
+import { commentSchema, replySchema } from "../schemas/comments.schemas";
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.get("/:id", getSingleComment);
 router.post("/", zodValidator(commentSchema), addNewComment);
 router.put("/:id", zodValidator(commentSchema), updateComment);
 router.delete("/:id", deleteComment);
+router.post("/reply/:id", zodValidator(replySchema), createCommentReply);
 
 export default router;
