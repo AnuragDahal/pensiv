@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import ArticleCard from "@/app/article/_components/ArticleCard";
 import { CommentsForm } from "../_components/forms/comments-form";
-import CommentCard from "../_components/comment-card";
+import CommentCard, { CommentCardProps } from "../_components/comment-card";
 import axios from "axios";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
@@ -109,6 +109,7 @@ interface Comment {
   content: string;
   date: string;
   likes?: number;
+  replies?: Array<CommentCardProps>;
 }
 
 interface Article {
@@ -200,15 +201,26 @@ const Article = () => {
     },
     comments: [
       {
-        id: "",
+        id: "1",
         userId: {
-          name: "",
-          email: "",
-          avatar: "",
+          name: "Jane Doe",
+          email: "jane@example.com",
+          avatar: "https://randomuser.me/api/portraits/women/1.jpg",
         },
-        postId: "",
-        content: "",
-        date: "",
+        postId: "post1",
+        content: "This is a top-level comment!",
+        date: "2025-07-02",
+        likes: 2,
+        replies: [
+          {
+            name: "John Smith",
+            avatar: "https://randomuser.me/api/portraits",
+            date: "2025-07-02",
+            content: "This is a reply to the top-level comment.",
+            likes: 4,
+            replies: [], // No further replies
+          },
+        ],
       },
     ],
     category: "",
@@ -480,6 +492,7 @@ const Article = () => {
                         date={comment.date}
                         content={comment.content}
                         likes={comment.likes || 0}
+                        replies={comment.replies || []} // Pass replies to CommentCard
                       />
                       {index !== article.comments.length - 1 && (
                         <Separator className="my-6" />

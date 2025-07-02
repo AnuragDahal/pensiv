@@ -57,7 +57,7 @@ export const getSinglePost = asyncHandler(
         path: "comments",
         populate: {
           path: "userId",
-          select: "name email avatar",
+          select: "name email avatar replies",
         },
       })
       .populate("userId", "name email avatar bio");
@@ -91,7 +91,7 @@ export const getAllPostsOfAuthenticatedUser = asyncHandler(
         path: "comments",
         populate: {
           path: "userId",
-          select: "name email avatar",
+          select: "name email avatar replies",
         },
       });
     if (!posts || posts.length === 0) {
