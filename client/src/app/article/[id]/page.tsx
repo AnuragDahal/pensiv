@@ -213,11 +213,13 @@ const Article = () => {
         likes: 2,
         replies: [
           {
+            id: "2",
             name: "John Smith",
             avatar: "https://randomuser.me/api/portraits",
             date: "2025-07-02",
             content: "This is a reply to the top-level comment.",
             likes: 4,
+            postId: "post1",
             replies: [], // No further replies
           },
         ],
@@ -487,6 +489,8 @@ const Article = () => {
                   {article.comments.map((comment, index) => (
                     <div key={comment.id} className="animate-fade-in">
                       <CommentCard
+                        id={comment.id}
+                        postId={comment.postId}
                         name={comment.userId.name}
                         avatar={comment.userId.avatar}
                         date={comment.date}
