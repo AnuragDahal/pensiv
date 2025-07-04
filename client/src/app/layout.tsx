@@ -63,19 +63,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Pensieve- Your's Writing Space",
-    description:
-      "Experience the joy of writing with Pensieve. A personal space for your thoughts, ideas, and stories.",
-    images: ["/opengraph-image.jpg"],
-    creator: "@aipersonachat",
-  },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",

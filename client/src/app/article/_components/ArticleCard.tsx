@@ -31,6 +31,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   estimatedReadTime,
   featured = false,
 }) => {
+  console.log("Cover Image:", coverImage);
   return (
     <Link href={`/article/${id}`} className="block group">
       <article
@@ -40,7 +41,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
       >
         <div className="relative aspect-video overflow-hidden">
           <Image
-            src={coverImage??"https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"}
+            src="https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
             title={title}
             aria-label="Article Cover Image"
             alt={title}

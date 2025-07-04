@@ -1,11 +1,9 @@
 "use client";
-import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { set } from "zod";
 import axios from "axios";
-import { useAuth } from "@/hooks/use-auth";
+import { Heart } from "lucide-react";
+import React from "react";
 import { toast } from "sonner";
 
 export interface CommentCardProps {
@@ -20,7 +18,6 @@ export interface CommentCardProps {
 }
 
 const CommentCard = ({ ...props }: CommentCardProps) => {
-  const { accessToken } = useAuth();
   const [showReplyBox, setShowReplyBox] = React.useState(false);
   const [replyContent, setReplyContent] = React.useState("");
 
@@ -28,16 +25,20 @@ const CommentCard = ({ ...props }: CommentCardProps) => {
     setShowReplyBox(!showReplyBox);
   };
   const handleSendReply = () => {
-    const res = axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/comments/reply/${props.id}`,
-      {
-        content: replyContent,
-        commentId: props.id,
-      }
-    );
-    res
+    axios
+      .post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/reply/${props.id}`,
+        {
+          content: replyContent,
+          commentId: props.id,
+        }
+      )
       .then((response) => {
-        toast.success("Reply sent successfully!");
+        if (response.status === 200) {
+          toast.success("Reply sent successfully!");
+        } else {
+          toast.error("Failed to send reply");
+        }
       })
       .catch((error) => {
         if (axios.isAxiosError(error)) {
@@ -46,6 +47,7 @@ const CommentCard = ({ ...props }: CommentCardProps) => {
           toast.error("An unexpected error occurred");
         }
       });
+
     setReplyContent("");
     setShowReplyBox(false);
   };

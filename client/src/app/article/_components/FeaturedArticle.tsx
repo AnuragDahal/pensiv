@@ -1,10 +1,10 @@
-import React from "react";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, ArrowRight } from "lucide-react";
+import { ArrowRight, Calendar } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import React from "react";
 
 interface FeaturedArticleProps {
   id: string;
@@ -37,7 +37,10 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
           <div className="w-full md:w-1/2 lg:w-3/5 relative">
             <div className="relative overflow-hidden rounded-2xl group aspect-[4/3] md:aspect-[16/9]">
               <Image
-                src={coverImage??"https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"}
+                src={
+                  coverImage ||
+                  "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
+                }
                 alt={title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 fill

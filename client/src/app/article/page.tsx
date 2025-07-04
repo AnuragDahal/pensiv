@@ -3,7 +3,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import ArticleCard from "./_components/ArticleCard";
 
-
 interface Author {
   name: string;
   avatar: string;
@@ -37,17 +36,14 @@ const Articles = () => {
       featured: false,
     },
   ]);
+
   useEffect(() => {
-    const res = axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`);
-    res
-      .then((response) => {
-        const articles = response.data.data.posts;
-        console.log("Fetched articles:", articles);
-        setArticles(articles);
-      })
-      .catch((error) => {
-        console.error("Error fetching articles:", error);
-      });
+    const fetchArticles = async () => {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`);
+      const articlesData = res.data.data.posts;
+      setArticles(articlesData);
+    };
+    fetchArticles();
   }, []);
 
   return (

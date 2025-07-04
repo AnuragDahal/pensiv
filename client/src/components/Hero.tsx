@@ -61,6 +61,7 @@ const Hero: React.FC = () => {
                   variant="outline"
                   className="rounded-full text-base px-6 py-6 group"
                   size="lg"
+                  
                 >
                   Start Writing
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

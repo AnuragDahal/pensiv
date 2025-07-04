@@ -1,14 +1,13 @@
 "use client";
-import React from "react";
-import Navbar from "@/components/NavBar";
-import Hero from "@/components/Hero";
-import FeaturedArticle from "@/app/article/_components/FeaturedArticle";
 import ArticleCard from "@/app/article/_components/ArticleCard";
+import FeaturedArticle from "@/app/article/_components/FeaturedArticle";
 import Footer from "@/components/Footer";
-import { ArrowRight } from "lucide-react";
+import Hero from "@/components/Hero";
+import Navbar from "@/components/NavBar";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface ArticleProps {
   id: string;
