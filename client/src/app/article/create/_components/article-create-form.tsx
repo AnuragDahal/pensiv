@@ -87,6 +87,7 @@ export default function CreateArticleForm() {
   };
 
   const handleImageUpload = (url: string) => {
+    console.log("Received image URL:", url);
     form.setValue("coverImage", url);
   };
 

@@ -4,7 +4,9 @@ export const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   shortDescription: z.string().min(1, "Short description is required"),
-  postImage: z.string().url("Invalid URL").optional(),
+  coverImage: z.string().url("Invalid URL").optional(),
+  tags: z.array(z.string().min(1, "Tag cannot be empty")).min(1, "At least one tag is required"),
+  category: z.string().min(1, "Category is required"),
 });
 
 export const queryParams = z.object({

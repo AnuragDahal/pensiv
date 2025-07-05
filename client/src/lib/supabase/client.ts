@@ -23,25 +23,30 @@ export const uploadImage = async (
       .toString(36)
       .substring(2)}.${fileExt}`;
 
-    // Use 'coverimages' bucket (without 's' at the end based on your error)
-    const { error } = await supabase.storage
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(fileName, file, {
+      .upload(filePath, file, {
         cacheControl: "3600",
         upsert: false,
       });
 
-    if (error) {
-      console.error("Upload error:", error);
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
       return null;
     }
 
-    // Get the public URL - fix the construction
-    const { publicUrl } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(fileName).data;
+    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
 
-    return publicUrl;
+    if (!data || !data.publicUrl) {
+      console.error("Public URL not found");
+      return null;
+    }
+
+    console.log("Public URL:", data.publicUrl);
+
+    return data.publicUrl;
   } catch (error) {
     console.error("Upload error:", error);
     return null;

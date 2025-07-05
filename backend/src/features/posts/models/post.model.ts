@@ -21,7 +21,7 @@ const postSchema = new mongoose.Schema(
         ref: "Comment",
       },
     ],
-    postImage: {
+    coverImage: {
       type: String,
       required: true,
     },
@@ -29,10 +29,12 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    tags: {
-      type: String,
-      required: false,
-    },
+    tags: [
+      {
+        type: String,
+        required: true,
+      },
+    ]
   },
   {
     timestamps: true, // Automatically manage createdAt and updatedAt fields
