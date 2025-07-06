@@ -29,12 +29,20 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+    },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
     tags: [
       {
         type: String,
         required: true,
       },
-    ]
+    ],
   },
   {
     timestamps: true, // Automatically manage createdAt and updatedAt fields
