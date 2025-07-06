@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-// User type
+// =======================
+// TYPES
+// =======================
+
 type User = {
   id: string;
   email: string;
@@ -9,10 +12,10 @@ type User = {
   avatar?: string;
 };
 
-// Auth store state
 type AuthState = {
   // Auth state
   isAuthenticated: boolean;
+  isAuthInitialized: boolean;
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
@@ -29,20 +32,27 @@ type AuthState = {
     accessToken: string | null;
     refreshToken: string | null;
   };
-
-  // Session check
   isTokenExpired: () => boolean;
+
+  // New: initialized flag
   initializeAuth: () => void;
 };
+
+// =======================
+// STORE
+// =======================
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       // Initial state
       isAuthenticated: false,
+      isAuthInitialized: false,
       user: null,
       accessToken: null,
-      refreshToken: null, // Login action
+      refreshToken: null,
+
+      // LOGIN
       login: (tokens, user) => {
         set({
           isAuthenticated: true,
@@ -52,20 +62,24 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      // Logout action
+      // LOGOUT: clears persisted state too
       logout: () => {
         set({
           isAuthenticated: false,
-          user: null,
           accessToken: null,
           refreshToken: null,
+          user: null,
+          isAuthInitialized: true,
         });
+        localStorage.removeItem("auth-storage");
       },
 
-      // Set user data
+      // USER
       setUser: (user) => {
         set({ user });
-      }, // Update tokens
+      },
+
+      // UPDATE TOKENS
       updateTokens: (tokens) => {
         set({
           accessToken: tokens.accessToken,
@@ -73,68 +87,7 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      // Check if token is expired
-      isTokenExpired: () => {
-        const { accessToken } = get();
-        if (
-          !accessToken ||
-          accessToken === "null" ||
-          accessToken === "undefined"
-        ) {
-          return true;
-        }
-
-        try {
-          const payload = JSON.parse(atob(accessToken.split(".")[1]));
-          const currentTime = Date.now() / 1000;
-          return payload.exp < currentTime;
-        } catch (error) {
-          console.error("Error parsing token:", error);
-          return true;
-        }
-      }, // Initialize auth state
-
-      initializeAuth: () => {
-        const storedData = localStorage.getItem("auth-storage");
-        if (storedData) {
-          try {
-            const parsed = JSON.parse(storedData);
-            const { accessToken, refreshToken, user } = parsed.state || parsed;
-
-            // Validate tokens are not null/undefined
-            if (
-              accessToken &&
-              accessToken !== "null" &&
-              refreshToken &&
-              refreshToken !== "null"
-            ) {
-              set({
-                accessToken,
-                refreshToken,
-                user,
-                isAuthenticated: true,
-              });
-            } else {
-              // Clear invalid tokens
-              set({
-                accessToken: null,
-                refreshToken: null,
-                user: null,
-                isAuthenticated: false,
-              });
-              localStorage.removeItem("auth-storage");
-            }
-          } catch (error) {
-            console.error("Error parsing auth data:", error);
-            set({
-              accessToken: null,
-              refreshToken: null,
-              user: null,
-              isAuthenticated: false,
-            });
-          }
-        }
-      },
+      // GET TOKENS
       getTokens: () => {
         const { accessToken, refreshToken } = get();
         return {
@@ -142,15 +95,75 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: refreshToken || null,
         };
       },
+
+      // TOKEN EXPIRED
+      isTokenExpired: () => {
+        const { accessToken } = get();
+        if (!accessToken) return true;
+
+        try {
+          const payload = JSON.parse(atob(accessToken.split(".")[1]));
+          const currentTime = Date.now() / 1000;
+          return payload.exp < currentTime;
+        } catch (error) {
+          console.error("Error decoding token:", error);
+          return true;
+        }
+      },
+
+      // HYDRATE AUTH FROM STORAGE
+      initializeAuth: () => {
+        const stored = localStorage.getItem("auth-storage");
+
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            const { accessToken, refreshToken, user } = parsed.state || parsed;
+
+            if (accessToken && refreshToken) {
+              set({
+                accessToken,
+                refreshToken,
+                user: user || null,
+                isAuthenticated: !!accessToken,
+                isAuthInitialized: true,
+              });
+            } else {
+              set({
+                accessToken: null,
+                refreshToken: null,
+                user: null,
+                isAuthenticated: false,
+                isAuthInitialized: true,
+              });
+              localStorage.removeItem("auth-storage");
+            }
+          } catch (error) {
+            console.error("Error parsing auth storage:", error);
+            set({
+              accessToken: null,
+              refreshToken: null,
+              user: null,
+              isAuthenticated: false,
+              isAuthInitialized: true,
+            });
+          }
+        } else {
+          set({
+            isAuthenticated: false,
+            isAuthInitialized: true,
+          });
+        }
+      },
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        user: state.user,
+        isAuthenticated: state.isAuthenticated,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
+        user: state.user,
       }),
     }
   )

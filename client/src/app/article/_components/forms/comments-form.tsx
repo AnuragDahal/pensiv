@@ -16,13 +16,20 @@ const commentSchema = z.object({
 });
 
 interface CommentsFormProps {
+  avatar: string;
+  name: string;
   postId: string;
   onCommentAdded?: () => void; // Add callback for refresh
 }
 
-export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
+export const CommentsForm = ({
+  postId,
+  onCommentAdded,
+  avatar,
+  name,
+}: CommentsFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, getTokens } = useAuthStore(); // Use getTokens for accessToken
+  const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
 
   const form = useForm<z.infer<typeof commentSchema>>({
@@ -36,7 +43,7 @@ export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
   // Update postId in form if it changes
   useEffect(() => {
     form.setValue("postId", postId);
-  }, [postId]);
+  }, [postId, form]);
 
   const onSubmit = async (data: z.infer<typeof commentSchema>) => {
     try {
@@ -79,13 +86,8 @@ export const CommentsForm = ({ postId, onCommentAdded }: CommentsFormProps) => {
             <FormItem>
               <div className="flex items-start gap-3">
                 <Avatar className="h-10 w-10 mt-1">
-                  <AvatarImage
-                    src={user?.avatar}
-                    alt={user?.name || "Your avatar"}
-                  />
-                  <AvatarFallback>
-                    {user?.name?.charAt(0) || "U"}
-                  </AvatarFallback>
+                  <AvatarImage src={avatar} alt={name} />
+                  <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <Textarea

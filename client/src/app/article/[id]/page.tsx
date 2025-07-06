@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useArticle } from "@/hooks/useArticle";
 import { useAuthStore } from "@/store/auth-store";
-import { Comment } from "@/types/comments";
+import { ArticleProps } from "@/types/article";
 import axios from "axios";
 import {
   Bookmark,
@@ -21,26 +21,6 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CommentsForm } from "../_components/forms/comments-form";
-
-interface Article {
-  id: string;
-  userId: {
-    name: string;
-    email: string;
-    avatar?: string;
-    bio?: string;
-  };
-  title: string;
-  excerpt?: string;
-  coverImage: string;
-  comments: Comment[];
-  category: string;
-  content: string; // HTML content or Markdown
-  tags?: string[];
-  date: string;
-  estimatedReadTime: number;
-  featured?: boolean;
-}
 
 // Mock data for related articles
 const relatedArticles = [
@@ -98,7 +78,7 @@ const Article = () => {
   const { id } = useParams();
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
-  const [article, setArticle] = useState<Article>({
+  const [article, setArticle] = useState<ArticleProps>({
     id: "",
     title: "",
     excerpt: "",
@@ -222,10 +202,10 @@ const Article = () => {
 
               <div className="relative aspect-[2/1] rounded-xl overflow-hidden mb-8">
                 <Image
-                  src="https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
+                  src={article.coverImage}
                   alt={article.title}
                   className="w-full h-full object-cover"
-                  width={1920}
+                  width={1200}
                   height={1080}
                 />
               </div>
@@ -332,31 +312,7 @@ const Article = () => {
                   </Button>
                 </div>
               </div>
-
               {/* Author Bio */}
-              {/* <div className="mt-8 flex flex-col sm:flex-row gap-4 p-6 rounded-xl bg-muted/30 border border-border/50">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage
-                    src={article.userId.avatar}
-                    alt={article.userId.name}
-                  />
-                  <AvatarFallback>
-                    {article.userId.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-medium text-lg">{article.userId.name}</h3>
-                  <p className="text-muted-foreground mt-1">
-                    {article.userId.bio ?? ""}
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="mt-3 rounded-full text-xs"
-                  >
-                    Follow
-                  </Button>
-                </div>
-              </div> */}
               <AuthorBio
                 name={article.userId.name}
                 avatar={article.userId.avatar}
@@ -371,6 +327,8 @@ const Article = () => {
 
                 {/* Comment Form */}
                 <CommentsForm
+                  avatar={article.userId.avatar}
+                  name={article.userId.name}
                   postId={article.id}
                   onCommentAdded={refreshArticle}
                 />

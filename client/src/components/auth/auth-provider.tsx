@@ -3,23 +3,27 @@
 import { useAuthStore } from "@/store/auth-store";
 import { useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation"; // optional: Next router for redirects
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { initializeAuth, updateTokens, logout, isTokenExpired } =
+  const { initializeAuth, updateTokens, logout, isTokenExpired, getTokens } =
     useAuthStore();
 
+  const router = useRouter(); // optional, for redirect
+
   useEffect(() => {
-    // Initialize auth state on app start
+    // Initialize auth store from localStorage once
     initializeAuth();
 
-    // Set up axios interceptors for automatic token handling
+    // Create interceptors
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
         const { accessToken, isAuthenticated } = useAuthStore.getState();
+
         if (
           accessToken &&
           accessToken !== "null" &&
@@ -29,8 +33,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         ) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
-        // Always include credentials for cookie-based auth
-        config.withCredentials = true;
+
+        config.withCredentials = true; // send cookies if needed
         return config;
       },
       (error) => Promise.reject(error)
@@ -45,7 +49,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           originalRequest._retry = true;
 
           try {
-            const { refreshToken } = useAuthStore.getState();
+            const { refreshToken } = getTokens();
 
             if (
               !refreshToken ||
@@ -55,8 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               throw new Error("No refresh token available");
             }
 
-            // Attempt to refresh token
-            const response = await axios.post(
+            const res = await axios.post(
               `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
               { refreshToken },
               { withCredentials: true }
@@ -65,7 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const {
               accessToken: newAccessToken,
               refreshToken: newRefreshToken,
-            } = response.data;
+            } = res.data;
 
             if (newAccessToken && newRefreshToken) {
               updateTokens({
@@ -73,17 +76,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 refreshToken: newRefreshToken,
               });
 
-              // Retry original request with new token
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
               return axios(originalRequest);
             } else {
-              throw new Error("Invalid token response");
+              throw new Error("Invalid refresh response");
             }
           } catch (refreshError) {
             console.error("Token refresh failed:", refreshError);
             logout();
-            // Redirect to login if needed
-            window.location.href = "/login";
+            router.push("/login"); // redirect on failure
           }
         }
 
@@ -91,12 +92,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     );
 
-    // Cleanup interceptors on unmount
+    // Clean up interceptors on unmount
     return () => {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [initializeAuth, updateTokens, logout, isTokenExpired]);
+  }, [initializeAuth, updateTokens, logout, isTokenExpired, getTokens, router]);
 
   return <>{children}</>;
 }

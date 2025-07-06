@@ -1,11 +1,11 @@
 import { Comment } from "./comments";
 
-export interface Article {
+export interface ArticleProps {
   id: string;
   userId: {
     name: string;
     email: string;
-    avatar?: string;
+    avatar: string;
     bio?: string;
   };
   title: string;

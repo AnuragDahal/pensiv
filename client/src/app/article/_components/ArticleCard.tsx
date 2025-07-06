@@ -41,7 +41,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
       >
         <div className="relative aspect-video overflow-hidden">
           <Image
-            src="https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
+            src={coverImage}
             title={title}
             aria-label="Article Cover Image"
             alt={title}
