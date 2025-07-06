@@ -72,7 +72,11 @@ const Articles = () => {
                 avatar: article.userId.avatar,
               }}
               category={article.category}
-              date={new Date(article.createdAt).toLocaleDateString()}
+              date={new Date(article.createdAt).toLocaleDateString("en-us", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
               estimatedReadTime={Math.ceil(
                 article.content.split(" ").length / 200
               )}

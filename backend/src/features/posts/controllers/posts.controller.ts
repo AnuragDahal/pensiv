@@ -93,7 +93,8 @@ export const getAllPostsOfAuthenticatedUser = asyncHandler(
           path: "userId",
           select: "name email avatar replies",
         },
-      });
+      })
+      .populate("userId", "name email avatar bio");
     if (!posts || posts.length === 0) {
       throw new APIError(
         API_RESPONSES.RESOURCE_NOT_FOUND,
@@ -124,9 +125,10 @@ export const getAllPostByUserId = asyncHandler(
         path: "comments",
         populate: {
           path: "userId",
-          select: "name email",
+          select: "name email avatar replies",
         },
-      });
+      })
+      .populate("userId", "name email avatar bio");
 
     if (!posts || posts.length === 0) {
       throw new APIError(
@@ -184,10 +186,10 @@ export const fetchAllPosts = asyncHandler(
         path: "comments",
         populate: {
           path: "userId",
-          select: "name email",
+          select: "name email avatar replies",
         },
       })
-      .populate("userId", "name email")
+      .populate("userId", "name email avatar bio")
       .sort(sort)
       .skip(skip)
       .limit(limitNum);

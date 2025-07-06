@@ -1,4 +1,4 @@
-import { zodValidator }  from "../../../middlewares/zod";
+import { zodValidator } from "../../../middlewares/zod";
 import { Router } from "express";
 import {
   addNewPost,
@@ -16,5 +16,8 @@ router.get("/:id", getSinglePost);
 router.post("/", zodValidator(postSchema), addNewPost);
 router.get("/", getAllPostsOfAuthenticatedUser);
 router.get("/:userId", getAllPostByUserId);
+// public route to fetch all posts
+// This route should be accessible without authentication
+router.get("/posts", fetchAllPosts);
 
 export default router;

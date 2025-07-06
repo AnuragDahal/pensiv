@@ -64,8 +64,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
           <p className="text-muted-foreground mb-4 line-clamp-2">{excerpt}</p>
 
-          <div className="flex items-center justify-between pt-2 border-t border-border/50">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 pt-2 border-t border-border/50 ">
+            <div className="flex items-center gap-2 p-2">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={author.avatar} alt={author.name} />
                 <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
@@ -73,7 +73,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
               <span className="text-sm font-medium">{author.name}</span>
             </div>
 
-            <div className="flex items-center text-xs text-muted-foreground">
+            <div className="flex items-center gap- text-xs text-muted-foreground">
               <Calendar className="h-3 w-3 mr-1" />
               <span>
                 {date} · {estimatedReadTime} min read
