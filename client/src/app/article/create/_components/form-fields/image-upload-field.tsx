@@ -1,15 +1,14 @@
-import React from "react";
+import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Upload, X } from "lucide-react";
-import { useImageUpload } from "../hooks/use-image-upload";
-import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import { Upload, X } from "lucide-react";
+import Image from "next/image";
+import { useImageUpload } from "../hooks/use-image-upload";
 
 interface ImageUploadFieldProps {
   onChange: (file?: File) => void;
@@ -42,7 +41,9 @@ export function ImageUploadField({ onChange }: ImageUploadFieldProps) {
                 setIsDragging(true);
               }}
               onDragLeave={() => setIsDragging(false)}
-              onDrop={(e) => handleDrop(e, onChange)}
+              onDrop={(e) => {
+                handleDrop(e, onChange);
+              }}
             >
               <div className="flex flex-col items-center justify-center gap-2">
                 <Upload className="h-8 w-8 text-muted-foreground/70" />
@@ -66,7 +67,10 @@ export function ImageUploadField({ onChange }: ImageUploadFieldProps) {
           ) : (
             <div className="relative rounded-xl overflow-hidden aspect-[2/1]">
               <Image
-                src={coverImage?? "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"}
+                src={
+                  coverImage ??
+                  "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
+                }
                 alt="Cover preview"
                 className="w-full h-full object-cover"
                 fill
@@ -78,7 +82,9 @@ export function ImageUploadField({ onChange }: ImageUploadFieldProps) {
                 variant="destructive"
                 size="icon"
                 className="absolute top-3 right-3 rounded-full"
-                onClick={() => handleRemoveImage(onChange)}
+                onClick={async () => {
+                  await handleRemoveImage(onChange);
+                }}
               >
                 <X className="h-4 w-4" />
               </Button>

@@ -5,7 +5,7 @@ import { Button } from "./button";
 import { Input } from "./input";
 import { Label } from "./label";
 import { Upload, X, Loader2 } from "lucide-react";
-import { uploadImage } from "@/lib/supabase/client";
+import { deleteImage, uploadImage } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -27,6 +27,7 @@ export default function ImageUpload({
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const [isDragging, setIsDragging] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const processFile = async (file: File) => {
@@ -54,6 +55,7 @@ export default function ImageUpload({
     try {
       const url = await uploadImage(file);
       if (url) {
+        setImageUrl(url);
         onImageUpload(url);
         toast.success("Image uploaded successfully");
       } else {
@@ -97,11 +99,24 @@ export default function ImageUpload({
     }
   };
 
-  const handleRemove = () => {
-    setPreview(null);
-    onImageUpload("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleRemove = async () => {
+    if (!imageUrl) {
+      toast.error("No image to delete");
+      return;
+    }
+
+    const success = await deleteImage(imageUrl);
+
+    if (success) {
+      toast.success("Image removed successfully");
+      setPreview(null);
+      setImageUrl("");
+      onImageUpload("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } else {
+      toast.error("Failed to remove image");
     }
   };
 
@@ -122,18 +137,18 @@ export default function ImageUpload({
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={handleRemove}
-                disabled={isUploading}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Remove
-              </Button>
-            </div>
+
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon"
+              className="absolute top-3 right-3 rounded-full"
+              onClick={handleRemove}
+              disabled={isUploading}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+
             {isUploading && (
               <div className="absolute inset-0 bg-white/80 rounded-lg flex items-center justify-center">
                 <Loader2 className="h-6 w-6 animate-spin" />

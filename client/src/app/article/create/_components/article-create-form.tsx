@@ -1,12 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import axios from "axios";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,9 +9,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import ImageUpload from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -25,9 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ImageUpload from "@/components/ui/image-upload";
-import { TagsInputField } from "./form-fields/tags-input-field";
+import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { TagsInputField } from "./form-fields/tags-input-field";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -153,6 +153,7 @@ export default function CreateArticleForm() {
               <FormControl>
                 <div className="space-y-4">
                   <ImageUpload
+                    // onImageDelete={handleImageDelete}
                     onImageUpload={handleImageUpload}
                     currentImage={field.value}
                     label=""

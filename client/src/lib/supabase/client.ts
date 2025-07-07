@@ -59,15 +59,26 @@ export const deleteImage = async (
   bucket: string = "coverimages"
 ): Promise<boolean> => {
   try {
-    // Extract filename from URL
-    const fileName = url.split("/").pop();
-    if (!fileName) return false;
+    // For: https://your-project.supabase.co/storage/v1/object/public/coverimages/abc123.jpg
+    const parts = url.split(`/public/${bucket}/`);
+    if (parts.length < 2) {
+      console.error("Invalid URL:", url);
+      return false;
+    }
 
-    const { error } = await supabase.storage.from(bucket).remove([fileName]);
+    const path = parts[1]; // ✅ This is 'abc123.jpg'
+
+    console.log("Deleting:", path);
+
+    const { error } = await supabase.storage.from(bucket).remove([path]);
+
+    if (error) {
+      console.error("Supabase delete error:", error);
+    }
 
     return !error;
-  } catch (error) {
-    console.error("Delete failed:", error);
+  } catch (err) {
+    console.error("Delete failed:", err);
     return false;
   }
 };
