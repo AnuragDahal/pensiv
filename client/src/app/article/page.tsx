@@ -60,9 +60,9 @@ const Articles = () => {
         ) : articles.length === 0 ? (
           <NotFoundPage content="No articles found" />
         ) : (
-          articles.map((article, index) => (
+          articles.map((article) => (
             <ArticleCard
-              key={index}
+              key={article.id}
               id={article.id}
               title={article.title}
               excerpt={article.shortDescription}

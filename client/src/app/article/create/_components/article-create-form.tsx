@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import ImageUpload from "@/components/ui/image-upload";
 import { TagsInputField } from "./form-fields/tags-input-field";
+import Image from "next/image";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -87,7 +88,6 @@ export default function CreateArticleForm() {
   };
 
   const handleImageUpload = (url: string) => {
-    console.log("Received image URL:", url);
     form.setValue("coverImage", url);
   };
 
@@ -151,11 +151,22 @@ export default function CreateArticleForm() {
             <FormItem>
               <FormLabel>Cover Image</FormLabel>
               <FormControl>
-                <ImageUpload
-                  onImageUpload={handleImageUpload}
-                  currentImage={field.value}
-                  label=""
-                />
+                <div className="space-y-4">
+                  <ImageUpload
+                    onImageUpload={handleImageUpload}
+                    currentImage={field.value}
+                    label=""
+                  />
+                  {field.value && (
+                    <Image
+                      height={300}
+                      width={500}
+                      src={field.value}
+                      alt="Cover Preview"
+                      className="w-full max-h-64 object-cover rounded-md border"
+                    />
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
