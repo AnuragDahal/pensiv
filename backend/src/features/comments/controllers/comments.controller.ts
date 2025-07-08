@@ -142,3 +142,28 @@ export const createCommentReply = asyncHandler(
     });
   }
 );
+
+export const updateCommentLikes = asyncHandler(
+  async (req: Request, res: Response) => {
+    const commentId = req.params.id;
+
+    const comment = await getCommentById(commentId);
+    if (!comment) {
+      return sendResponse({
+        res,
+        status: HTTP_STATUS_CODES.NOT_FOUND,
+        message: "Comment not found",
+      });
+    }
+    comment?.set({
+      likes: req.body.likeCount,
+    });
+    await comment.save({ validateBeforeSave: false });
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.CREATED,
+      message: "Like updated Successfully",
+      data: comment.likes,
+    });
+  }
+);

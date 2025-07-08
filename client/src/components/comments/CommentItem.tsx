@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
+// import { useComment } from "@/hooks/useComment";
 
 export interface CommentItemProps {
   id: string;
@@ -19,7 +20,11 @@ export interface CommentItemProps {
 const CommentItem: React.FC<CommentItemProps> = (props) => {
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [replyContent, setReplyContent] = useState("");
-
+  const [isLiked, setIsLiked] = useState(false);
+  // const { handleLike, likeCount } = useComment(props.id);
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+  };
   const openReplyBox = () => setShowReplyBox((prev) => !prev);
 
   const handleSendReply = async () => {
@@ -54,9 +59,16 @@ const CommentItem: React.FC<CommentItemProps> = (props) => {
         </div>
         <p className="text-sm">{props.content}</p>
         <div className="mt-2 flex items-center gap-4">
-          <Button className="text-xs text-muted-foreground flex items-center hover:text-foreground">
-            <Heart className="h-3 w-3 mr-1" />
-            {props.likes ?? 0}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`rounded-full ${isLiked ? "text-red-500" : ""}`}
+            onClick={handleLike}
+          >
+            <Heart
+              className={`h-4 w-4 mr-1 ${isLiked ? "fill-red-500" : ""}`}
+            />
+            {/* {likeCount} */}
           </Button>
           <Button
             onClick={openReplyBox}

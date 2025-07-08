@@ -33,6 +33,11 @@ const commentSchema = new mongoose.Schema(
         },
       },
     ],
+    likes: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
     date: {
       type: Date,
       default: Date.now,

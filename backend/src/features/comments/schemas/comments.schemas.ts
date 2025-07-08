@@ -8,3 +8,7 @@ export const commentSchema = z.object({
 export const replySchema = z.object({
   content: z.string().min(1, "Reply content is required"),
 });
+
+export const likeCount = z.object({
+  likes: z.string(),
+});

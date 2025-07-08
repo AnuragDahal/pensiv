@@ -10,7 +10,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments }) => (
   <div className="space-y-6">
     {comments.map((comment, index) => (
       <div key={comment.id} className="animate-fade-in">
-        <CommentItem 
+        <CommentItem
           id={comment.id}
           postId={comment.postId}
           name={comment.name}
