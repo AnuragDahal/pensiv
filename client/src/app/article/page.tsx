@@ -45,7 +45,7 @@ const Articles = () => {
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(!loading);
+        setLoading(false);
       }
     };
     fetchArticles();

@@ -4,9 +4,10 @@ import CommentItem, { CommentItemProps } from "./CommentItem";
 
 interface CommentListProps {
   comments: CommentItemProps[];
+  onReplyAdded?: () => void;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments }) => (
+const CommentList: React.FC<CommentListProps> = ({ comments, onReplyAdded }) => (
   <div className="space-y-6">
     {comments.map((comment, index) => (
       <div key={comment.id} className="animate-fade-in">
@@ -19,6 +20,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments }) => (
           content={comment.content}
           likes={comment.likes}
           replies={comment.replies}
+          onReplyAdded={onReplyAdded}
         />
         {index !== comments.length - 1 && <Separator className="my-6" />}
       </div>

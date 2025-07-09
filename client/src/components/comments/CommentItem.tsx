@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import axios from "axios";
-// import { useComment } from "@/hooks/useComment";
+import { useComment } from "@/hooks/useComment";
 
 export interface CommentItemProps {
   id: string;
@@ -15,36 +13,29 @@ export interface CommentItemProps {
   content: string;
   likes?: number;
   replies?: CommentItemProps[];
+  onReplyAdded?: () => void; // Callback to refresh comments
 }
 
 const CommentItem: React.FC<CommentItemProps> = (props) => {
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [replyContent, setReplyContent] = useState("");
-  const [isLiked, setIsLiked] = useState(false);
-  // const { handleLike, likeCount } = useComment(props.id);
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-  };
+
+  const {
+    handleLike,
+    likeCount,
+    isLiked,
+    handleSendReply: sendReply,
+    isLoading
+  } = useComment(props.id, props.likes || 0);
+
   const openReplyBox = () => setShowReplyBox((prev) => !prev);
 
   const handleSendReply = async () => {
-    try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/reply/${props.id}`,
-        {
-          content: replyContent,
-        }
-      );
-      toast.success("Reply sent successfully!");
+    await sendReply(replyContent, () => {
       setReplyContent("");
       setShowReplyBox(false);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to send reply");
-      } else {
-        toast.error("An unexpected error occurred");
-      }
-    }
+      props.onReplyAdded?.(); // Refresh comments
+    });
   };
   return (
     <div className="flex items-start gap-3">
@@ -64,13 +55,16 @@ const CommentItem: React.FC<CommentItemProps> = (props) => {
             size="sm"
             className={`rounded-full ${isLiked ? "text-red-500" : ""}`}
             onClick={handleLike}
+            disabled={isLoading}
           >
             <Heart
               className={`h-4 w-4 mr-1 ${isLiked ? "fill-red-500" : ""}`}
             />
-            {/* {likeCount} */}
+            {likeCount}
           </Button>
           <Button
+            variant="ghost"
+            size="sm"
             onClick={openReplyBox}
             className="text-xs text-muted-foreground hover:text-foreground"
           >
@@ -90,16 +84,16 @@ const CommentItem: React.FC<CommentItemProps> = (props) => {
               size="sm"
               className="mt-1"
               onClick={handleSendReply}
-              disabled={!replyContent.trim()}
+              disabled={!replyContent.trim() || isLoading}
             >
-              Send
+              {isLoading ? "Sending..." : "Send"}
             </Button>
           </div>
         )}
         {props.replies && props.replies.length > 0 && (
           <div className="mt-3 pl-4 border-l border-muted">
             {props.replies.map((reply, index) => (
-              <CommentItem key={index} {...reply} />
+              <CommentItem key={index} {...reply} onReplyAdded={props.onReplyAdded} />
             ))}
           </div>
         )}

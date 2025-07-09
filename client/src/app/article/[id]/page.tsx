@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useArticle } from "@/hooks/useArticle";
 import { useAuthStore } from "@/store/auth-store";
 import { ArticleProps } from "@/types/article";
+import { Comment } from "@/types/comments";
 import axios from "axios";
 import {
   Bookmark,
@@ -20,6 +21,57 @@ import {
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+
+// Backend comment interface
+interface BackendComment {
+  id?: string;
+  _id?: string;
+  postId: string;
+  userId?: {
+    name?: string;
+    avatar?: string;
+  };
+  date?: string;
+  createdAt?: string;
+  content: string;
+  likes?: number;
+  replies?: BackendReply[];
+}
+
+interface BackendReply {
+  id?: string;
+  _id?: string;
+  userId?: {
+    name?: string;
+    avatar?: string;
+  };
+  date?: string;
+  createdAt?: string;
+  content: string;
+}
+
+// Transform backend comment data to frontend format
+const transformComment = (backendComment: BackendComment): Comment => {
+  return {
+    id: backendComment.id || backendComment._id || '',
+    postId: backendComment.postId,
+    name: backendComment.userId?.name || "Anonymous",
+    avatar: backendComment.userId?.avatar,
+    date: new Date(backendComment.date || backendComment.createdAt || Date.now()).toLocaleDateString(),
+    content: backendComment.content,
+    likes: backendComment.likes || 0,
+    replies: backendComment.replies?.map((reply: BackendReply) => ({
+      id: reply.id || reply._id || '',
+      postId: backendComment.postId,
+      name: reply.userId?.name || "Anonymous",
+      avatar: reply.userId?.avatar,
+      date: new Date(reply.date || reply.createdAt || Date.now()).toLocaleDateString(),
+      content: reply.content,
+      likes: 0, // Replies don't have likes in the current backend model
+      replies: [], // Nested replies not supported yet
+    })) || [],
+  };
+};
 import { CommentsForm } from "../_components/forms/comments-form";
 
 // Mock data for related articles
@@ -142,7 +194,22 @@ const Article = () => {
           },
         }
       );
-      setArticle(response.data.data);
+
+      // Transform the backend data to match frontend types
+      const backendData = response.data.data;
+      const transformedData: ArticleProps = {
+        ...backendData,
+        excerpt: backendData.shortDescription,
+        date: new Date(backendData.createdAt).toLocaleDateString("en-us", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        estimatedReadTime: Math.ceil(backendData.content.split(" ").length / 200),
+        comments: backendData.comments?.map(transformComment) || [],
+      };
+
+      setArticle(transformedData);
     } catch (error) {
       console.error("Error refreshing article:", error);
     }
@@ -334,7 +401,7 @@ const Article = () => {
                 />
 
                 {/* Comments List */}
-                <CommentList comments={article.comments} />
+                <CommentList comments={article.comments} onReplyAdded={refreshArticle} />
               </div>
             </div>
           </div>
