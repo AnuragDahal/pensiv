@@ -3,9 +3,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 
-export function useComment(commentId: string, initialLikes: number = 0) {
+export function useComment(commentId: string, initialLikes: number = 0, initialIsLiked: boolean = false) {
   const [likeCount, setLikeCount] = useState(initialLikes);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [isLoading, setIsLoading] = useState(false);
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
@@ -22,11 +22,9 @@ export function useComment(commentId: string, initialLikes: number = 0) {
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
 
     try {
-      await axios.patch(
+      const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}/like`,
-        {
-          likes: likeCount + (isLiked ? -1 : 1),
-        },
+        {},
         {
           withCredentials: true,
           headers: {
@@ -34,7 +32,13 @@ export function useComment(commentId: string, initialLikes: number = 0) {
           },
         }
       );
-      toast.success(isLiked ? "Comment unliked" : "Comment liked");
+
+      // Update with actual server response
+      const { likes, isLiked: serverIsLiked } = response.data.data;
+      setLikeCount(likes);
+      setIsLiked(serverIsLiked);
+
+      toast.success(response.data.message || (serverIsLiked ? "Comment liked" : "Comment unliked"));
     } catch (error) {
       // Revert optimistic update on error
       setIsLiked(previousLiked);

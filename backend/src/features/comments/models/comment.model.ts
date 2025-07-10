@@ -38,6 +38,12 @@ const commentSchema = new mongoose.Schema(
       required: false,
       default: 0,
     },
+    likedBy: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
     date: {
       type: Date,
       default: Date.now,

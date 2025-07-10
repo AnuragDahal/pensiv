@@ -18,6 +18,7 @@ interface BackendComment {
   createdAt?: string;
   content: string;
   likes?: number;
+  likedBy?: string[];
   replies?: BackendReply[];
 }
 
@@ -34,7 +35,7 @@ interface BackendReply {
 }
 
 // Transform backend comment data to frontend format
-const transformComment = (backendComment: BackendComment): Comment => {
+const transformComment = (backendComment: BackendComment, currentUserId?: string): Comment => {
   return {
     id: backendComment.id || backendComment._id || '',
     postId: backendComment.postId,
@@ -43,6 +44,7 @@ const transformComment = (backendComment: BackendComment): Comment => {
     date: new Date(backendComment.date || backendComment.createdAt || Date.now()).toLocaleDateString(),
     content: backendComment.content,
     likes: backendComment.likes || 0,
+    isLikedByUser: currentUserId ? backendComment.likedBy?.includes(currentUserId) || false : false,
     replies: backendComment.replies?.map((reply: BackendReply) => ({
       id: reply.id || reply._id || '',
       postId: backendComment.postId,
@@ -57,7 +59,7 @@ const transformComment = (backendComment: BackendComment): Comment => {
 };
 
 export function useArticle(articleId: string) {
-  const { getTokens } = useAuthStore();
+  const { getTokens, user } = useAuthStore();
   const { accessToken } = getTokens();
   const [articleData, setArticleData] = useState<ArticleProps | null>(null);
   const [loading, setLoading] = useState(false);
@@ -94,7 +96,7 @@ export function useArticle(articleId: string) {
           day: "numeric",
         }),
         estimatedReadTime: Math.ceil(backendData.content.split(" ").length / 200),
-        comments: backendData.comments?.map(transformComment) || [],
+        comments: backendData.comments?.map((comment: BackendComment) => transformComment(comment, user?.id)) || [],
       };
 
       setArticleData(transformedData);

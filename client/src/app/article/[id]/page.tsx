@@ -53,23 +53,28 @@ interface BackendReply {
 // Transform backend comment data to frontend format
 const transformComment = (backendComment: BackendComment): Comment => {
   return {
-    id: backendComment.id || backendComment._id || '',
+    id: backendComment.id || backendComment._id || "",
     postId: backendComment.postId,
     name: backendComment.userId?.name || "Anonymous",
     avatar: backendComment.userId?.avatar,
-    date: new Date(backendComment.date || backendComment.createdAt || Date.now()).toLocaleDateString(),
+    date: new Date(
+      backendComment.date || backendComment.createdAt || Date.now()
+    ).toLocaleDateString(),
     content: backendComment.content,
     likes: backendComment.likes || 0,
-    replies: backendComment.replies?.map((reply: BackendReply) => ({
-      id: reply.id || reply._id || '',
-      postId: backendComment.postId,
-      name: reply.userId?.name || "Anonymous",
-      avatar: reply.userId?.avatar,
-      date: new Date(reply.date || reply.createdAt || Date.now()).toLocaleDateString(),
-      content: reply.content,
-      likes: 0, // Replies don't have likes in the current backend model
-      replies: [], // Nested replies not supported yet
-    })) || [],
+    replies:
+      backendComment.replies?.map((reply: BackendReply) => ({
+        id: reply.id || reply._id || "",
+        postId: backendComment.postId,
+        name: reply.userId?.name || "Anonymous",
+        avatar: reply.userId?.avatar,
+        date: new Date(
+          reply.date || reply.createdAt || Date.now()
+        ).toLocaleDateString(),
+        content: reply.content,
+        likes: 0, // Replies don't have likes in the current backend model
+        replies: [], // Nested replies not supported yet
+      })) || [], // Initialize as false, will be updated later
   };
 };
 import { CommentsForm } from "../_components/forms/comments-form";
@@ -205,8 +210,13 @@ const Article = () => {
           month: "long",
           day: "numeric",
         }),
-        estimatedReadTime: Math.ceil(backendData.content.split(" ").length / 200),
-        comments: backendData.comments?.map(transformComment) || [],
+        estimatedReadTime: Math.ceil(
+          backendData.content.split(" ").length / 200
+        ),
+        comments:
+          backendData.comments?.map((comment: BackendComment) =>
+            transformComment(comment)
+          ) || [],
       };
 
       setArticle(transformedData);
@@ -401,7 +411,10 @@ const Article = () => {
                 />
 
                 {/* Comments List */}
-                <CommentList comments={article.comments} onReplyAdded={refreshArticle} />
+                <CommentList
+                  comments={article.comments}
+                  onReplyAdded={refreshArticle}
+                />
               </div>
             </div>
           </div>

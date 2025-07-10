@@ -10,6 +10,7 @@ import {
   getCommentById,
   updateCommentById,
 } from "../services/comments.service";
+import { Comments } from "../models/comment.model";
 
 // export const getAllComments = asyncHandler(
 //   async (req: Request, res: Response) => {
@@ -146,24 +147,66 @@ export const createCommentReply = asyncHandler(
 export const updateCommentLikes = asyncHandler(
   async (req: Request, res: Response) => {
     const commentId = req.params.id;
+    const userId = req.user?._id;
+
+    if (!userId) {
+      throw new APIError(
+        API_RESPONSES.UNAUTHORIZED,
+        HTTP_STATUS_CODES.UNAUTHORIZED
+      );
+    }
 
     const comment = await getCommentById(commentId);
     if (!comment) {
-      return sendResponse({
-        res,
-        status: HTTP_STATUS_CODES.NOT_FOUND,
-        message: "Comment not found",
-      });
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
     }
-    comment?.set({
-      likes: req.body.likeCount,
-    });
-    await comment.save({ validateBeforeSave: false });
+
+    // Check if user has already liked this comment
+    const hasLiked = comment.likedBy?.some(id => id.toString() === userId.toString());
+
+    let updatedComment;
+
+    if (hasLiked) {
+      // Unlike: Remove user from likedBy array and decrement likes
+      updatedComment = await Comments.findByIdAndUpdate(
+        commentId,
+        {
+          $pull: { likedBy: userId },
+          $inc: { likes: -1 }
+        },
+        { new: true }
+      );
+    } else {
+      // Like: Add user to likedBy array and increment likes
+      updatedComment = await Comments.findByIdAndUpdate(
+        commentId,
+        {
+          $addToSet: { likedBy: userId },
+          $inc: { likes: 1 }
+        },
+        { new: true }
+      );
+    }
+
+    if (!updatedComment) {
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
+    }
+
     return sendResponse({
       res,
-      status: HTTP_STATUS_CODES.CREATED,
-      message: "Like updated Successfully",
-      data: comment.likes,
+      status: HTTP_STATUS_CODES.OK,
+      message: hasLiked ? "Comment unliked successfully" : "Comment liked successfully",
+      data: {
+        likes: updatedComment.likes,
+        isLiked: !hasLiked,
+        commentId: updatedComment._id,
+      },
     });
   }
 );

@@ -48,6 +48,12 @@ const postSchema = new mongoose.Schema(
       required: false,
       default: 0,
     },
+    likedBy: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true, // Automatically manage createdAt and updatedAt fields

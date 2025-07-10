@@ -12,6 +12,7 @@ export const postSchema = z.object({
   featured: z.boolean().optional(),
 });
 
+
 export const queryParams = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),

@@ -19,6 +19,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReplyAdded }) => 
           date={comment.date}
           content={comment.content}
           likes={comment.likes}
+          isLikedByUser={comment.isLikedByUser}
           replies={comment.replies}
           onReplyAdded={onReplyAdded}
         />

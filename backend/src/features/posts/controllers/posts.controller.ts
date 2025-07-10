@@ -235,3 +235,70 @@ export const updatePost = asyncHandler(async (req: Request, res: Response) => {
     message: API_RESPONSES.RESOURCE_UPDATED,
   });
 });
+
+export const updatePostLikes = asyncHandler(
+  async (req: Request, res: Response) => {
+    const postId = req.params.id;
+    const userId = req.user?._id;
+
+    if (!userId) {
+      throw new APIError(
+        API_RESPONSES.UNAUTHORIZED,
+        HTTP_STATUS_CODES.UNAUTHORIZED
+      );
+    }
+
+    const post = await getPostById(postId);
+    if (!post) {
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
+    }
+    const hasLiked = post.likedBy?.some(
+      (id) => id.toString() === userId.toString()
+    );
+
+    let updatedPost;
+
+    if (hasLiked) {
+      // Unlike: Remove user from likedBy array and decrement likes
+      updatedPost = await Post.findByIdAndUpdate(
+        postId,
+        {
+          $pull: { likedBy: userId },
+          $inc: { likes: -1 },
+        },
+        { new: true }
+      );
+    } else {
+      // Like: Add user to likedBy array and increment likes
+      updatedPost = await Post.findByIdAndUpdate(
+        postId,
+        {
+          $addToSet: { likedBy: userId },
+          $inc: { likes: 1 },
+        },
+        { new: true }
+      );
+    }
+    if (!updatedPost) {
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
+    }
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.OK,
+      message: hasLiked
+        ? "Post unliked successfully"
+        : "Post liked successfully",
+      data: {
+        likes: updatedPost.likes,
+        isLiked: !hasLiked,
+        postId: updatedPost._id,
+      },
+    });
+  }
+);

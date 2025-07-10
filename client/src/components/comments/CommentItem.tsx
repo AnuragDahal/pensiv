@@ -12,6 +12,7 @@ export interface CommentItemProps {
   date: string;
   content: string;
   likes?: number;
+  isLikedByUser?: boolean;
   replies?: CommentItemProps[];
   onReplyAdded?: () => void; // Callback to refresh comments
 }
@@ -26,7 +27,7 @@ const CommentItem: React.FC<CommentItemProps> = (props) => {
     isLiked,
     handleSendReply: sendReply,
     isLoading
-  } = useComment(props.id, props.likes || 0);
+  } = useComment(props.id, props.likes || 0, props.isLikedByUser || false);
 
   const openReplyBox = () => setShowReplyBox((prev) => !prev);
 
@@ -93,7 +94,11 @@ const CommentItem: React.FC<CommentItemProps> = (props) => {
         {props.replies && props.replies.length > 0 && (
           <div className="mt-3 pl-4 border-l border-muted">
             {props.replies.map((reply, index) => (
-              <CommentItem key={index} {...reply} onReplyAdded={props.onReplyAdded} />
+              <CommentItem
+                key={index}
+                {...reply}
+                onReplyAdded={props.onReplyAdded}
+              />
             ))}
           </div>
         )}
