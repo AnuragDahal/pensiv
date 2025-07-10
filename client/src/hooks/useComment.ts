@@ -19,12 +19,14 @@ export function useComment(commentId: string, initialLikes: number = 0) {
 
     // Optimistic update
     setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
 
     try {
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}/like`,
-        {},
+        {
+          likes: likeCount + (isLiked ? -1 : 1),
+        },
         {
           withCredentials: true,
           headers: {
@@ -84,6 +86,6 @@ export function useComment(commentId: string, initialLikes: number = 0) {
     likeCount,
     isLiked,
     handleSendReply,
-    isLoading
+    isLoading,
   };
 }

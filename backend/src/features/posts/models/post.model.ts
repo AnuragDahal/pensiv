@@ -43,6 +43,11 @@ const postSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    likes: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
   },
   {
     timestamps: true, // Automatically manage createdAt and updatedAt fields

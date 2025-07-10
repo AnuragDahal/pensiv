@@ -6,6 +6,7 @@ import {
   getPostById,
   getPosts,
   getPostsByUserId,
+  updatePostById,
 } from "../services/posts.service";
 import { Post } from "../models/post.model";
 import { sendResponse } from "../../../shared/services/response.service";
@@ -57,7 +58,7 @@ export const getSinglePost = asyncHandler(
         path: "comments",
         populate: {
           path: "userId",
-          select: "name email avatar replies",
+          select: "name email avatar replies likes",
         },
       })
       .populate("userId", "name email avatar bio");
@@ -216,3 +217,21 @@ export const fetchAllPosts = asyncHandler(
     });
   }
 );
+
+export const updatePost = asyncHandler(async (req: Request, res: Response) => {
+  const post = await getPostById(req.params.id);
+  if (!post) {
+    throw new APIError(
+      API_RESPONSES.RESOURCE_NOT_FOUND,
+      HTTP_STATUS_CODES.NOT_FOUND
+    );
+  }
+
+  await updatePostById(req.params.id, req.body);
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    message: API_RESPONSES.RESOURCE_UPDATED,
+  });
+});
