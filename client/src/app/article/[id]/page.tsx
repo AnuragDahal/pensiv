@@ -9,6 +9,7 @@ import { useArticle } from "@/hooks/useArticle";
 import { useAuthStore } from "@/store/auth-store";
 import { ArticleProps } from "@/types/article";
 import { Comment } from "@/types/comments";
+import usePost from "@/hooks/usePost";
 import axios from "axios";
 import {
   Bookmark,
@@ -21,6 +22,7 @@ import {
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CommentsForm } from "../_components/forms/comments-form";
 
 // Backend comment interface
 interface BackendComment {
@@ -77,7 +79,6 @@ const transformComment = (backendComment: BackendComment): Comment => {
       })) || [], // Initialize as false, will be updated later
   };
 };
-import { CommentsForm } from "../_components/forms/comments-form";
 
 // Mock data for related articles
 const relatedArticles = [
@@ -146,6 +147,8 @@ const Article = () => {
       avatar: "",
       bio: "",
     },
+    likes: 0,
+    likedBy: [],
     comments: [
       {
         id: "1",
@@ -175,11 +178,17 @@ const Article = () => {
     date: "",
     estimatedReadTime: 0,
     featured: false,
+    isLikedByUser: false,
   });
-  const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [likeCount, setLikeCount] = useState(42);
   const { articleData } = useArticle(id as string);
+
+  // Initialize usePost hook with article data
+  const { handleLike, isLiked, likeCount } = usePost(
+    id as string,
+    article.likes || 0,
+    article.isLikedByUser || false
+  );
 
   useEffect(() => {
     if (articleData) {
@@ -223,15 +232,6 @@ const Article = () => {
     } catch (error) {
       console.error("Error refreshing article:", error);
     }
-  };
-
-  const handleLike = () => {
-    if (isLiked) {
-      setLikeCount(likeCount - 1);
-    } else {
-      setLikeCount(likeCount + 1);
-    }
-    setIsLiked(!isLiked);
   };
 
   const handleBookmark = () => {

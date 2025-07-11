@@ -16,6 +16,9 @@ export interface ArticleProps {
   content: string;
   tags?: string[];
   date: string;
+  likes: number;
+  likedBy: string[];
   estimatedReadTime: number;
   featured?: boolean;
+  isLikedByUser?: boolean;
 }

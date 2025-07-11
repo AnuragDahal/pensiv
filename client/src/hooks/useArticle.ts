@@ -35,26 +35,36 @@ interface BackendReply {
 }
 
 // Transform backend comment data to frontend format
-const transformComment = (backendComment: BackendComment, currentUserId?: string): Comment => {
+const transformComment = (
+  backendComment: BackendComment,
+  currentUserId?: string
+): Comment => {
   return {
-    id: backendComment.id || backendComment._id || '',
+    id: backendComment.id || backendComment._id || "",
     postId: backendComment.postId,
     name: backendComment.userId?.name || "Anonymous",
     avatar: backendComment.userId?.avatar,
-    date: new Date(backendComment.date || backendComment.createdAt || Date.now()).toLocaleDateString(),
+    date: new Date(
+      backendComment.date || backendComment.createdAt || Date.now()
+    ).toLocaleDateString(),
     content: backendComment.content,
     likes: backendComment.likes || 0,
-    isLikedByUser: currentUserId ? backendComment.likedBy?.includes(currentUserId) || false : false,
-    replies: backendComment.replies?.map((reply: BackendReply) => ({
-      id: reply.id || reply._id || '',
-      postId: backendComment.postId,
-      name: reply.userId?.name || "Anonymous",
-      avatar: reply.userId?.avatar,
-      date: new Date(reply.date || reply.createdAt || Date.now()).toLocaleDateString(),
-      content: reply.content,
-      likes: 0, // Replies don't have likes in the current backend model
-      replies: [], // Nested replies not supported yet
-    })) || [],
+    isLikedByUser: currentUserId
+      ? backendComment.likedBy?.includes(currentUserId) || false
+      : false,
+    replies:
+      backendComment.replies?.map((reply: BackendReply) => ({
+        id: reply.id || reply._id || "",
+        postId: backendComment.postId,
+        name: reply.userId?.name || "Anonymous",
+        avatar: reply.userId?.avatar,
+        date: new Date(
+          reply.date || reply.createdAt || Date.now()
+        ).toLocaleDateString(),
+        content: reply.content,
+        likes: 0, // Replies don't have likes in the current backend model
+        replies: [], // Nested replies not supported yet
+      })) || [],
   };
 };
 
@@ -95,8 +105,17 @@ export function useArticle(articleId: string) {
           month: "long",
           day: "numeric",
         }),
-        estimatedReadTime: Math.ceil(backendData.content.split(" ").length / 200),
-        comments: backendData.comments?.map((comment: BackendComment) => transformComment(comment, user?.id)) || [],
+        estimatedReadTime: Math.ceil(
+          backendData.content.split(" ").length / 200
+        ),
+        likes: backendData.likes || 0,
+        likedBy: backendData.likedBy || [],
+        isLikedByUser: user?.id
+          ? backendData.likedBy?.includes(user.id) || false
+          : false,
+        comments: backendData.comments?.map((comment: BackendComment) =>
+          transformComment(comment, user?.id)
+        ) || [user],
       };
 
       setArticleData(transformedData);
@@ -108,7 +127,7 @@ export function useArticle(articleId: string) {
     } finally {
       setLoading(false);
     }
-  }, [articleId, accessToken, isAuthInitialized, isAuthenticated]);
+  }, [articleId, accessToken, isAuthInitialized, isAuthenticated, user?.id]);
 
   useEffect(() => {
     fetchArticle();
