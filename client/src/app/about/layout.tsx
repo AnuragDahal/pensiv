@@ -1,3 +1,5 @@
+import Footer from "@/components/Footer";
+import Navbar from "@/components/NavBar";
 import React, { ReactNode } from "react";
 
 export const metadata = {
@@ -14,7 +16,9 @@ export const metadata = {
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <html>
+      <Navbar />
       <body>{children}</body>
+      <Footer />
     </html>
   );
 };
