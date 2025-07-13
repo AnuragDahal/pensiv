@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -9,6 +9,12 @@ export function useComment(commentId: string, initialLikes: number = 0, initialI
   const [isLoading, setIsLoading] = useState(false);
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
+
+  // Sync state when props change (when comment data is refetched)
+  useEffect(() => {
+    setLikeCount(initialLikes);
+    setIsLiked(initialIsLiked);
+  }, [initialLikes, initialIsLiked]);
 
   const handleLike = async () => {
     if (isLoading) return;

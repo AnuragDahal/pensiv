@@ -37,6 +37,7 @@ interface BackendComment {
   createdAt?: string;
   content: string;
   likes?: number;
+  likedBy?: string[];
   replies?: BackendReply[];
 }
 
@@ -53,7 +54,7 @@ interface BackendReply {
 }
 
 // Transform backend comment data to frontend format
-const transformComment = (backendComment: BackendComment): Comment => {
+const transformComment = (backendComment: BackendComment, currentUserId?: string): Comment => {
   return {
     id: backendComment.id || backendComment._id || "",
     postId: backendComment.postId,
@@ -64,6 +65,7 @@ const transformComment = (backendComment: BackendComment): Comment => {
     ).toLocaleDateString(),
     content: backendComment.content,
     likes: backendComment.likes || 0,
+    isLikedByUser: currentUserId ? backendComment.likedBy?.includes(currentUserId) || false : false,
     replies:
       backendComment.replies?.map((reply: BackendReply) => ({
         id: reply.id || reply._id || "",
@@ -76,7 +78,7 @@ const transformComment = (backendComment: BackendComment): Comment => {
         content: reply.content,
         likes: 0, // Replies don't have likes in the current backend model
         replies: [], // Nested replies not supported yet
-      })) || [], // Initialize as false, will be updated later
+      })) || [],
   };
 };
 
@@ -134,7 +136,7 @@ const relatedArticles = [
 
 const Article = () => {
   const { id } = useParams();
-  const { getTokens } = useAuthStore();
+  const { getTokens, user } = useAuthStore();
   const { accessToken } = getTokens();
   const [article, setArticle] = useState<ArticleProps>({
     id: "",
@@ -183,11 +185,12 @@ const Article = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const { articleData } = useArticle(id as string);
 
-  // Initialize usePost hook with article data
+  // Initialize usePost hook with article data (use articleData if available, fallback to article)
+  const currentArticle = articleData || article;
   const { handleLike, isLiked, likeCount } = usePost(
     id as string,
-    article.likes || 0,
-    article.isLikedByUser || false
+    currentArticle.likes || 0,
+    currentArticle.isLikedByUser || false
   );
 
   useEffect(() => {
@@ -222,9 +225,12 @@ const Article = () => {
         estimatedReadTime: Math.ceil(
           backendData.content.split(" ").length / 200
         ),
+        likes: backendData.likes || 0,
+        likedBy: backendData.likedBy || [],
+        isLikedByUser: user?.id ? backendData.likedBy?.includes(user.id) || false : false,
         comments:
           backendData.comments?.map((comment: BackendComment) =>
-            transformComment(comment)
+            transformComment(comment, user?.id)
           ) || [],
       };
 

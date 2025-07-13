@@ -1,14 +1,24 @@
 import { useAuthStore } from "@/store/auth-store";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
-export default function usePost(postId: string, initialLikes: number = 0, initialIsLiked: boolean = false) {
+export default function usePost(
+  postId: string,
+  initialLikes: number = 0,
+  initialIsLiked: boolean = false
+) {
   const [likeCount, setLikeCount] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [isLoading, setIsLoading] = useState(false);
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
+
+  // Sync state when props change (when article data is refetched)
+  useEffect(() => {
+    setLikeCount(initialLikes);
+    setIsLiked(initialIsLiked);
+  }, [initialLikes, initialIsLiked]);
 
   const handleLike = async () => {
     if (isLoading) return;
@@ -38,7 +48,9 @@ export default function usePost(postId: string, initialLikes: number = 0, initia
       setLikeCount(likes);
       setIsLiked(serverIsLiked);
 
-      toast.success(response.data.message || (serverIsLiked ? "Post liked" : "Post unliked"));
+      toast.success(
+        response.data.message || (serverIsLiked ? "Post liked" : "Post unliked")
+      );
     } catch (error) {
       // Revert optimistic update on error
       setIsLiked(previousLiked);
