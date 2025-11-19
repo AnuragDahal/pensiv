@@ -152,7 +152,11 @@ export default function CreateArticleForm() {
             </FormItem>
           )}
         />
+<<<<<<< Updated upstream:client/src/app/create/_components/article-create-form.tsx
 
+=======
+        {/*TODO: A Markdown editor to be added here  */}
+>>>>>>> Stashed changes:client/src/app/article/create/_components/article-create-form.tsx
         <FormField
           control={form.control}
           name="content"

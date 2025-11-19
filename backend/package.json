@@ -6,9 +6,18 @@
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "dev": "nodemon",
+<<<<<<< Updated upstream
     "build": "tsc",
     "prod": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+=======
+    "build": "tsc && tsc-alias",
+    "prod": "node -r tsconfig-paths/register dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write .",
+    "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts"
+>>>>>>> Stashed changes
   },
   "keywords": [],
   "author": "",

@@ -31,7 +31,7 @@ export interface IPost {
 
 export interface IComment {
   userId: string | Types.ObjectId;
-  comment: string;
+  content: string;
   postId: string;
 }
 
