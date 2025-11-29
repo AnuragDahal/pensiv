@@ -6,8 +6,8 @@ import { Calendar } from "lucide-react";
 import Image from "next/image";
 
 interface ArticleCardProps {
-  id: string;
   title: string;
+  slug: string;
   excerpt: string;
   coverImage: string;
   author: {
@@ -21,9 +21,9 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({
-  id,
   title,
   excerpt,
+  slug,
   coverImage,
   author,
   category,
@@ -32,7 +32,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   featured = false,
 }) => {
   return (
-    <Link href={`/article/${id}`}>
+    <Link href={`/article/${slug}`}>
       <article
         className={`overflow-hidden rounded-2xl h-full card-hover ${
           featured ? "bg-gradient-to-br from-navy/5 to-lavender/5" : "bg-card"

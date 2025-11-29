@@ -1,62 +1,38 @@
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
+import { marked } from "marked";
+import striptags from "striptags";
 
 const postSchema = new mongoose.Schema(
   {
     userId: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    title: {
-      type: String,
-      required: true,
-    },
-    shortDescription: {
-      type: String,
-      required: true,
-    },
-    comments: [
-      {
-        type: Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
-    coverImage: {
-      type: String,
-      required: true,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
-    category: {
-      type: String,
-      required: true,
-    },
-    featured: {
-      type: Boolean,
-      default: false,
-    },
-    tags: [
-      {
-        type: String,
-        required: true,
-      },
-    ],
-    likes: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-    likedBy: [
-      {
-        type: Types.ObjectId,
-        ref: "User",
-      },
-    ],
+
+    title: { type: String, required: true },
+    shortDescription: { type: String },
+    slug: { type: String, unique: true },
+    category: { type: String },
+    coverImage: { type: String }, // newly added field
+    content: { type: String, required: true }, // markdown raw text
+    htmlContent: { type: String }, // store rendered HTML (optional but HIGHLY recommended)
+    tags: [{ type: String }],
+
+    // counts only (for speed)
+    likesCount: { type: Number, default: 0 },
+    dislikesCount: { type: Number, default: 0 },
+
+    // auto-featured or manually featured
+    isFeatured: { type: Boolean, default: false },
+
+    // for recommendation algorithm
+    views: { type: Number, default: 0 },
+
+    createdAt: { type: Date, default: Date.now },
   },
   {
-    timestamps: true, // Automatically manage createdAt and updatedAt fields
+    timestamps: true,
     toJSON: {
       transform: function (doc, ret) {
         ret.id = ret._id;
@@ -66,5 +42,54 @@ const postSchema = new mongoose.Schema(
     },
   }
 );
+// generate a short description from the content
+
+postSchema.pre("save", async function (next) {
+  // Only create shortDescription if missing
+  if (!this.shortDescription) {
+    const md = this.content || "";
+
+    // Convert markdown -> HTML
+    const html = await marked.parse(md);
+
+    // Remove HTML tags => pure text
+    const cleanText = striptags(html);
+
+    // Create safe short description
+    this.shortDescription = cleanText.substring(0, 150).trim() + "...";
+  }
+
+  next();
+});
+// generate unique slug from title even if the title is same
+postSchema.pre("save", async function (next) {
+  if (!this.slug) {
+    this.slug = this.title.replace(/\s/g, "-").toLowerCase();
+    const existingPost = await Post.findOne({ slug: this.slug });
+    if (existingPost) {
+      this.slug = `${this.slug}-${Date.now()}`;
+    }
+  }
+  next();
+});
+
+// Virtual for comments
+postSchema.virtual("comments", {
+  ref: "Comment",
+  localField: "_id",
+  foreignField: "postId",
+  options: { sort: { createdAt: -1 } }, // Sort comments by newest first
+});
+
+// Virtual for comment count
+postSchema.virtual("commentsCount", {
+  ref: "Comment",
+  localField: "_id",
+  foreignField: "postId",
+  count: true, // Just return the count
+});
+
+// index for the slug
+postSchema.index({ slug: 1 });
 
 export const Post = mongoose.model("Post", postSchema);

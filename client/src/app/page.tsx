@@ -12,6 +12,7 @@ import Link from "next/link";
 interface ArticleProps {
   id: string;
   title: string;
+  slug: string;
   excerpt: string;
   coverImage: string;
   author: {
@@ -27,6 +28,7 @@ interface ArticleProps {
 const featuredArticle: ArticleProps = {
   id: "1",
   title: "The Future of Web Design: Minimalism Meets Functionality",
+  slug: "the-future-of-web-design-minimalism-meets-functionality",
   excerpt:
     "Explore how modern web design is embracing minimalism while enhancing user experience and functionality. Discover the key principles driving this design evolution.",
   coverImage:
@@ -45,6 +47,7 @@ const featuredArticle: ArticleProps = {
 const articles: ArticleProps[] = [
   {
     id: "2",
+    slug: "the-art-of-productivity-achieving-more-with-less",
     title: "The Art of Productivity: Achieving More with Less",
     excerpt:
       "Discover the secrets to maximizing your productivity without burning out. Learn practical strategies that successful people use.",
@@ -61,6 +64,7 @@ const articles: ArticleProps[] = [
   },
   {
     id: "3",
+    slug: "sustainable-living-small-changes-big-impact",
     title: "Sustainable Living: Small Changes, Big Impact",
     excerpt:
       "How small daily choices can lead to significant environmental benefits. Practical tips for a more sustainable lifestyle.",
@@ -77,6 +81,7 @@ const articles: ArticleProps[] = [
   },
   {
     id: "4",
+    slug: "the-science-of-better-sleep-research-backed-strategies",
     title: "The Science of Better Sleep: Research-Backed Strategies",
     excerpt:
       "Recent research findings on what really helps improve sleep quality. Evidence-based techniques you can apply tonight.",
@@ -93,6 +98,7 @@ const articles: ArticleProps[] = [
   },
   {
     id: "5",
+    slug: "financial-freedom-building-wealth-on-any-income",
     title: "Financial Freedom: Building Wealth on Any Income",
     excerpt:
       "Practical financial advice that works regardless of your current income level. Build wealth step by step with these proven methods.",
@@ -109,6 +115,7 @@ const articles: ArticleProps[] = [
   },
   {
     id: "6",
+    slug: "the-future-of-ai-in-everyday-life",
     title: "The Future of AI in Everyday Life",
     excerpt:
       "How artificial intelligence is quietly transforming our daily routines and what to expect in the coming years.",

@@ -1,212 +1,132 @@
-import { Request, Response } from "express";
 import { API_RESPONSES } from "../../../constants/responses";
 import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
-import { getPostById } from "../../../features/posts";
 import { sendResponse } from "../../../shared/services/response.service";
 import { APIError, asyncHandler } from "../../../shared/utils";
-import {
-  createComment,
-  deleteCommentById,
-  getCommentById,
-  updateCommentById,
-} from "../services/comments.service";
 import { Comments } from "../models/comment.model";
+import {
+  addReplyToComment,
+  createComment,
+  getCommentById,
+  toggleCommentReaction,
+} from "../services/comments.service";
+import { Request, Response } from "express";
 
-// export const getAllComments = asyncHandler(
-//   async (req: Request, res: Response) => {
-//     const comments = await getComments();
-
-//     return sendResponse({
-//       res,
-//       status: HTTP_STATUS_CODES.OK,
-//       data: comments,
-//       message: API_RESPONSES.RESOURCE_FETCHED,
-//     });
-//   }
-// );
-
-export const getSingleComment = asyncHandler(
-  async (req: Request, res: Response) => {
-    const comment = await getCommentById(req.params.id);
-    if (!comment) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
-
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.OK,
-      message: API_RESPONSES.RESOURCE_FETCHED,
-      data: comment,
-    });
+export const addNewComment = asyncHandler(async (req:Request, res:Response) => {
+  if (!req.user?._id) {
+    throw new APIError(API_RESPONSES.UNAUTHORIZED, 401);
   }
-);
 
-export const addNewComment = asyncHandler(
-  async (req: Request, res: Response) => {
-    if (!req.user?._id) {
-      throw new APIError(
-        API_RESPONSES.UNAUTHORIZED,
-        HTTP_STATUS_CODES.UNAUTHORIZED
-      );
-    }
+  const commentData = {
+    content: req.body.content,
+    postId: req.body.postId,
+    userId: req.user._id,
+  };
 
-    const commentData = {
-      ...req.body,
-      userId: req.user._id,
-    };
+  const comment = await createComment(commentData);
 
-    const comment = await createComment(commentData);
-    if (!comment) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_CREATION_FAILED,
-        HTTP_STATUS_CODES.BAD_REQUEST
-      );
-    }
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.CREATED,
-      message: API_RESPONSES.RESOURCE_CREATED,
-      data: comment,
-    });
+  return sendResponse({
+    res,
+    status: 201,
+    message: "Comment added",
+    data: comment,
+  });
+});
+
+export const getSingleComment = asyncHandler(async (req:Request, res:Response) => {
+  const comment = await getCommentById(req.params.id);
+  
+  if (!comment) {
+    throw new APIError(
+      API_RESPONSES.RESOURCE_NOT_FOUND,
+      HTTP_STATUS_CODES.NOT_FOUND
+    );
   }
-);
 
-export const updateComment = asyncHandler(
-  async (req: Request, res: Response) => {
-    const comment = await getCommentById(req.params.id);
-    if (!comment) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    message: API_RESPONSES.RESOURCE_FETCHED,
+    data: comment,
+  });
+});
 
-    const updatedComment = await updateCommentById(req.params.id, req.body);
-
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.OK,
-      message: API_RESPONSES.RESOURCE_UPDATED,
-      data: updatedComment,
-    });
+export const updateComment = asyncHandler(async (req:Request, res:Response) => {
+  const comment = await getCommentById(req.params.id);
+  
+  if (!comment) {
+    throw new APIError(
+      API_RESPONSES.RESOURCE_NOT_FOUND,
+      HTTP_STATUS_CODES.NOT_FOUND
+    );
   }
-);
 
-export const deleteComment = asyncHandler(
-  async (req: Request, res: Response) => {
-    const comment = await getCommentById(req.params.id);
-    if (!comment) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
+  // Update the comment
+  comment.content = req.body.content || comment.content;
+  await comment.save();
 
-    await deleteCommentById(req.params.id);
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    message: API_RESPONSES.RESOURCE_UPDATED,
+    data: comment,
+  });
+});
 
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.OK,
-      message: API_RESPONSES.RESOURCE_DELETED,
-      data: null,
-    });
+export const deleteComment = asyncHandler(async (req:Request, res:Response) => {
+  const comment = await getCommentById(req.params.id);
+  
+  if (!comment) {
+    throw new APIError(
+      API_RESPONSES.RESOURCE_NOT_FOUND,
+      HTTP_STATUS_CODES.NOT_FOUND
+    );
   }
-);
 
-export const createCommentReply = asyncHandler(
-  async (req: Request, res: Response) => {
-    const comment = await getCommentById(req.params.id);
-    if (!comment) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
+  await Comments.findByIdAndDelete(req.params.id);
 
-    const replyData = {
-      ...req.body,
-      userId: req.user?._id,
-      commentId: req.params.id,
-    };
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    message: API_RESPONSES.RESOURCE_DELETED,
+    data: null,
+  });
+});
 
-    comment.replies.push(replyData);
-    await comment.save({ validateBeforeSave: false });
+export const createCommentReply = asyncHandler(async (req:Request, res:Response) => {
+  const comment = await getCommentById(req.params.id);
 
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.CREATED,
-      message: API_RESPONSES.RESOURCE_CREATED,
-      data: comment,
-    });
+  if (!comment) {
+    throw new APIError(API_RESPONSES.RESOURCE_NOT_FOUND, 404);
   }
-);
-
-export const updateCommentLikes = asyncHandler(
-  async (req: Request, res: Response) => {
-    const commentId = req.params.id;
-    const userId = req.user?._id;
-
-    if (!userId) {
-      throw new APIError(
-        API_RESPONSES.UNAUTHORIZED,
-        HTTP_STATUS_CODES.UNAUTHORIZED
-      );
-    }
-
-    const comment = await getCommentById(commentId);
-    if (!comment) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
-
-    // Check if user has already liked this comment
-    const hasLiked = comment.likedBy?.some(id => id.toString() === userId.toString());
-
-    let updatedComment;
-
-    if (hasLiked) {
-      // Unlike: Remove user from likedBy array and decrement likes
-      updatedComment = await Comments.findByIdAndUpdate(
-        commentId,
-        {
-          $pull: { likedBy: userId },
-          $inc: { likes: -1 }
-        },
-        { new: true }
-      );
-    } else {
-      // Like: Add user to likedBy array and increment likes
-      updatedComment = await Comments.findByIdAndUpdate(
-        commentId,
-        {
-          $addToSet: { likedBy: userId },
-          $inc: { likes: 1 }
-        },
-        { new: true }
-      );
-    }
-
-    if (!updatedComment) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
-
-    return sendResponse({
-      res,
-      status: HTTP_STATUS_CODES.OK,
-      message: hasLiked ? "Comment unliked successfully" : "Comment liked successfully",
-      data: {
-        likes: updatedComment.likes,
-        isLiked: !hasLiked,
-        commentId: updatedComment._id,
-      },
-    });
+  if (!req.user!._id || !req.body.content) {
+    return sendResponse({ res, status: 400 });
   }
-);
+
+  const reply = {
+    userId: req.user!._id,
+    content: req.body.content,
+  };
+
+  const updated = await addReplyToComment(req.params.id, reply);
+
+  return sendResponse({
+    res,
+    status: 201,
+    message: "Reply added",
+    data: updated,
+  });
+});
+
+export const updateCommentLikes = asyncHandler(async (req:Request, res:Response) => {
+  const userId = req.user!._id;
+  const commentId = req.params.id;
+
+  const result = await toggleCommentReaction(commentId, userId.toString());
+
+  return sendResponse({
+    res,
+    status: 200,
+    message: result.liked ? "Comment liked" : "Comment unliked",
+    data: { isLiked: result.liked },
+  });
+});

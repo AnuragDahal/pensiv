@@ -12,6 +12,7 @@ interface Author {
 }
 interface Article {
   id: string;
+  slug: string;
   title: string;
   userId: Author;
   shortDescription: string;
@@ -63,7 +64,7 @@ const Articles = () => {
           articles.map((article) => (
             <ArticleCard
               key={article.id}
-              id={article.id}
+              slug={article.slug}
               title={article.title}
               excerpt={article.shortDescription}
               coverImage={article.coverImage}

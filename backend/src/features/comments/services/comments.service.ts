@@ -1,45 +1,55 @@
 import { Comments } from "../models/comment.model";
 import { Post } from "../../posts/models/post.model";
-import { IComment } from "../../../types/user";
+import { Reaction } from "../../reaction/models/reaction-model";
 import { Types } from "mongoose";
+import { IComment } from "../../../types/user";
 
-export const getComments = () => Comments.find();
-export const getCommentById = (id: string | Types.ObjectId) =>
-  Comments.findById(id);
+// Create a new comment and attach to post
 export const createComment = async (comment: IComment) => {
   const newComment = await Comments.create(comment);
-  if (!newComment) {
-    throw new Error("Comment creation failed");
-  }
 
-  // Add comment to post's comments array
   await Post.findByIdAndUpdate(comment.postId, {
     $push: { comments: newComment._id },
   });
 
-  await newComment.save();
   return newComment;
 };
-export const deleteCommentById = async (id: string | Types.ObjectId) => {
-  const comment = await Comments.findById(id);
-  if (comment) {
-    // Remove comment from post's comments array
-    await Post.findByIdAndUpdate(comment.postId, {
-      $pull: { comments: id },
-    });
-  }
-  return Comments.findByIdAndDelete(id);
-};
-export const updateCommentById = (
-  id: string | Types.ObjectId,
-  comment: IComment
+
+export const getCommentById = (id: string | Types.ObjectId) =>
+  Comments.findById(id).populate("userId", "name avatar");
+
+export const addReplyToComment = async (
+  commentId: string,
+  reply: { userId: string | Types.ObjectId; content: any }
 ) => {
-  const updatedComment = Comments.findByIdAndUpdate(id, comment, { new: true });
-  return updatedComment;
+  return Comments.findByIdAndUpdate(
+    commentId,
+    { $push: { replies: reply } },
+    { new: true }
+  ).populate("replies.userId", "name avatar");
 };
 
-export const getCommentsByPostId = (postId: string | Types.ObjectId) =>
-  Comments.find({ postId }).populate("userId", "name email");
+// Like/unlike using Reaction model
+export const toggleCommentReaction = async (
+  commentId: string,
+  userId: string
+) => {
+  const existing = await Reaction.findOne({
+    user: userId,
+    comment: commentId,
+    reactionType: "like",
+  });
 
-export const getCommentsByUserId = (userId: string | Types.ObjectId) =>
-  Comments.find({ userId }).populate("postId", "title content");
+  if (existing) {
+    await Reaction.deleteOne({ _id: existing._id });
+    return { liked: false };
+  }
+
+  await Reaction.create({
+    user: userId,
+    comment: commentId,
+    reactionType: "like",
+  });
+
+  return { liked: true };
+};

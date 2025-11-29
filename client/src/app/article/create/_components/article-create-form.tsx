@@ -190,6 +190,7 @@ export default function CreateArticleForm() {
             </FormItem>
           )}
         />
+        {/*TODO: A Markdown editor to be added here  */}
         <FormField
           control={form.control}
           name="content"

@@ -10,7 +10,8 @@
     "prod": "node -r tsconfig-paths/register dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts,.tsx",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts"
   },
   "keywords": [],
   "author": "",

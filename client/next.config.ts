@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "supabase.io",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "media.geeksforgeeks.org",
         port: "",
         pathname: "/**",

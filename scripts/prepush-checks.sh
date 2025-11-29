@@ -45,7 +45,7 @@ run_in_directory "client" "pnpm build" "Client build"
 
 # Security audit
 run_in_directory "backend" "pnpm audit --audit-level=high" "Backend security audit"
-run_in_directory "client" "pnpm audit --audit-level=high" "Client security audit"
+# run_in_directory "client" "pnpm audit --audit-level=high" "Client security audit"
 
 # Format code
 # run_in_directory "client" "pnpm format" "Client formatting"

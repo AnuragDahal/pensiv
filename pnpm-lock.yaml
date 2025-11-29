@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      marked:
+        specifier: ^17.0.1
+        version: 17.0.1
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
+      striptags:
+        specifier: ^3.2.0
+        version: 3.2.0
     devDependencies:
       husky:
         specifier: ^9.1.7
@@ -23,11 +29,23 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  marked@17.0.1:
+    resolution: {integrity: sha512-boeBdiS0ghpWcSwoNm/jJBwdpFaMnZWRzjA6SkUMYb40SVaN1x7mmfGKp0jvexGcx+7y2La5zRZsYFZI6Qpypg==}
+    engines: {node: '>= 20'}
+    hasBin: true
+
   module-alias@2.2.3:
     resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
+
+  striptags@3.2.0:
+    resolution: {integrity: sha512-g45ZOGzHDMe2bdYMdIvdAfCQkCTDMGBazSw1ypMowwGIee7ZQ5dU0rBJ8Jqgl+jAKIv4dbeE1jscZq9wid1Tkw==}
 
 snapshots:
 
   husky@9.1.7: {}
 
+  marked@17.0.1: {}
+
   module-alias@2.2.3: {}
+
+  striptags@3.2.0: {}

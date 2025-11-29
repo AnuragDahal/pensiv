@@ -6,6 +6,8 @@
     "husky": "^9.1.7"
   },
   "dependencies": {
-    "module-alias": "^2.2.3"
+    "marked": "^17.0.1",
+    "module-alias": "^2.2.3",
+    "striptags": "^3.2.0"
   }
 }

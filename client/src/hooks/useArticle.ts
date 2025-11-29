@@ -1,137 +1,56 @@
-import { useState, useEffect, useCallback } from "react";
+// src/hooks/useArticle.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { toast } from "sonner";
-import { ArticleProps } from "@/types/article";
-import { Comment } from "@/types/comments";
+import { ArticleResponse } from "@/types/article";
 import { useAuthStore } from "@/store/auth-store";
 
-// Backend comment interface
-interface BackendComment {
-  id?: string;
-  _id?: string;
-  postId: string;
-  userId?: {
-    name?: string;
-    avatar?: string;
-  };
-  date?: string;
-  createdAt?: string;
-  content: string;
-  likes?: number;
-  likedBy?: string[];
-  replies?: BackendReply[];
+/** Hook return shape */
+export interface UseArticleResult {
+  data?: ArticleResponse;
+  loading: boolean;
+  error?: string;
+  /** Refresh the article (e.g. after a like) */
+  refetch: () => void;
 }
 
-interface BackendReply {
-  id?: string;
-  _id?: string;
-  userId?: {
-    name?: string;
-    avatar?: string;
-  };
-  date?: string;
-  createdAt?: string;
-  content: string;
-}
-
-// Transform backend comment data to frontend format
-const transformComment = (
-  backendComment: BackendComment,
-  currentUserId?: string
-): Comment => {
-  return {
-    id: backendComment.id || backendComment._id || "",
-    postId: backendComment.postId,
-    name: backendComment.userId?.name || "Anonymous",
-    avatar: backendComment.userId?.avatar,
-    date: new Date(
-      backendComment.date || backendComment.createdAt || Date.now()
-    ).toLocaleDateString(),
-    content: backendComment.content,
-    likes: backendComment.likes || 0,
-    isLikedByUser: currentUserId
-      ? backendComment.likedBy?.includes(currentUserId) || false
-      : false,
-    replies:
-      backendComment.replies?.map((reply: BackendReply) => ({
-        id: reply.id || reply._id || "",
-        postId: backendComment.postId,
-        name: reply.userId?.name || "Anonymous",
-        avatar: reply.userId?.avatar,
-        date: new Date(
-          reply.date || reply.createdAt || Date.now()
-        ).toLocaleDateString(),
-        content: reply.content,
-        likes: 0, // Replies don't have likes in the current backend model
-        replies: [], // Nested replies not supported yet
-      })) || [],
-  };
-};
-
-export function useArticle(articleId: string) {
-  const { getTokens, user } = useAuthStore();
+/**
+ * Fetch a single article by its slug or Mongo `_id`.
+ * The hook automatically maps the backend response to the TS types above.
+ */
+export const useArticle = (slug: string): UseArticleResult => {
+  const [data, setData] = useState<ArticleResponse>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>();
+  const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
-  const [articleData, setArticleData] = useState<ArticleProps | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const isAuthInitialized = useAuthStore((state) => state.isAuthInitialized);
 
-  const fetchArticle = useCallback(async () => {
+  const fetch = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError(undefined);
     try {
-      if (!isAuthenticated || !isAuthInitialized) {
-        return;
-      }
-
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${articleId}`,
+      const resp = await axios.get<{ data: ArticleResponse }>(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/slug/${slug}`,
         {
-          withCredentials: true,
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-
-      // Transform the backend data to match frontend types
-      const backendData = response.data.data;
-      const transformedData: ArticleProps = {
-        ...backendData,
-        excerpt: backendData.shortDescription,
-        date: new Date(backendData.createdAt).toLocaleDateString("en-us", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        estimatedReadTime: Math.ceil(
-          backendData.content.split(" ").length / 200
-        ),
-        likes: backendData.likes || 0,
-        likedBy: backendData.likedBy || [],
-        isLikedByUser: user?.id
-          ? backendData.likedBy?.includes(user.id) || false
-          : false,
-        comments: backendData.comments?.map((comment: BackendComment) =>
-          transformComment(comment, user?.id)
-        ) || [user],
-      };
-
-      setArticleData(transformedData);
-      toast.success(response.data.message || "Article fetched successfully");
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || "Failed to fetch article");
-      }
+      // The backend already returns the shape we defined, so just set it.
+      setData(resp.data.data);
+    } catch (e: any) {
+      setError(
+        e?.response?.data?.message ?? e.message ?? "Failed to load article"
+      );
     } finally {
       setLoading(false);
     }
-  }, [articleId, accessToken, isAuthInitialized, isAuthenticated, user?.id]);
+  }, [slug]);
 
   useEffect(() => {
-    fetchArticle();
-  }, [fetchArticle]);
+    fetch();
+  }, [fetch]);
 
-  return { articleData, loading, error, refresh: fetchArticle };
-}
+  return { data, loading, error, refetch: fetch };
+};

@@ -1,17 +1,20 @@
-import { API_RESPONSES } from "../../../constants/responses";
-import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
-import { APIError, asyncHandler } from "../../../shared/utils";
-import {
-  createPost,
-  getPostById,
-  getPosts,
-  getPostsByUserId,
-  updatePostById,
-} from "../services/posts.service";
-import { Post } from "../models/post.model";
-import { sendResponse } from "../../../shared/services/response.service";
 import { Request, Response } from "express";
 import { FilterQuery } from "mongoose";
+import { API_RESPONSES } from "../../../constants/responses";
+import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
+import { sendResponse } from "../../../shared/services/response.service";
+import { APIError, asyncHandler } from "../../../shared/utils";
+import { Post } from "../models/post.model";
+import {
+  buildFullPostResponse,
+  createPost,
+  getAllPosts,
+  getPostById,
+  getPostBySlug,
+  getPostsByUserId,
+  togglePostReaction,
+  updatePostById,
+} from "../services/posts.service";
 
 interface Post {
   title: string;
@@ -52,16 +55,10 @@ export const addNewPost = asyncHandler(async (req: Request, res: Response) => {
 
 export const getSinglePost = asyncHandler(
   async (req: Request, res: Response) => {
-    const post = await getPostById(req.params.id)
-      .select("-__v")
-      .populate({
-        path: "comments",
-        populate: {
-          path: "userId",
-          select: "name email avatar replies likes",
-        },
-      })
-      .populate("userId", "name email avatar bio");
+    const postId = req.params.id;
+    const userId = req.user?._id?.toString(); // May be undefined if not authenticated
+
+    const post = await buildFullPostResponse(postId, userId);
     if (!post) {
       throw new APIError(
         API_RESPONSES.RESOURCE_NOT_FOUND,
@@ -181,7 +178,7 @@ export const fetchAllPosts = asyncHandler(
     const pageNum = parseInt(filters.page as string, 10) || 1;
     const limitNum = parseInt(filters.limit as string, 10) || 10;
     const skip = (pageNum - 1) * limitNum; // Execute query
-    const posts = await getPosts(filter)
+    const posts = await getAllPosts(filter)
       .select("-__v")
       .populate({
         path: "comments",
@@ -235,11 +232,10 @@ export const updatePost = asyncHandler(async (req: Request, res: Response) => {
     message: API_RESPONSES.RESOURCE_UPDATED,
   });
 });
-
-export const updatePostLikes = asyncHandler(
+export const updatePostReaction = asyncHandler(
   async (req: Request, res: Response) => {
-    const postId = req.params.id;
     const userId = req.user?._id;
+    const postId = req.params.id;
 
     if (!userId) {
       throw new APIError(
@@ -248,57 +244,45 @@ export const updatePostLikes = asyncHandler(
       );
     }
 
-    const post = await getPostById(postId);
+    // Ensure post exists
+    const post = await Post.findById(postId);
     if (!post) {
       throw new APIError(
         API_RESPONSES.RESOURCE_NOT_FOUND,
         HTTP_STATUS_CODES.NOT_FOUND
       );
     }
-    const hasLiked = post.likedBy?.some(
-      (id) => id.toString() === userId.toString()
-    );
 
-    let updatedPost;
+    // Toggle the reaction
+    const result = await togglePostReaction(postId, userId.toString());
 
-    if (hasLiked) {
-      // Unlike: Remove user from likedBy array and decrement likes
-      updatedPost = await Post.findByIdAndUpdate(
-        postId,
-        {
-          $pull: { likedBy: userId },
-          $inc: { likes: -1 },
-        },
-        { new: true }
-      );
-    } else {
-      // Like: Add user to likedBy array and increment likes
-      updatedPost = await Post.findByIdAndUpdate(
-        postId,
-        {
-          $addToSet: { likedBy: userId },
-          $inc: { likes: 1 },
-        },
-        { new: true }
-      );
-    }
-    if (!updatedPost) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.OK,
-      message: hasLiked
-        ? "Post unliked successfully"
-        : "Post liked successfully",
+      message: result.liked ? "Post liked" : "Post unliked",
       data: {
-        likes: updatedPost.likes,
-        isLiked: !hasLiked,
-        postId: updatedPost._id,
+        postId,
+        likes: result.likesCount,
+        isLiked: result.liked,
       },
     });
   }
 );
+export const getUserPostBySlug = asyncHandler(async (req, res) => {
+  const slug = req.params.slug;
+  const userId = req.user?._id?.toString();
+
+  const post = await getPostBySlug(slug);
+  if (!post) {
+    throw new APIError(API_RESPONSES.RESOURCE_NOT_FOUND, 404);
+  }
+
+  const responseData = await buildFullPostResponse(post._id.toString(), userId);
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    message: API_RESPONSES.RESOURCE_FETCHED,
+    data: responseData,
+  });
+});

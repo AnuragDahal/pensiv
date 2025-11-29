@@ -1,11 +1,3 @@
-export interface Comment {
-  id: string;
-  postId: string;
-  name: string;
-  avatar?: string;
-  date: string;
-  content: string;
-  likes?: number;
-  isLikedByUser?: boolean;
-  replies?: Comment[];
-}
+// src/types/comments.ts
+/** Re‑export for convenience – you can import from here if you only need comment types */
+export type { Comment, Reply, LikeInfo, Author } from "./article";

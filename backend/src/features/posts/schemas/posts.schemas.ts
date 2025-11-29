@@ -3,7 +3,6 @@ import { z } from "zod";
 export const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
-  shortDescription: z.string().min(1, "Short description is required"),
   coverImage: z.string().url("Invalid URL").optional(),
   tags: z
     .array(z.string().min(1, "Tag cannot be empty"))
@@ -11,7 +10,6 @@ export const postSchema = z.object({
   category: z.string().min(1, "Category is required"),
   featured: z.boolean().optional(),
 });
-
 
 export const queryParams = z.object({
   page: z.string().optional(),

@@ -6,8 +6,9 @@ import {
   getAllPostByUserId,
   getAllPostsOfAuthenticatedUser,
   getSinglePost,
+  getUserPostBySlug,
   updatePost,
-  updatePostLikes,
+  updatePostReaction,
 } from "../controllers/posts.controller";
 import { postSchema, queryParams } from "../schemas/posts.schemas";
 
@@ -19,10 +20,7 @@ router.put("/:id", zodValidator(postSchema), updatePost);
 router.post("/", zodValidator(postSchema), addNewPost);
 router.get("/", getAllPostsOfAuthenticatedUser);
 router.get("/:userId", getAllPostByUserId);
-router.patch("/:id/like", updatePostLikes);
-
-// public route to fetch all posts
-// This route should be accessible without authentication
-router.get("/posts", fetchAllPosts);
+router.patch("/:id/like", updatePostReaction);
+router.get("/slug/:slug", getUserPostBySlug);
 
 export default router;

@@ -1,6 +1,6 @@
 import "module-alias/register";
 import { connect } from "./shared/database";
-import { authRoutes, postsRoutes, commentsRoutes } from "./features";
+import { authRoutes, postsRoutes, fetchAllPosts } from "./features";
 import { gracefulShutdown } from "./shared/database/gracefulShutdown";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -9,6 +9,7 @@ import express, { Request, Response } from "express";
 import { corsOptions } from "./config/cors";
 import { asyncHandler } from "./shared/utils";
 import { isAuthenticated } from "./middlewares";
+import { commentsRoutes } from "./features/comments";
 
 // Types are loaded automatically by TypeScript - no need to import
 
@@ -24,6 +25,10 @@ app.use(express.urlencoded({ extended: true }));
 // Ensure DB connection before mounting routes
 connect()
   .then(() => {
+    // public route to fetch all posts
+    // This route should be accessible without authentication
+    app.get("/api/posts", fetchAllPosts);
+
     // Mount routes only after DB connection
     app.use("/api/auth", authRoutes);
     app.use("/api/posts", isAuthenticated, postsRoutes);
