@@ -1,31 +1,16 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
+import axios from "axios";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export function useComment(commentId: string, initialLikes: number = 0, initialIsLiked: boolean = false) {
-  const [likeCount, setLikeCount] = useState(initialLikes);
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
+export function useComment() {
   const [isLoading, setIsLoading] = useState(false);
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
-
-  // Sync state when props change (when comment data is refetched)
-  useEffect(() => {
-    setLikeCount(initialLikes);
-    setIsLiked(initialIsLiked);
-  }, [initialLikes, initialIsLiked]);
-
-  const handleLike = async () => {
+  const handleLike = async (commentId: string) => {
     if (isLoading) return;
 
     setIsLoading(true);
-    const previousLiked = isLiked;
-    const previousCount = likeCount;
-
-    // Optimistic update
-    setIsLiked(!isLiked);
-    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
 
     try {
       const response = await axios.patch(
@@ -40,16 +25,13 @@ export function useComment(commentId: string, initialLikes: number = 0, initialI
       );
 
       // Update with actual server response
-      const { likes, isLiked: serverIsLiked } = response.data.data;
-      setLikeCount(likes);
-      setIsLiked(serverIsLiked);
+      const { isLiked: serverIsLiked } = response.data.data;
 
-      toast.success(response.data.message || (serverIsLiked ? "Comment liked" : "Comment unliked"));
+      toast.success(
+        response.data.message ||
+          (serverIsLiked ? "Comment liked" : "Comment unliked")
+      );
     } catch (error) {
-      // Revert optimistic update on error
-      setIsLiked(previousLiked);
-      setLikeCount(previousCount);
-
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Failed to update like");
       } else {
@@ -59,8 +41,11 @@ export function useComment(commentId: string, initialLikes: number = 0, initialI
       setIsLoading(false);
     }
   };
-
-  const handleSendReply = async (content: string, onSuccess?: () => void) => {
+  const handleReply = async (
+    content: string,
+    commentId: string,
+    onSuccess?: () => void
+  ) => {
     if (!content.trim()) {
       toast.error("Reply content cannot be empty");
       return;
@@ -91,11 +76,65 @@ export function useComment(commentId: string, initialLikes: number = 0, initialI
     }
   };
 
+  const addComment = async (content: string, postId: string) => {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/comments/`,
+      { content, postId },
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (response.status === 201) {
+      toast.success("Comment added successfully!");
+    } else {
+      toast.error("Failed to add comment");
+    }
+  };
+
+  const handleUpdate = async (commentId: string, content: string) => {
+    const response = await axios.put(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`,
+      { content },
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (response.status === 200) {
+      toast.success("Comment updated successfully!");
+    } else {
+      toast.error("Failed to update comment");
+    }
+  };
+
+  const deleteComment = async (commentId: string) => {
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`,
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (response.status === 200) {
+      toast.success("Comment deleted successfully!");
+    } else {
+      toast.error("Failed to delete comment");
+    }
+  };
+
   return {
     handleLike,
-    likeCount,
-    isLiked,
-    handleSendReply,
+    handleReply,
+    addComment,
+    deleteComment,
+    handleUpdate,
     isLoading,
   };
 }

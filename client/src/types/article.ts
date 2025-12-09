@@ -30,7 +30,7 @@ export interface Comment {
   updatedAt: string;
   author: Author;
   likes: LikeInfo;
-  replies: Reply[];
+  replies: Partial<Comment>[];
 }
 
 /** Recommended article (lighter payload) */

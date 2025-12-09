@@ -18,22 +18,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { MenuBar } from "../../_components/menu-bar";
 import { TagsInputField } from "./form-fields/tags-input-field";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   category: z.string().min(1, "Category is required"),
-  shortDescription: z.string().min(1, "Short description is required"),
   tags: z.array(z.string().min(1, "tag cannot be empty")).min(1),
   coverImage: z.string().optional(),
 });
@@ -52,7 +54,8 @@ const categories = [
 export default function CreateArticleForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
+  const { getTokens } = useAuthStore();
+  const { accessToken } = getTokens();
   const form = useForm<z.infer<typeof articleSchema>>({
     resolver: zodResolver(articleSchema),
     defaultValues: {
@@ -60,20 +63,40 @@ export default function CreateArticleForm() {
       content: "",
       category: "",
       coverImage: "",
-      shortDescription: "",
       tags: [],
     },
   });
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: "",
+    onUpdate: ({ editor }) => {
+      // Update form value whenever content changes
+      form.setValue("content", editor.getHTML());
+    },
+  });
 
+  // Sync initial value
+  useEffect(() => {
+    if (editor && form.getValues("content")) {
+      editor.commands.setContent(form.getValues("content"));
+    }
+  }, [editor]);
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
     try {
       setIsLoading(true);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
-        values
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
       toast.success("Article created successfully!");
-      router.push(`/article/${response.data.data.id}`);
+      console.log(response.data.data.posts.slug);
+      router.push(`/article/${response.data.data.posts.slug}`);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         toast.error(
@@ -173,25 +196,28 @@ export default function CreateArticleForm() {
             </FormItem>
           )}
         />
+        {/*TODO: A Markdown editor to be added here  */}
         <FormField
           control={form.control}
-          name="shortDescription"
+          name="content"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Excerpt</FormLabel>
+              <FormLabel>Content</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Write a short description or excerpt for your article..."
-                  className="max-h-[50px]"
-                  {...field}
-                />
+                <div className="border rounded-lg max-h-[500px] overflow-y-auto">
+                  <MenuBar editor={editor} />
+                  <EditorContent
+                    editor={editor}
+                    {...field}
+                    className="h-[300px] w-full"
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        {/*TODO: A Markdown editor to be added here  */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="content"
           render={({ field }) => (
@@ -207,7 +233,7 @@ export default function CreateArticleForm() {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Creating Article..." : "Create Article"}
