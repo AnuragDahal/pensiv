@@ -2,6 +2,8 @@ import { Comment as CommentType } from "@/types/article";
 import Image from "next/image";
 import { useState } from "react";
 import { LikeButton } from "./like-button";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   comment: CommentType;
@@ -24,6 +26,7 @@ export const CommentCard = ({
 }: Props) => {
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
   const [update, setUpdate] = useState(comment.content);
   const [replyText, setReplyText] = useState("");
 
@@ -56,18 +59,13 @@ export const CommentCard = ({
 
             <p className="text-gray-800 text-sm leading-relaxed">
               {isEditing ? (
-                <textarea
+                <Textarea
+                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 resize-none"
                   value={update}
                   onChange={(e) => setUpdate(e.target.value)}
                 />
               ) : (
                 comment.content
-              )}
-              <button onClick={() => setIsEditing(!isEditing)}>Edit</button>
-              {isEditing && (
-                <button onClick={() => onUpdate(comment.id, update, postId)}>
-                  Save
-                </button>
               )}
             </p>
           </div>
@@ -79,19 +77,45 @@ export const CommentCard = ({
               onToggle={onLike}
               id={comment.id}
             />
+            {!isReplying && !isEditing && (
+              <Button
+                variant={"outline"}
+                onClick={() => {
+                  setShowReplyBox(!showReplyBox);
+                  setIsReplying(!isReplying);
+                }}
+              >
+                Reply
+              </Button>
+            )}
 
-            <button
-              onClick={() => setShowReplyBox(!showReplyBox)}
-              className="text-xs font-semibold text-gray-500 hover:text-gray-800"
-            >
-              Reply
-            </button>
+            {!isEditing && !isReplying && (
+              <Button
+                variant={"outline"}
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                Edit
+              </Button>
+            )}
+            {isEditing && !isReplying && (
+              <>
+                {" "}
+                <Button variant={"outline"} onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => onUpdate(comment.id, update, postId)}
+                >
+                  Save
+                </Button>{" "}
+              </>
+            )}
           </div>
-
           {/* Reply Box */}
           {showReplyBox && (
             <div className="mt-3 flex gap-3 animate-in fade-in slide-in-from-top-2">
-              <textarea
+              <Textarea
                 rows={2}
                 placeholder="Write a reply..."
                 className="w-full border border-gray-200 rounded-xl p-3 text-sm
@@ -102,18 +126,17 @@ export const CommentCard = ({
               />
 
               <div className="flex flex-col gap-1">
-                <button
-                  onClick={() => onReply(comment.id, replyText)}
-                  className="px-3 py-1.5 text-xs font-medium bg-black text-white rounded-lg hover:bg-gray-800"
-                >
+                <Button onClick={() => onReply(comment.id, replyText)}>
                   Reply
-                </button>
-                <button
-                  onClick={() => setShowReplyBox(false)}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg"
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowReplyBox(!showReplyBox);
+                    setIsReplying(!isReplying);
+                  }}
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           )}

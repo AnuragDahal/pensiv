@@ -6,6 +6,8 @@ import Hero from "@/components/Hero";
 import Navbar from "@/components/NavBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UserPanel } from "@/components/user-panel";
+import { useAuth } from "@/hooks/use-auth";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -144,6 +146,7 @@ const categories = [
 ];
 
 const Index = () => {
+  const { isLoggedIn, user } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -220,6 +223,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+        {isLoggedIn && (
+          <UserPanel userName="Alex Johnson" userEmail="alex@pensieve.com" />
+        )}
       </main>
       <Footer />
     </div>

@@ -126,7 +126,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-background shadow-md animate-fade-in">
+        <div className="md:hidden h-screen absolute top-full left-0 right-0 bg-background shadow-md animate-fade-in">
           <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
             <Link
               href="/"
@@ -155,45 +155,21 @@ const Navbar: React.FC = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               About
-            </Link>{" "}
-            <div className="flex flex-col space-y-2 pt-2 pb-4">
-              {isLoggedIn ? (
-                <>
-                  <div className="flex items-center space-x-2 px-2 py-1">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage
-                        src={user?.avatar}
-                        alt={user?.name || user?.email}
-                      />
-                      <AvatarFallback className="text-xs">
-                        {user?.name?.[0] || user?.email?.[0] || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium">
-                      {user?.name || user?.email}
-                    </span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="w-full rounded-full"
-                    onClick={handleLogout}
-                  >
-                    Log out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full rounded-full">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full rounded-full">Sign Up</Button>
-                  </Link>
-                </>
-              )}
-            </div>
+            </Link>
+            <Link
+              href="/signup"
+              className="py-2 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Signup
+            </Link>
+            <Link
+              href="/login"
+              className="py-2 font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Login
+            </Link>
           </div>
         </div>
       )}
