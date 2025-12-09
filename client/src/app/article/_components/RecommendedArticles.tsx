@@ -24,7 +24,7 @@ const RecommendedArticles = ({ articles }: RecommendedArticlesProps) => {
                 <div className="flex items-center gap-2 mb-3">
                   <Image
                     src={rec.author.avatar ?? null}
-                    alt={rec.author.name}
+                    alt={rec.author.name??"author"}
                     width={24}
                     height={24}
                     className="rounded-full"

@@ -5,12 +5,23 @@ import { LikeButton } from "./like-button";
 
 interface Props {
   comment: CommentType;
+  postId: string;
   onLike: (commentId: string) => void;
   onReply: (commentId: string, content: string) => void;
-  onUpdate: (commentId: string, content: string) => void;
+  onUpdate: (
+    commentId: string,
+    content: string,
+    postId: string
+  ) => Promise<void>;
 }
 
-export const CommentCard = ({ comment, onLike, onReply, onUpdate }: Props) => {
+export const CommentCard = ({
+  comment,
+  onLike,
+  onReply,
+  onUpdate,
+  postId,
+}: Props) => {
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [update, setUpdate] = useState(comment.content);
@@ -22,7 +33,7 @@ export const CommentCard = ({ comment, onLike, onReply, onUpdate }: Props) => {
         {/* Avatar */}
         <Image
           src={comment.author.avatar ?? "/default.png"}
-          alt={comment.author.name}
+          alt={comment.author.name ?? "author"}
           width={40}
           height={40}
           className="rounded-full object-cover border border-gray-100"
@@ -54,7 +65,7 @@ export const CommentCard = ({ comment, onLike, onReply, onUpdate }: Props) => {
               )}
               <button onClick={() => setIsEditing(!isEditing)}>Edit</button>
               {isEditing && (
-                <button onClick={() => onUpdate(comment.id, update)}>
+                <button onClick={() => onUpdate(comment.id, update, postId)}>
                   Save
                 </button>
               )}
@@ -65,7 +76,8 @@ export const CommentCard = ({ comment, onLike, onReply, onUpdate }: Props) => {
           <div className="flex items-center gap-4 mt-1 ml-2">
             <LikeButton
               likes={comment.likes}
-              onToggle={() => onLike(comment.id)}
+              onToggle={onLike}
+              id={comment.id}
             />
 
             <button

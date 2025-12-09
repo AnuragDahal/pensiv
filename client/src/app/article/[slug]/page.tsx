@@ -1,60 +1,35 @@
 // src/app/article/[id]/page.tsx
 "use client";
 import { useArticle } from "@/hooks/useArticle";
-import { useAuthStore } from "@/store/auth-store";
 import { ArticleResponse } from "@/types/article";
-import axios from "axios";
+import { MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { LikeButton } from "../_components/like-button";
-import { ShareButton } from "../_components/share-button";
-import { MessageCircleIcon } from "lucide-react";
-import RecommendedArticles from "../_components/RecommendedArticles";
 import AddComment from "../_components/AddComment";
-import { useComment } from "@/hooks/useComment";
 import CommentList from "../_components/CommentList";
+import { LikeButton } from "../_components/like-button";
+import RecommendedArticles from "../_components/RecommendedArticles";
+import { ShareButton } from "../_components/share-button";
+import { useComment } from "@/hooks/useComment";
+import ArticleRenderer from "@/components/article/ArticleRenderer";
+import MdRender from "@/components/ui/marked";
+import ArticleSkeleton from "@/components/article/ArticleSkeleton";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
-  const { data, loading, error, refetch } = useArticle(slug!);
-  const { addComment } = useComment();
-  if (!data) return null;
-  const togglePostLike = async () => {
-    if (!data) return;
-    const endpoint = `/api/posts/${data.post.id}/like`;
-    await axios.post(endpoint, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    refetch(); // refresh counts
-  };
+  const { data, loading, error, refetch, togglePostLikes } = useArticle(slug!);
+  const { addComment } = useComment(refetch);
   const article = data as ArticleResponse;
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="h-8 w-64 bg-gray-200 rounded"></div>
-          <div className="h-4 w-48 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
+  const isInitialLoading = loading && !data; // first load only
+  const isRefreshing = loading && data; // background refresh
 
-  if (error)
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500 bg-red-50 px-4 py-2 rounded-lg">{error}</p>
-      </div>
-    );
+  if (isInitialLoading) return <ArticleSkeleton />;
 
-  // Remove duplicate H1 from content if it exists
-  const cleanHtmlContent = article.post.htmlContent
-    ? article.post.htmlContent.replace(/<h1[^>]*>.*?<\/h1>/i, "")
-    : "";
-
+  if (!data) return null; // fail-safe after first load
+  {
+    isRefreshing && <ArticleSkeleton />;
+  }
   return (
     <main className="min-h-screen bg-white pb-20">
       {/* ----- Hero Section ----- */}
@@ -79,7 +54,7 @@ export default function ArticlePage() {
             <div className="flex items-center gap-3">
               <Image
                 src={article.post.author.avatar ?? null}
-                alt={article.post.author.name}
+                alt={article.post.author.name ?? "author"}
                 width={48}
                 height={48}
                 className="rounded-full object-cover border-2 border-white shadow-sm"
@@ -102,9 +77,13 @@ export default function ArticlePage() {
                 </div>
               </div>
             </div>
-
+            {/* Post Tool Bar */}
             <div className="flex items-center gap-2">
-              <LikeButton likes={article.likes} onToggle={togglePostLike} />
+              <LikeButton
+                likes={article.likes}
+                onToggle={togglePostLikes}
+                id={article.post.id}
+              />
               <ShareButton
                 title={article.post.title}
                 text={article.post.title}
@@ -119,7 +98,7 @@ export default function ArticlePage() {
         <div className="aspect-[21/9] w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center overflow-hidden relative">
           <Image
             src={article.post.coverImage ?? null}
-            alt={article.post.title}
+            alt={article.post.title ?? "cover"}
             width={1200}
             height={675}
             className="w-full h-full object-cover"
@@ -128,21 +107,8 @@ export default function ArticlePage() {
       </div>
 
       {/* ----- Content ----- */}
-      <article className="max-w-3xl mx-auto px-4">
-        <div
-          className="prose prose-lg prose-slate max-w-none 
-          prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-gray-900
-          prose-p:text-gray-700 prose-p:leading-relaxed
-          prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-          prose-img:rounded-xl prose-img:shadow-md
-          prose-code:text-pink-600 prose-code:bg-pink-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none"
-          dangerouslySetInnerHTML={{ __html: cleanHtmlContent }}
-        />
-      </article>
 
-      <div className="max-w-3xl mx-auto px-4 mt-16">
-        <hr className="border-gray-100" />
-      </div>
+      <ArticleRenderer content={article.post.content} />
 
       {/* ----- Comments Section ----- */}
       <section className="max-w-3xl mx-auto px-4 mt-12">
@@ -162,13 +128,19 @@ export default function ArticlePage() {
               </p>
             </div>
           ) : (
-            <CommentList comments={article.comments} onRefresh={refetch} />
+            <CommentList
+              comments={article.comments}
+              onRefresh={refetch}
+              postId={article.post.id}
+            />
           )}
         </div>
       </section>
 
       {/* ----- Recommended Articles ----- */}
-      <RecommendedArticles articles={article.recommended} />
+      {article.recommended.length > 0 && (
+        <RecommendedArticles articles={article.recommended} />
+      )}
     </main>
   );
 }

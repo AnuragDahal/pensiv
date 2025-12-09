@@ -3,7 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function useComment() {
+export function useComment(onSuccess?: () => void) {
   const [isLoading, setIsLoading] = useState(false);
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
@@ -31,6 +31,7 @@ export function useComment() {
         response.data.message ||
           (serverIsLiked ? "Comment liked" : "Comment unliked")
       );
+      onSuccess?.();
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Failed to update like");
@@ -89,15 +90,20 @@ export function useComment() {
     );
     if (response.status === 201) {
       toast.success("Comment added successfully!");
+      onSuccess?.();
     } else {
       toast.error("Failed to add comment");
     }
   };
 
-  const handleUpdate = async (commentId: string, content: string) => {
+  const handleUpdate = async (
+    commentId: string,
+    content: string,
+    postId: string
+  ) => {
     const response = await axios.put(
       `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`,
-      { content },
+      { content, postId },
       {
         withCredentials: true,
         headers: {
@@ -107,6 +113,7 @@ export function useComment() {
     );
     if (response.status === 200) {
       toast.success("Comment updated successfully!");
+      onSuccess?.();
     } else {
       toast.error("Failed to update comment");
     }

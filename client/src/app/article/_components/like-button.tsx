@@ -4,15 +4,17 @@ import { HeartIcon } from "lucide-react";
 export const LikeButton = ({
   likes,
   onToggle,
+  id,
 }: {
   likes: { count: number; isLikedByUser: boolean };
-  onToggle: () => void;
+  onToggle: (id: string) => void;
+  id: string;
 }) => {
   return (
     <Button
-      variant={likes.isLikedByUser ? "destructive" : "outline"}
-      onClick={onToggle}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-50 transition-colors group"
+      variant={likes.isLikedByUser ? "secondary" : "outline"}
+      onClick={() => onToggle(id)}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
     >
       <HeartIcon fill={likes.isLikedByUser ? "red" : "none"} />
       <span

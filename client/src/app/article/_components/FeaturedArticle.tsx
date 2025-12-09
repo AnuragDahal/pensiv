@@ -41,7 +41,7 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
                   coverImage ||
                   "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
                 }
-                alt={title}
+                alt={title ?? "cover"}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 fill
                 sizes="100vw"

@@ -43,7 +43,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             src={coverImage}
             title={title}
             aria-label="Article Cover Image"
-            alt={title}
+            alt={title??"cover"}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             fill
             sizes="100vw"

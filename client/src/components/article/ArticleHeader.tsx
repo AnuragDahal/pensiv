@@ -54,7 +54,7 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
         <div className="relative aspect-[2/1] rounded-xl overflow-hidden mb-8">
           <Image
             src={coverImage}
-            alt={title}
+            alt={title ?? "title"}
             className="w-full h-full object-cover"
             width={1920}
             height={1080}

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { ArticleResponse } from "@/types/article";
 import { useAuthStore } from "@/store/auth-store";
+import { toast } from "sonner";
 
 /** Hook return shape */
 export interface UseArticleResult {
@@ -12,6 +13,7 @@ export interface UseArticleResult {
   error?: string;
   /** Refresh the article (e.g. after a like) */
   refetch: () => void;
+  togglePostLikes: (id: string) => void;
 }
 
 /**
@@ -48,9 +50,37 @@ export const useArticle = (slug: string): UseArticleResult => {
     }
   }, [slug]);
 
+  const togglePostLikes = async (id: string) => {
+    try {
+      const response = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setData((prev) => {
+        if (!prev) return prev;
+        const liked = !prev.likes.isLikedByUser;
+        return {
+          ...prev,
+          likes: {
+            count: response.data.data.likes.count,
+            isLikedByUser: response.data.data.likes.isLikedByUser,
+          },
+        };
+      });
+      toast.success(response.data.data.message);
+    } catch (err) {
+      toast.error("Failed to toggle like");
+    }
+  };
+
   useEffect(() => {
     fetch();
   }, [fetch]);
 
-  return { data, loading, error, refetch: fetch };
+  return { data, loading, togglePostLikes, error, refetch: fetch };
 };
