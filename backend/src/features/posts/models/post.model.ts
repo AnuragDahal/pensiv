@@ -45,7 +45,7 @@ const postSchema = new mongoose.Schema(
 // generate a short description from the content
 
 postSchema.pre("save", async function (next) {
-  // Only create shortDescription if missing
+  //create shortDescription if missing
   if (!this.shortDescription) {
     const md = this.content || "";
 
