@@ -13,6 +13,8 @@ import CommentList from "../_components/CommentList";
 import { LikeButton } from "../_components/like-button";
 import RecommendedArticles from "../_components/RecommendedArticles";
 import { ShareButton } from "../_components/share-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -51,13 +53,15 @@ export default function ArticlePage() {
 
           <div className="flex items-center justify-between py-6 border-y border-gray-100">
             <div className="flex items-center gap-3">
-              <Image
-                src={article.post.author.avatar ?? null}
-                alt={article.post.author.name ?? "author"}
-                width={48}
-                height={48}
-                className="rounded-full object-cover border-2 border-white shadow-sm"
-              />
+              <Avatar>
+                <AvatarImage
+                  src={article.post.author.avatar}
+                  alt={article.post.author.name}
+                />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                  {getInitials(article.post.author.name ?? "U")}
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <p className="font-semibold text-gray-900">
                   {article.post.author.name}
