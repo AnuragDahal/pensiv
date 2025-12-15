@@ -2,10 +2,11 @@
 "use client";
 import ArticleRenderer from "@/components/article/ArticleRenderer";
 import ArticleSkeleton from "@/components/article/ArticleSkeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useArticle } from "@/hooks/useArticle";
 import { useComment } from "@/hooks/useComment";
+import { getInitials } from "@/lib/utils";
 import { ArticleResponse } from "@/types/article";
-import { MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import AddComment from "../_components/AddComment";
@@ -13,8 +14,6 @@ import CommentList from "../_components/CommentList";
 import { LikeButton } from "../_components/like-button";
 import RecommendedArticles from "../_components/RecommendedArticles";
 import { ShareButton } from "../_components/share-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -75,7 +74,7 @@ export default function ArticlePage() {
                   </span>
                   <span>•</span>
                   <span>
-                    {Math.ceil(article.post.content.length / 1000)} min read
+                    {Math.ceil(article.post.content.length / 200)} min read
                   </span>
                 </div>
               </div>
@@ -125,7 +124,6 @@ export default function ArticlePage() {
         <div className="space-y-8 mt-8">
           {article.comments.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 rounded-2xl">
-              <MessageCircleIcon />
               <p className="text-gray-500 mt-2">
                 No comments yet. Start the conversation!
               </p>

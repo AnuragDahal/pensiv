@@ -34,12 +34,33 @@ export interface Comment {
   replies: Reply[];
 }
 
+// Article interface
+export interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  shortDescription: string;
+  content: string;
+  coverImage: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  category: string;
+  createdAt: string;
+  estimatedReadTime: number;
+}
 /** Recommended article (lighter payload) */
 export interface Recommended {
   id: string;
   title: string;
   slug: string;
   tags: string[];
+  coverImage: string;
+  shortDescription: string;
+  estimatedReadTime: number;
+  category: string;
+  content: string;
   isFeatured: boolean;
   createdAt: string;
   author: {
@@ -60,6 +81,7 @@ export interface ArticleResponse {
     htmlContent: string; // rendered HTML
     tags: string[];
     isFeatured: boolean;
+
     views: number;
     createdAt: string;
     updatedAt: string;

@@ -93,7 +93,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
                 <div className="flex items-center gap-3 text-xs text-muted-foreground shrink-0">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3.5 w-3.5" />
-                    <span>{date}</span>
+                    <span>
+                      {new Date(date).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
                   </div>
                   {/* <div className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
@@ -154,7 +160,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />
-                  <span>{date}</span>
+                  <span>
+                    {new Date(date).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4" />

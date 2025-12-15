@@ -166,7 +166,9 @@ export const buildFullPostResponse = async (
     _id: { $ne: postId },
     $or: [{ tags: { $in: post.tags } }, { userId: post.userId }],
   })
-    .select("title slug tags isFeatured createdAt")
+    .select(
+      "title slug tags isFeatured createdAt coverImage category shortDescription content"
+    )
     .populate("userId", "name avatar")
     .limit(5)
     .sort({ createdAt: -1 })
@@ -217,7 +219,7 @@ export const buildFullPostResponse = async (
         content: reply.content,
         createdAt: reply.createdAt,
         updatedAt: reply.updatedAt,
-        likes:{
+        likes: {
           count: reply.likesCount,
           isLikedByUser: reply.isLikedByUser,
         },
@@ -229,9 +231,13 @@ export const buildFullPostResponse = async (
       title: p.title,
       slug: p.slug,
       tags: p.tags,
+      coverImage: p.coverImage,
       isFeatured: p.isFeatured,
       createdAt: p.createdAt,
       author: formatAuthor(p.userId),
+      category: p.category,
+      shortDescription: p.shortDescription,
+      content: p.content,
     })),
   };
 };

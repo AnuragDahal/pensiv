@@ -207,14 +207,7 @@ const Index = () => {
                       author={article.author}
                       category={article.category}
                       featured={article.featured}
-                      date={new Date(article.createdAt).toLocaleDateString(
-                        "en-us",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      )}
+                      date={article.createdAt}
                       estimatedReadTime={Math.ceil(
                         article.content.split(" ").length / 200
                       )}
