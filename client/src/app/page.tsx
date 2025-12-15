@@ -10,25 +10,8 @@ import { UserPanel } from "@/components/user-panel";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
-
-interface ArticleProps {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  coverImage: string;
-  author: {
-    name: string;
-    avatar: string;
-  };
-  category: string;
-  date: string;
-  estimatedReadTime: number;
-}
-
 // Mock data for featured article
-const featuredArticle: ArticleProps = {
+const featuredArticle = {
   id: "1",
   title: "The Future of Web Design: Minimalism Meets Functionality",
   slug: "the-future-of-web-design-minimalism-meets-functionality",
@@ -45,14 +28,29 @@ const featuredArticle: ArticleProps = {
   date: "May 20, 2023",
   estimatedReadTime: 8,
 };
-
+interface Author {
+  name: string;
+  avatar: string;
+}
+interface Article {
+  id: string;
+  slug: string;
+  title: string;
+  author: Author;
+  shortDescription: string;
+  coverImage: string;
+  category: string;
+  createdAt: string;
+  content: string;
+  featured?: boolean;
+}
 // Mock data for articles
-const articles: ArticleProps[] = [
+const articles: Article[] = [
   {
     id: "2",
     slug: "the-art-of-productivity-achieving-more-with-less",
     title: "The Art of Productivity: Achieving More with Less",
-    excerpt:
+    shortDescription:
       "Discover the secrets to maximizing your productivity without burning out. Learn practical strategies that successful people use.",
     coverImage:
       "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1470&auto=format&fit=crop",
@@ -62,14 +60,15 @@ const articles: ArticleProps[] = [
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=60",
     },
     category: "Productivity",
-    date: "May 18, 2023",
-    estimatedReadTime: 6,
+    createdAt: "May 18, 2023",
+    content: "",
+    featured: false,
   },
   {
     id: "3",
     slug: "sustainable-living-small-changes-big-impact",
     title: "Sustainable Living: Small Changes, Big Impact",
-    excerpt:
+    shortDescription:
       "How small daily choices can lead to significant environmental benefits. Practical tips for a more sustainable lifestyle.",
     coverImage:
       "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=1474&auto=format&fit=crop",
@@ -79,14 +78,15 @@ const articles: ArticleProps[] = [
         "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&auto=format&fit=crop&q=60",
     },
     category: "Lifestyle",
-    date: "May 15, 2023",
-    estimatedReadTime: 5,
+    createdAt: "May 15, 2023",
+    content: "",
+    featured: false,
   },
   {
     id: "4",
     slug: "the-science-of-better-sleep-research-backed-strategies",
     title: "The Science of Better Sleep: Research-Backed Strategies",
-    excerpt:
+    shortDescription:
       "Recent research findings on what really helps improve sleep quality. Evidence-based techniques you can apply tonight.",
     coverImage:
       "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=1460&auto=format&fit=crop",
@@ -96,14 +96,15 @@ const articles: ArticleProps[] = [
         "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop&q=60",
     },
     category: "Health",
-    date: "May 12, 2023",
-    estimatedReadTime: 7,
+    createdAt: "May 12, 2023",
+    content: "",
+    featured: false,
   },
   {
     id: "5",
     slug: "financial-freedom-building-wealth-on-any-income",
     title: "Financial Freedom: Building Wealth on Any Income",
-    excerpt:
+    shortDescription:
       "Practical financial advice that works regardless of your current income level. Build wealth step by step with these proven methods.",
     coverImage:
       "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=1471&auto=format&fit=crop",
@@ -113,14 +114,15 @@ const articles: ArticleProps[] = [
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=60",
     },
     category: "Finance",
-    date: "May 10, 2023",
-    estimatedReadTime: 9,
+    createdAt: "May 10, 2023",
+    content: "",
+    featured: false,
   },
   {
     id: "6",
     slug: "the-future-of-ai-in-everyday-life",
     title: "The Future of AI in Everyday Life",
-    excerpt:
+    shortDescription:
       "How artificial intelligence is quietly transforming our daily routines and what to expect in the coming years.",
     coverImage:
       "https://images.unsplash.com/photo-1677442135136-760c813070c8?q=80&w=1632&auto=format&fit=crop",
@@ -130,8 +132,9 @@ const articles: ArticleProps[] = [
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&auto=format&fit=crop&q=60",
     },
     category: "Technology",
-    date: "May 8, 2023",
-    estimatedReadTime: 8,
+    createdAt: "May 8, 2023",
+    content: "",
+    featured: false,
   },
 ];
 
@@ -147,13 +150,7 @@ const categories = [
 ];
 
 const Index = () => {
-  const { isAuthenticated, user, refetchUser } = useAuth();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      refetchUser();
-    }
-  }, [isAuthenticated]);
+  const { isAuthenticated, user } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -192,19 +189,39 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {articles.map((article) => (
-                <div
-                  key={article.id}
-                  className="animate-fade-in"
-                  style={{
-                    animationDelay: `${(parseInt(article.id) - 2) * 100}ms`,
-                  }}
-                >
-                  <ArticleCard {...article} />
-                </div>
-              ))}
+            <div className="min-h-scrren bg-background p-6 md:p-10">
+              <div className="max-w-7xl mx-auto space-y-16">
+                {articles.map((article) => (
+                  <div
+                    key={article.id}
+                    className="animate-fade-in"
+                    style={{
+                      animationDelay: `${(parseInt(article.id) - 2) * 100}ms`,
+                    }}
+                  >
+                    <ArticleCard
+                      slug={article.slug}
+                      title={article.title}
+                      excerpt={article.shortDescription}
+                      coverImage={article.coverImage}
+                      author={article.author}
+                      category={article.category}
+                      featured={article.featured}
+                      date={new Date(article.createdAt).toLocaleDateString(
+                        "en-us",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
+                      estimatedReadTime={Math.ceil(
+                        article.content.split(" ").length / 200
+                      )}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

@@ -5,6 +5,8 @@ import ArticleCard from "./_components/ArticleCard";
 import NotFoundPage from "@/components/NotFoundPage";
 import ClassicLoader from "@/components/ui/classic-loader";
 import { useAuthStore } from "@/store/auth-store";
+import ArticleSkeleton from "@/components/article/ArticleSkeleton";
+import ArticleCardSkeleton from "@/components/article/ArticleCardSkeleton";
 
 interface Author {
   name: string;
@@ -52,39 +54,52 @@ const Articles = () => {
     fetchArticles();
   }, [isAuthInitialized, isAuthenticated]);
   return (
-    <div className="mt-14 pt-4 md:pt-6 lg:pt-8 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="flex items-center justify-center col-span-1 sm:col-span-2 lg:col-span-3 h-64">
-            <ClassicLoader />
+    <div className="min-h-screen bg-background p-6 md:p-10">
+      <div className="max-w-7xl mx-auto space-y-16">
+        <section>
+          <div className="mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Articles</h2>
+            <p className="text-muted-foreground text-lg">
+              Get the best articles from the best authors
+            </p>
           </div>
-        ) : articles.length === 0 ? (
-          <NotFoundPage content="No articles found" />
-        ) : (
-          articles.map((article) => (
-            <ArticleCard
-              key={article.id}
-              slug={article.slug}
-              title={article.title}
-              excerpt={article.shortDescription}
-              coverImage={article.coverImage}
-              author={{
-                name: article.userId.name,
-                avatar: article.userId.avatar,
-              }}
-              category={article.category}
-              date={new Date(article.createdAt).toLocaleDateString("en-us", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-              estimatedReadTime={Math.ceil(
-                article.content.split(" ").length / 200
-              )}
-              featured={article.featured}
-            />
-          ))
-        )}
+          <div className="space-y-6">
+            {loading ? (
+              <div className="flex items-center justify-center col-span-1 sm:col-span-2 lg:col-span-3 h-64">
+                <ArticleSkeleton />
+              </div>
+            ) : articles.length === 0 ? (
+              <NotFoundPage content="No articles found" />
+            ) : (
+              articles.map((article) => (
+                <ArticleCard
+                  key={article.id}
+                  slug={article.slug}
+                  title={article.title}
+                  excerpt={article.shortDescription}
+                  coverImage={article.coverImage}
+                  author={{
+                    name: article.userId.name,
+                    avatar: article.userId.avatar,
+                  }}
+                  category={article.category}
+                  date={new Date(article.createdAt).toLocaleDateString(
+                    "en-us",
+                    {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    }
+                  )}
+                  estimatedReadTime={Math.ceil(
+                    article.content.split(" ").length / 200
+                  )}
+                  featured={article.featured}
+                />
+              ))
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

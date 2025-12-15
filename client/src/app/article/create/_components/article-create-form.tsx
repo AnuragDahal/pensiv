@@ -95,8 +95,9 @@ export default function CreateArticleForm() {
         }
       );
       toast.success("Article created successfully!");
-      console.log(response.data.data.posts.slug);
-      router.push(`/article/${response.data.data.posts.slug}`);
+      setTimeout(() => {
+        router.replace(`/article/${response.data.data.slug}`);
+      }, 0);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         toast.error(
