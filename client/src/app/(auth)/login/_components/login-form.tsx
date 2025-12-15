@@ -28,7 +28,7 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
-  const { login } = useAuthStore();
+  const { login, fetchUser } = useAuthStore();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
@@ -58,6 +58,7 @@ export default function LoginForm() {
       // Store tokens in Zustand store
       login({ accessToken, refreshToken });
 
+      fetchUser();
       toast.success(res.data.message);
       router.push("/");
     } catch (error: unknown) {

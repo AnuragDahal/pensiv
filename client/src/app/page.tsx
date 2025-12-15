@@ -147,13 +147,13 @@ const categories = [
 ];
 
 const Index = () => {
-  const { isAuthenticated, fetchUser } = useAuth();
+  const { isAuthenticated, user, refetchUser } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchUser();
+      refetchUser();
     }
-  }, []);
+  }, [isAuthenticated]);
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -231,7 +231,7 @@ const Index = () => {
           </div>
         </section>
         {isAuthenticated && (
-          <UserPanel userName="Alex Johnson" userEmail="alex@pensieve.com" />
+          <UserPanel userName={user?.name} userEmail={user?.email} />
         )}
       </main>
       <Footer />
