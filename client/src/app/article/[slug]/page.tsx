@@ -1,6 +1,9 @@
 // src/app/article/[id]/page.tsx
 "use client";
+import ArticleRenderer from "@/components/article/ArticleRenderer";
+import ArticleSkeleton from "@/components/article/ArticleSkeleton";
 import { useArticle } from "@/hooks/useArticle";
+import { useComment } from "@/hooks/useComment";
 import { ArticleResponse } from "@/types/article";
 import { MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
@@ -10,14 +13,10 @@ import CommentList from "../_components/CommentList";
 import { LikeButton } from "../_components/like-button";
 import RecommendedArticles from "../_components/RecommendedArticles";
 import { ShareButton } from "../_components/share-button";
-import { useComment } from "@/hooks/useComment";
-import ArticleRenderer from "@/components/article/ArticleRenderer";
-import MdRender from "@/components/ui/marked";
-import ArticleSkeleton from "@/components/article/ArticleSkeleton";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { data, loading, error, refetch, togglePostLikes } = useArticle(slug!);
+  const { data, loading, refetch, togglePostLikes } = useArticle(slug!);
   const { addComment } = useComment(refetch);
   const article = data as ArticleResponse;
 

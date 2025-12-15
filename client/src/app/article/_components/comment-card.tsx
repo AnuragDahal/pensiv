@@ -126,7 +126,14 @@ export const CommentCard = ({
               />
 
               <div className="flex flex-col gap-1">
-                <Button onClick={() => onReply(comment.id, replyText)}>
+                <Button
+                  onClick={() => {
+                    onReply(comment.id, replyText);
+                    setShowReplyBox(!showReplyBox);
+                    setReplyText("");
+                  }}
+                  disabled={!replyText.trim()}
+                >
                   Reply
                 </Button>
                 <Button

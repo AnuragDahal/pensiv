@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-import { MessageCircleIcon } from "lucide-react";
 
 export default function ArticleSkeleton() {
   return (

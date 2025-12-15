@@ -43,8 +43,8 @@ export function useComment(onSuccess?: () => void) {
     }
   };
   const handleReply = async (
-    content: string,
     commentId: string,
+    content: string,
     onSuccess?: () => void
   ) => {
     if (!content.trim()) {

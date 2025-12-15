@@ -146,7 +146,7 @@ const categories = [
 ];
 
 const Index = () => {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
