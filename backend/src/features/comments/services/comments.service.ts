@@ -34,9 +34,29 @@ export const toggleCommentReaction = async (
   commentId: string,
   userId: string
 ) => {
+  // First, check if this ID is a comment
+  const comment = await Comments.findById(commentId);
+  
+  let isReply = false;
+  let replyId = commentId;
+  
+  // If not found as a comment, search for it as a reply
+  if (!comment) {
+    const commentWithReply = await Comments.findOne({
+      "replies._id": commentId,
+    });
+    
+    if (!commentWithReply) {
+      throw new Error("Comment or reply not found");
+    }
+    
+    isReply = true;
+  }
+  
+  // Check for existing reaction
   const existing = await Reaction.findOne({
     user: userId,
-    comment: commentId,
+    ...(isReply ? { reply: replyId } : { comment: commentId }),
     reactionType: "like",
   });
 
@@ -47,7 +67,7 @@ export const toggleCommentReaction = async (
 
   await Reaction.create({
     user: userId,
-    comment: commentId,
+    ...(isReply ? { reply: replyId } : { comment: commentId }),
     reactionType: "like",
   });
 
