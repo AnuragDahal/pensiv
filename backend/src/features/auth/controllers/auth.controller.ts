@@ -11,8 +11,9 @@ import { Request, Response } from "express";
 import {
   createUser,
   getUserByEmail,
+  getUserById,
   getUserByRefreshToken,
-  validateRefreshToken
+  validateRefreshToken,
 } from "../services/auth.service";
 
 export const userSignup = asyncHandler(async (req: Request, res: Response) => {
@@ -96,3 +97,21 @@ export const accessTokenRefresh = asyncHandler(
     });
   }
 );
+
+export const getMe = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new APIError(
+      API_RESPONSES.TOKEN_MISSING,
+      HTTP_STATUS_CODES.BAD_REQUEST
+    );
+  }
+  const user = await getUserById(req.user._id.toString()).select(
+    "-password -createdAt -updatedAt -__v -refreshToken"
+  );
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    data: user,
+    message: API_RESPONSES.USER_FETCHED,
+  });
+});

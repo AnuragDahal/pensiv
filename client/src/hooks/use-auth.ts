@@ -9,12 +9,16 @@ export function useAuth() {
   const router = useRouter();
   const {
     isAuthenticated,
+    isAuthInitialized,
+    isLoadingUser,
     user,
     accessToken,
     login,
     logout: storeLogout,
-    // setUser,
+    setUser,
     isTokenExpired,
+    fetchUser: storeFetchUser,
+    refetchUser: storeRefetchUser,
   } = useAuthStore();
 
   const logout = async () => {
@@ -59,25 +63,36 @@ export function useAuth() {
     }
   };
 
-  //   const fetchProfile = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
-  //         { withCredentials: true }
-  //       );
+  // Fetch user from /auth/me endpoint
+  const fetchUser = async () => {
+    try {
+      await storeFetchUser();
+      return useAuthStore.getState().user;
+    } catch (error) {
+      console.error("User fetch error:", error);
+      throw error;
+    }
+  };
 
-  //       const userData = response.data.data;
-  //       setUser(userData);
-  //       return userData;
-  //     } catch (error) {
-  //       console.error("Profile fetch error:", error);
-  //       throw error;
-  //     }
-  //   };
+  // Refetch user (for manual refresh after updates)
+  const refetchUser = async () => {
+    try {
+      await storeRefetchUser();
+      toast.success("User data refreshed");
+      return useAuthStore.getState().user;
+    } catch (error) {
+      console.error("User refetch error:", error);
+      toast.error("Failed to refresh user data");
+      throw error;
+    }
+  };
 
   return {
     // State
     isAuthenticated,
+    isAuthInitialized,
+    isLoadingUser,
+    isLoading: !isAuthInitialized || isLoadingUser,
     user,
     accessToken,
 
@@ -89,6 +104,8 @@ export function useAuth() {
     login,
     logout,
     refreshToken,
-    // fetchProfile,
+    fetchUser,
+    refetchUser,
+    setUser,
   };
 }

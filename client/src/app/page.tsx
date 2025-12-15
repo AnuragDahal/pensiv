@@ -10,6 +10,7 @@ import { UserPanel } from "@/components/user-panel";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 interface ArticleProps {
   id: string;
@@ -146,7 +147,13 @@ const categories = [
 ];
 
 const Index = () => {
-  const { isLoggedIn } = useAuth();
+  const { isAuthenticated, fetchUser } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUser();
+    }
+  }, []);
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -223,7 +230,7 @@ const Index = () => {
             </div>
           </div>
         </section>
-        {isLoggedIn && (
+        {isAuthenticated && (
           <UserPanel userName="Alex Johnson" userEmail="alex@pensieve.com" />
         )}
       </main>
