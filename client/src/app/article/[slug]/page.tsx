@@ -118,7 +118,7 @@ export default function ArticlePage() {
           </span>
         </div>
         <AddComment onAddComment={addComment} articleId={article.post.id} />
-        <div className="space-y-8">
+        <div className="space-y-8 mt-8">
           {article.comments.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 rounded-2xl">
               <MessageCircleIcon />

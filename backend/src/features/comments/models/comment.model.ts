@@ -4,7 +4,9 @@ const replySchema = new Schema(
   {
     userId: { type: Types.ObjectId, ref: "User", required: true },
     content: { type: String, required: true },
-    date: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+    
   },
   { _id: true }
 );

@@ -13,16 +13,17 @@ export interface LikeInfo {
   isLikedByUser: boolean;
 }
 
-/** A single comment reply */
+/** A reply to a comment (no nested replies) */
 export interface Reply {
   id: string;
   content: string;
-  /** ISO date string */
-  date: string;
+  createdAt: string;
+  updatedAt: string;
   author: Author;
+  likes: LikeInfo;
 }
 
-/** A comment (may contain nested replies) */
+/** A comment (may contain replies) */
 export interface Comment {
   id: string;
   content: string;
@@ -30,7 +31,7 @@ export interface Comment {
   updatedAt: string;
   author: Author;
   likes: LikeInfo;
-  replies: Partial<Comment>[];
+  replies: Reply[];
 }
 
 /** Recommended article (lighter payload) */

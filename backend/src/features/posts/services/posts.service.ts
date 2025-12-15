@@ -126,10 +126,37 @@ export const buildFullPostResponse = async (
         isLikedByUserComment = !!userLike;
       }
 
+      // Process replies to get their likes
+      const repliesWithLikes = await Promise.all(
+        (comment.replies || []).map(async (reply: any) => {
+          const replyLikes = await Reaction.countDocuments({
+            reply: reply._id,
+            reactionType: "like",
+          });
+
+          let isLikedByUserReply = false;
+          if (userId) {
+            const userReplyLike = await Reaction.findOne({
+              user: userId,
+              reply: reply._id,
+              reactionType: "like",
+            });
+            isLikedByUserReply = !!userReplyLike;
+          }
+
+          return {
+            ...reply,
+            likesCount: replyLikes,
+            isLikedByUser: isLikedByUserReply,
+          };
+        })
+      );
+
       return {
         ...comment,
         likesCount: commentLikes,
         isLikedByUser: isLikedByUserComment,
+        replies: repliesWithLikes,
       };
     })
   );
@@ -188,7 +215,12 @@ export const buildFullPostResponse = async (
       replies: comment.replies.map((reply: any) => ({
         id: reply._id,
         content: reply.content,
-        date: reply.date,
+        createdAt: reply.createdAt,
+        updatedAt: reply.updatedAt,
+        likes:{
+          count: reply.likesCount,
+          isLikedByUser: reply.isLikedByUser,
+        },
         author: formatAuthor(reply.userId),
       })),
     })),

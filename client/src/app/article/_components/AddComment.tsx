@@ -41,21 +41,20 @@ export default function AddComment({
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 items-start">
         <FormField
           control={form.control}
           name="comment"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Comment</FormLabel>
+            <FormItem className="flex-1">
               <FormControl>
-                <Input placeholder="Enter your comment" {...field} />
+                <Input placeholder="Add a comment..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="mt-2">
+        <Button type="submit">
           Post
         </Button>
       </form>

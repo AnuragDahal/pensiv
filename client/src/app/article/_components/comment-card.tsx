@@ -1,9 +1,9 @@
 import { Comment as CommentType } from "@/types/article";
-import Image from "next/image";
 import { useState } from "react";
 import { LikeButton } from "./like-button";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Props {
   comment: CommentType;
@@ -15,6 +15,7 @@ interface Props {
     content: string,
     postId: string
   ) => Promise<void>;
+  isReply?: boolean; // Hide reply button if this is a reply
 }
 
 export const CommentCard = ({
@@ -23,6 +24,7 @@ export const CommentCard = ({
   onReply,
   onUpdate,
   postId,
+  isReply = false,
 }: Props) => {
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -30,17 +32,26 @@ export const CommentCard = ({
   const [update, setUpdate] = useState(comment.content);
   const [replyText, setReplyText] = useState("");
 
+  // Get initials from author name
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div className="group">
       <div className="flex gap-3">
         {/* Avatar */}
-        <Image
-          src={comment.author.avatar ?? "/default.png"}
-          alt={comment.author.name ?? "author"}
-          width={40}
-          height={40}
-          className="rounded-full object-cover border border-gray-100"
-        />
+        <Avatar>
+          <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
+          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+            {getInitials(comment.author.name ?? "U")}
+          </AvatarFallback>
+        </Avatar>
 
         <div className="flex-grow">
           {/* Bubble */}
@@ -77,7 +88,7 @@ export const CommentCard = ({
               onToggle={onLike}
               id={comment.id}
             />
-            {!isReplying && !isEditing && (
+            {!isReplying && !isEditing && !isReply && (
               <Button
                 variant={"outline"}
                 onClick={() => {

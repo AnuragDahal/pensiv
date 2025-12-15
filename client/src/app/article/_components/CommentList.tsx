@@ -1,6 +1,6 @@
 // components/CommentList.tsx
 "use client";
-import { Comment } from "@/types/article";
+import { Comment, Reply } from "@/types/article";
 import { CommentCard } from "./comment-card";
 import { useComment } from "@/hooks/useComment";
 
@@ -24,14 +24,20 @@ const CommentList = ({ comments, onRefresh, postId }: Props) => {
             onLike={handleLike}
             onReply={handleReply}
           />
-          {/* Recursively render replies */}
+          {/* Render replies (no nesting) */}
           {comment.replies.length > 0 && (
             <div className="mt-4 ml-6 pl-4 border-l border-gray-200">
-              <CommentList
-                comments={comments}
-                onRefresh={onRefresh}
-                postId={postId}
-              />
+              {comment.replies.map((reply) => (
+                <CommentCard
+                  key={reply.id}
+                  postId={postId}
+                  onUpdate={handleUpdate}
+                  comment={{ ...reply, replies: [] }}
+                  onLike={handleLike}
+                  onReply={handleReply}
+                  isReply={true}
+                />
+              ))}
             </div>
           )}
         </div>
