@@ -1,12 +1,10 @@
 "use client";
+import NotFoundPage from "@/components/NotFoundPage";
+import { useAuthStore } from "@/store/auth-store";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import ArticleCard from "./_components/ArticleCard";
-import NotFoundPage from "@/components/NotFoundPage";
-import ClassicLoader from "@/components/ui/classic-loader";
-import { useAuthStore } from "@/store/auth-store";
-import ArticleSkeleton from "@/components/article/ArticleSkeleton";
-import ArticleCardSkeleton from "@/components/article/ArticleCardSkeleton";
+import { ArticleListSkeleton } from "@/components/article/ArticleListSkeleton";
 
 interface Author {
   name: string;
@@ -65,9 +63,7 @@ const Articles = () => {
           </div>
           <div className="space-y-6">
             {loading ? (
-              <div className="flex items-center justify-center col-span-1 sm:col-span-2 lg:col-span-3 h-64">
-                <ArticleSkeleton />
-              </div>
+              <ArticleListSkeleton count={5} />
             ) : articles.length === 0 ? (
               <NotFoundPage content="No articles found" />
             ) : (
