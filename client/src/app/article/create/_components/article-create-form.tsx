@@ -81,7 +81,7 @@ export default function CreateArticleForm() {
     if (editor && form.getValues("content")) {
       editor.commands.setContent(form.getValues("content"));
     }
-  }, [editor]);
+  }, [editor, form]);
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
     try {
       setIsLoading(true);
