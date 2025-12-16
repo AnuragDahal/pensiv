@@ -179,7 +179,7 @@ const Index = () => {
         </section>
         {/* Featured Article */}
         {loading || !featuredArticle ? (
-          <ArticleSkeleton />
+          <ArticleListSkeleton count={1} />
         ) : (
           <FeaturedArticle
             slug={featuredArticle.slug}
@@ -201,7 +201,7 @@ const Index = () => {
               <h2 className="text-2xl md:text-3xl font-semibold">
                 Recent Articles
               </h2>
-              <Link href="/articles">
+              <Link href="/article">
                 <Button variant="ghost" className="group">
                   View All
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
