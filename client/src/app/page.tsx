@@ -1,6 +1,8 @@
 "use client";
 import ArticleCard from "@/app/article/_components/ArticleCard";
 import FeaturedArticle from "@/app/article/_components/FeaturedArticle";
+import { ArticleListSkeleton } from "@/components/article/ArticleListSkeleton";
+import ArticleSkeleton from "@/components/article/ArticleSkeleton";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/NavBar";
@@ -8,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserPanel } from "@/components/user-panel";
 import { useAuth } from "@/hooks/use-auth";
+import { useHome } from "@/hooks/useHome";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 // Mock data for featured article
@@ -150,6 +153,7 @@ const categories = [
 ];
 
 const Index = () => {
+  const { loading, recentArticles, featuredArticle } = useHome();
   const { isAuthenticated, user } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
@@ -174,7 +178,22 @@ const Index = () => {
           </div>
         </section>
         {/* Featured Article */}
-        <FeaturedArticle {...featuredArticle} />
+        {loading || !featuredArticle ? (
+          <ArticleSkeleton />
+        ) : (
+          <FeaturedArticle
+            slug={featuredArticle.slug}
+            title={featuredArticle.title}
+            shortDescription={featuredArticle.shortDescription}
+            coverImage={featuredArticle.coverImage}
+            author={featuredArticle.author}
+            category={featuredArticle.category}
+            date={featuredArticle.createdAt}
+            estimatedReadTime={Math.ceil(
+              featuredArticle.content.split(" ").length / 200
+            )}
+          />
+        )}
         {/* Recent Articles */}
         <section className="py-12 md:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -191,29 +210,32 @@ const Index = () => {
             </div>
             <div className="min-h-scrren bg-background p-6 md:p-10">
               <div className="max-w-7xl mx-auto space-y-16">
-                {articles.map((article) => (
-                  <div
-                    key={article.id}
-                    className="animate-fade-in"
-                    style={{
-                      animationDelay: `${(parseInt(article.id) - 2) * 100}ms`,
-                    }}
-                  >
-                    <ArticleCard
-                      slug={article.slug}
-                      title={article.title}
-                      excerpt={article.shortDescription}
-                      coverImage={article.coverImage}
-                      author={article.author}
-                      category={article.category}
-                      featured={article.featured}
-                      date={article.createdAt}
-                      estimatedReadTime={Math.ceil(
-                        article.content.split(" ").length / 200
-                      )}
-                    />
-                  </div>
-                ))}
+                {loading ? (
+                  <ArticleListSkeleton count={4} />
+                ) : (
+                  recentArticles.map((article) => (
+                    <div
+                      key={article.id}
+                      className="animate-fade-in"
+                      style={{
+                        animationDelay: `${(parseInt(article.id) - 2) * 100}ms`,
+                      }}
+                    >
+                      <ArticleCard
+                        slug={article.slug}
+                        title={article.title}
+                        excerpt={article.shortDescription}
+                        coverImage={article.coverImage}
+                        author={article.author}
+                        category={article.category}
+                        date={article.createdAt}
+                        estimatedReadTime={Math.ceil(
+                          article.content.split(" ").length / 200
+                        )}
+                      />
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>

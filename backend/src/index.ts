@@ -1,6 +1,11 @@
 import "module-alias/register";
 import { connect } from "./shared/database";
-import { authRoutes, postsRoutes, fetchAllPosts } from "./features";
+import {
+  authRoutes,
+  postsRoutes,
+  fetchAllPosts,
+  getHomePosts,
+} from "./features";
 import { gracefulShutdown } from "./shared/database/gracefulShutdown";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -28,12 +33,12 @@ connect()
     // public route to fetch all posts
     // This route should be accessible without authentication
     app.get("/api/posts", fetchAllPosts);
+    app.get("/api/posts/home", getHomePosts);
 
     // Mount routes only after DB connection
     app.use("/api/auth", authRoutes);
     app.use("/api/posts", isAuthenticated, postsRoutes);
     app.use("/api/comments", isAuthenticated, commentsRoutes);
-
     app.get(
       "/",
       asyncHandler(async (_req: Request, res: Response): Promise<void> => {

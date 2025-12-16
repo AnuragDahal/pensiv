@@ -7,9 +7,9 @@ import Link from "next/link";
 import React from "react";
 
 interface FeaturedArticleProps {
-  id: string;
+  slug: string;
   title: string;
-  excerpt: string;
+  shortDescription: string;
   coverImage: string;
   author: {
     name: string;
@@ -21,9 +21,9 @@ interface FeaturedArticleProps {
 }
 
 const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
-  id,
+  slug,
   title,
-  excerpt,
+  shortDescription,
   coverImage,
   author,
   category,
@@ -64,7 +64,12 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />
                       <span>
-                        {date} · {estimatedReadTime} min read
+                        {new Date(date).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}{" "}
+                        · {estimatedReadTime} min read
                       </span>
                     </div>
                   </div>
@@ -84,8 +89,8 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
               <h3 className="text-2xl md:text-3xl font-semibold mb-4">
                 {title}
               </h3>
-              <p className="text-muted-foreground mb-6">{excerpt}</p>
-              <Link href={`/article/${id}`}>
+              <p className="text-muted-foreground mb-6">{shortDescription}</p>
+              <Link href={`/article/${slug}`}>
                 <Button variant="outline" className="group rounded-full">
                   Read Article
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

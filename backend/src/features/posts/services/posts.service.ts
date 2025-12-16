@@ -241,3 +241,62 @@ export const buildFullPostResponse = async (
     })),
   };
 };
+
+export const getRecentPosts = async (limit: number) => {
+  const posts = await Post.find()
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate("userId", "name avatar")
+    .lean();
+  const formatAuthor = (author: any) => {
+    if (!author) return null;
+    const { _id, ...rest } = author;
+    return { id: _id, ...rest };
+  };
+
+  return {
+    recentPosts: posts.map((post: any) => ({
+      id: post._id,
+      title: post.title,
+      slug: post.slug,
+      tags: post.tags,
+      coverImage: post.coverImage,
+      isFeatured: post.isFeatured,
+      createdAt: post.createdAt,
+      author: formatAuthor(post.userId),
+      category: post.category,
+      shortDescription: post.shortDescription,
+      content: post.content,
+    })),
+  };
+};
+
+// get the featured post via the likes and the views criteria
+export const getTopFeaturedPost = async () => {
+  const posts = await Post.find()
+    .sort({ likesCount: -1, views: -1 })
+    .populate("userId", "name avatar")
+    .limit(1)
+    .lean();
+
+  const formatAuthor = (author: any) => {
+    if (!author) return null;
+    const { _id, ...rest } = author;
+    return { id: _id, ...rest };
+  };
+  return {
+    featuredPost: posts.map((post: any) => ({
+      id: post._id,
+      title: post.title,
+      slug: post.slug,
+      tags: post.tags,
+      coverImage: post.coverImage,
+      isFeatured: post.isFeatured,
+      createdAt: post.createdAt,
+      author: formatAuthor(post.userId),
+      category: post.category,
+      shortDescription: post.shortDescription,
+      content: post.content,
+    })),
+  };
+};

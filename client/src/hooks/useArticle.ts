@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { ArticleResponse } from "@/types/article";
+import { Article, ArticleResponse } from "@/types/article";
 import { useAuthStore } from "@/store/auth-store";
 import { toast } from "sonner";
 
@@ -82,5 +82,11 @@ export const useArticle = (slug: string): UseArticleResult => {
     fetch();
   }, [fetch]);
 
-  return { data, loading, togglePostLikes, error, refetch: fetch };
+  return {
+    data,
+    loading,
+    togglePostLikes,
+    error,
+    refetch: fetch,
+  };
 };

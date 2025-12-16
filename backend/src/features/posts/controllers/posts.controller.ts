@@ -12,6 +12,8 @@ import {
   getPostById,
   getPostBySlug,
   getPostsByUserId,
+  getRecentPosts,
+  getTopFeaturedPost,
   togglePostReaction,
   updatePostById,
 } from "../services/posts.service";
@@ -286,3 +288,19 @@ export const getUserPostBySlug = asyncHandler(async (req, res) => {
     data: responseData,
   });
 });
+
+export const getHomePosts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const recentPosts = await getRecentPosts(4);
+    const featuredPost = await getTopFeaturedPost();
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.OK,
+      message: API_RESPONSES.RESOURCE_FETCHED,
+      data: {
+        ...recentPosts,
+        ...featuredPost,
+      },
+    });
+  }
+);
