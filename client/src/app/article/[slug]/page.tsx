@@ -10,7 +10,7 @@ import { ArticleResponse } from "@/types/article";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import AddComment from "../_components/AddComment";
-import CommentList from "../_components/CommentList";
+import { CommentList } from "../_components/CommentList";
 import { LikeButton } from "../_components/like-button";
 import RecommendedArticles from "../_components/RecommendedArticles";
 import { ShareButton } from "../_components/share-button";
@@ -27,9 +27,8 @@ export default function ArticlePage() {
   if (isInitialLoading) return <ArticleSkeleton />;
 
   if (!data) return null; // fail-safe after first load
-  {
-    isRefreshing && <ArticleSkeleton />;
-  }
+  if (isRefreshing) return <ArticleSkeleton />;
+
   return (
     <main className="min-h-screen bg-white pb-20">
       {/* ----- Hero Section ----- */}

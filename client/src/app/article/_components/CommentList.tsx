@@ -1,6 +1,6 @@
 // components/CommentList.tsx
 "use client";
-import { Comment, Reply } from "@/types/article";
+import { Comment } from "@/types/article";
 import { CommentCard } from "./comment-card";
 import { useComment } from "@/hooks/useComment";
 
@@ -10,7 +10,7 @@ interface Props {
   onRefresh: () => void; // parent refresh function
 }
 
-const CommentList = ({ comments, onRefresh, postId }: Props) => {
+export const CommentList = ({ comments, onRefresh, postId }: Props) => {
   const { handleLike, handleReply, handleUpdate } = useComment(onRefresh);
 
   return (
@@ -45,5 +45,3 @@ const CommentList = ({ comments, onRefresh, postId }: Props) => {
     </div>
   );
 };
-
-export default CommentList;

@@ -11,6 +11,9 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
+import Image from "next/image";
 
 interface UserPanelProps {
   userName?: string;
@@ -25,6 +28,7 @@ export function UserPanel({
 }: UserPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const { logout } = useAuth();
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -67,7 +71,7 @@ export function UserPanel({
           {/* Avatar */}
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
             {userImage ? (
-              <img
+              <Image
                 src={userImage || "/placeholder.svg"}
                 alt={userName}
                 className="w-full h-full rounded-lg object-cover"
@@ -163,16 +167,18 @@ export function UserPanel({
             <div className="h-px bg-border" />
 
             {/* Logout */}
-            <button
-              onClick={() => {
-                console.log("Logout clicked");
-                setIsOpen(false);
-              }}
-              className="w-full px-4 py-2.5 flex items-center gap-3 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150 text-left"
-            >
-              <LogOut size={16} className="flex-shrink-0" />
-              <span>Logout</span>
-            </button>
+            <Link href="/auth/login">
+              <button
+                onClick={() => {
+                  logout();
+                  setIsOpen(false);
+                }}
+                className="w-full px-4 py-2.5 flex items-center gap-3 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150 text-left"
+              >
+                <LogOut size={16} className="flex-shrink-0" />
+                <span>Logout</span>
+              </button>
+            </Link>
           </div>
         )}
 

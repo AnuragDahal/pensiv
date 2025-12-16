@@ -23,7 +23,7 @@ export const useHome = () => {
       setError(error as string);
       setLoading(!loading);
     }
-  }, []);
+  }, [loading]);
 
   useEffect(() => {
     homePage();

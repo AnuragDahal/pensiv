@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {

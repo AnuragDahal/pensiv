@@ -20,6 +20,7 @@ const Copy = ({ content }: CopyProps) => {
         setIsCopied(false);
       }, 2000);
     } catch (err) {
+      console.log(err);
       toast.error("Failed to copy!");
     }
   };

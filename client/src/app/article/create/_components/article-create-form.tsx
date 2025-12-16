@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { MenuBar } from "../../_components/menu-bar";
 import { TagsInputField } from "./form-fields/tags-input-field";
+import Link from "@tiptap/extension-link";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -67,7 +68,7 @@ export default function CreateArticleForm() {
     },
   });
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, Link],
     content: "",
     onUpdate: ({ editor }) => {
       // Update form value whenever content changes

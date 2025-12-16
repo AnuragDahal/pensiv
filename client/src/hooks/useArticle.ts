@@ -1,9 +1,9 @@
 // src/hooks/useArticle.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
-import { Article, ArticleResponse } from "@/types/article";
 import { useAuthStore } from "@/store/auth-store";
+import { ArticleResponse } from "@/types/article";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 /** Hook return shape */
@@ -48,7 +48,7 @@ export const useArticle = (slug: string): UseArticleResult => {
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, accessToken]);
 
   const togglePostLikes = async (id: string) => {
     try {
@@ -63,7 +63,6 @@ export const useArticle = (slug: string): UseArticleResult => {
       );
       setData((prev) => {
         if (!prev) return prev;
-        const liked = !prev.likes.isLikedByUser;
         return {
           ...prev,
           likes: {
@@ -74,6 +73,7 @@ export const useArticle = (slug: string): UseArticleResult => {
       });
       toast.success(response.data.data.message);
     } catch (err) {
+      console.log(err);
       toast.error("Failed to toggle like");
     }
   };

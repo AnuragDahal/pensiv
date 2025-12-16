@@ -11,3 +11,5 @@ export function getInitials(name: string) {
     .map((word) => word.charAt(0).toUpperCase())
     .join("");
 }
+
+

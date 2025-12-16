@@ -1,4 +1,4 @@
-// @ts-ignore
+import type { Editor } from "@tiptap/react";
 import {
   Bold,
   Code,
@@ -11,7 +11,7 @@ import {
   Undo,
 } from "lucide-react";
 
-export const MenuBar = ({ editor }: { editor: any }) => {
+export const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) return null;
 
   const addLink = () => {
@@ -94,7 +94,7 @@ export const MenuBar = ({ editor }: { editor: any }) => {
               btn.isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-200"
             }`}
           >
-            {/* @ts-ignore */}
+            {/* @ts-expect-error the icon prop is not defined in the button type */}
             <btn.icon />
           </button>
         )

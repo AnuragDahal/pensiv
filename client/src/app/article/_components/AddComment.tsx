@@ -3,15 +3,13 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FormProvider } from "react-hook-form";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 
 const formSchema = z.object({
   comment: z.string().min(1).min(1),
@@ -41,7 +39,10 @@ export default function AddComment({
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-2 items-start">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex gap-2 items-start"
+      >
         <FormField
           control={form.control}
           name="comment"
@@ -54,9 +55,7 @@ export default function AddComment({
             </FormItem>
           )}
         />
-        <Button type="submit">
-          Post
-        </Button>
+        <Button type="submit">Post</Button>
       </form>
     </FormProvider>
   );
