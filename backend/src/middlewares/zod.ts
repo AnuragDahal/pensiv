@@ -16,14 +16,14 @@ export const zodValidator = (schema: ZodSchema) => {
           field: firstError.path.join("."),
           message: firstError.message,
         };
-        return sendResponse({
+        sendResponse({
           res,
           status: HTTP_STATUS_CODES.BAD_REQUEST,
           error: formattedError,
           message: firstError.message,
         });
       }
-      return sendResponse({
+      sendResponse({
         res,
         status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
         error: error as string,

@@ -7,7 +7,7 @@ type AsyncFunction = (
   req: Request,
   res: ExpressResponse,
   next: NextFunction
-) => Promise<void>;
+) => Promise<any>;
 
 export const asyncHandler = (handler: AsyncFunction) => {
   return async (req: Request, res: ExpressResponse, next: NextFunction) => {
@@ -15,7 +15,7 @@ export const asyncHandler = (handler: AsyncFunction) => {
       await handler(req, res, next);
     } catch (error: unknown) {
       const err = error as { statusCode?: number; message?: string; [key: string]: unknown };
-      return sendResponse({
+      sendResponse({
         res,
         status: err.statusCode || HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
         error: err.message || err,

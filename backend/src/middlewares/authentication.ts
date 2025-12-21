@@ -42,7 +42,7 @@ export const isAuthenticated = (
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      return sendResponse({
+      sendResponse({
         res,
         status: HTTP_STATUS_CODES.UNAUTHORIZED,
         message: API_RESPONSES.UNAUTHORIZED,
@@ -51,14 +51,14 @@ export const isAuthenticated = (
     }
 
     if (error instanceof APIError) {
-      return sendResponse({
+      sendResponse({
         res,
         status: error.statusCode,
         message: error.message,
       });
     }
 
-    return sendResponse({
+    sendResponse({
       res,
       status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
       message: API_RESPONSES.INTERNAL_SERVER_ERROR,
