@@ -6,9 +6,7 @@ export const useHome = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>();
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
-  const [featuredArticle, setFeaturedArticle] = useState<Article>(
-    {} as Article
-  );
+  const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);

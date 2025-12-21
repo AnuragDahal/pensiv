@@ -61,9 +61,11 @@ const Index = () => {
             author={featuredArticle.author}
             category={featuredArticle.category}
             date={featuredArticle.createdAt}
-            estimatedReadTime={Math.ceil(
-              featuredArticle.content.split(" ").length / 200
-            )}
+            estimatedReadTime={
+              featuredArticle.content
+                ? Math.ceil(featuredArticle.content.split(" ").length / 200)
+                : 0
+            }
           />
         )}
         {/* Recent Articles */}
