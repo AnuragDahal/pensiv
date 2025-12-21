@@ -4,8 +4,8 @@
 declare module "mongoose" {
   // This extends the types to resolve compatibility issues with Subdocument
   namespace Types {
-    interface ObjectIdToString<T> {
-      [key: string]: any;
+    interface ObjectIdToString {
+      [key: string]: unknown;
     }
   }
 }

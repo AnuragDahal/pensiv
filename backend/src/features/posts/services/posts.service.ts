@@ -1,9 +1,10 @@
-import { Reaction } from "@/features/reaction/models/reaction-model";
-import { Post } from "../models/post.model";
-import { Types } from "mongoose";
 import { Comments } from "@/features/comments/models/comment.model";
+import { Reaction } from "@/features/reaction/models/reaction-model";
+import { IPostModelResponse } from "@/types/posts";
+import { Types } from "mongoose";
+import { Post } from "../models/post.model";
 
-export const createPost = async (data: any) => {
+export const createPost = async (data: Record<string, number | null>) => {
   const post = await Post.create(data);
   return post;
 };
@@ -32,8 +33,10 @@ export const getPostsByUserId = (userId: string | Types.ObjectId) =>
     .populate("comments")
     .populate("userId", "name email avatar");
 
-export const updatePostById = (id: string | Types.ObjectId, data: any) =>
-  Post.findByIdAndUpdate(id, data, { new: true });
+export const updatePostById = (
+  id: string | Types.ObjectId,
+  data: Record<string, number | null>
+) => Post.findByIdAndUpdate(id, data, { new: true });
 
 export const deletePost = (id: string | Types.ObjectId) =>
   Post.findByIdAndDelete(id);
@@ -78,10 +81,10 @@ export const buildFullPostResponse = async (
   postId: string,
   userId?: string
 ) => {
-  const post = (await getPostById(postId)
+  const post = await getPostById(postId)
     .select("-__v")
     .populate("userId", "name email avatar bio")
-    .lean()) as any;
+    .lean();
 
   if (!post) return null;
 
@@ -128,9 +131,10 @@ export const buildFullPostResponse = async (
 
       // Process replies to get their likes
       const repliesWithLikes = await Promise.all(
-        (comment.replies || []).map(async (reply: any) => {
+        (comment.replies || []).map(async (reply: unknown) => {
+          const typedReply = reply as { _id: Types.ObjectId; [key: string]: unknown };
           const replyLikes = await Reaction.countDocuments({
-            reply: reply._id,
+            reply: typedReply._id,
             reactionType: "like",
           });
 
@@ -138,16 +142,25 @@ export const buildFullPostResponse = async (
           if (userId) {
             const userReplyLike = await Reaction.findOne({
               user: userId,
-              reply: reply._id,
+              reply: typedReply._id,
               reactionType: "like",
             });
             isLikedByUserReply = !!userReplyLike;
           }
 
           return {
-            ...reply,
+            ...typedReply,
             likesCount: replyLikes,
             isLikedByUser: isLikedByUserReply,
+          } as {
+            _id: Types.ObjectId;
+            content: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: { _id: Types.ObjectId; [key: string]: unknown };
+            likesCount: number;
+            isLikedByUser: boolean;
+            [key: string]: unknown;
           };
         })
       );
@@ -177,9 +190,12 @@ export const buildFullPostResponse = async (
   // 7. Increment views
   await Post.findByIdAndUpdate(postId, { $inc: { views: 1 } });
 
-  const formatAuthor = (author: any) => {
+  const formatAuthor = (
+    author: unknown
+  ) => {
     if (!author) return null;
-    const { _id, ...rest } = author;
+    const authorObj = author as { _id: Types.ObjectId; [key: string]: unknown };
+    const { _id, ...rest } = authorObj;
     return { id: _id, ...rest };
   };
 
@@ -214,7 +230,7 @@ export const buildFullPostResponse = async (
         count: comment.likesCount,
         isLikedByUser: comment.isLikedByUser,
       },
-      replies: comment.replies.map((reply: any) => ({
+      replies: comment.replies.map((reply) => ({
         id: reply._id,
         content: reply.content,
         createdAt: reply.createdAt,
@@ -226,7 +242,7 @@ export const buildFullPostResponse = async (
         author: formatAuthor(reply.userId),
       })),
     })),
-    recommended: recommendedPosts.map((p: any) => ({
+    recommended: recommendedPosts.map((p: IPostModelResponse) => ({
       id: p._id,
       title: p.title,
       slug: p.slug,
@@ -248,14 +264,15 @@ export const getRecentPosts = async (limit: number) => {
     .limit(limit)
     .populate("userId", "name avatar")
     .lean();
-  const formatAuthor = (author: any) => {
+  const formatAuthor = (author: unknown) => {
     if (!author) return null;
-    const { _id, ...rest } = author;
+    const authorObj = author as { _id: Types.ObjectId; [key: string]: unknown };
+    const { _id, ...rest } = authorObj;
     return { id: _id, ...rest };
   };
 
   return {
-    recentPosts: posts.map((post: any) => ({
+    recentPosts: posts.map((post: IPostModelResponse) => ({
       id: post._id,
       title: post.title,
       slug: post.slug,
@@ -279,13 +296,14 @@ export const getTopFeaturedPost = async () => {
     .limit(1)
     .lean();
 
-  const formatAuthor = (author: any) => {
+  const formatAuthor = (author: unknown) => {
     if (!author) return null;
-    const { _id, ...rest } = author;
+    const authorObj = author as { _id: Types.ObjectId; [key: string]: unknown };
+    const { _id, ...rest } = authorObj;
     return { id: _id, ...rest };
   };
   return {
-    featuredPost: posts.map((post: any) => ({
+    featuredPost: posts.map((post) => ({
       id: post._id,
       title: post.title,
       slug: post.slug,

@@ -1,11 +1,11 @@
 import { API_RESPONSES } from "../constants/responses";
 import { HTTP_STATUS_CODES } from "../constants/statusCodes";
 import { sendResponse } from "../shared/services/response.service";
-import { NextFunction } from "express";
+import { NextFunction, Request, Response as ExpressResponse } from "express";
 import { ZodError, ZodSchema } from "zod";
 
 export const zodValidator = (schema: ZodSchema) => {
-  return (req: any, res: any, next: NextFunction) => {
+  return (req: Request, res: ExpressResponse, next: NextFunction) => {
     try {
       schema.parse(req.body);
       next();

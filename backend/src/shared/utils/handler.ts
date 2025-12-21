@@ -1,24 +1,25 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response as ExpressResponse } from "express";
 import { API_RESPONSES } from "../../constants/responses";
 import { HTTP_STATUS_CODES } from "../../constants/statusCodes";
 import { sendResponse } from "../services/response.service";
 
 type AsyncFunction = (
   req: Request,
-  res: Response,
+  res: ExpressResponse,
   next: NextFunction
-) => Promise<any>;
+) => Promise<void>;
 
 export const asyncHandler = (handler: AsyncFunction) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: ExpressResponse, next: NextFunction) => {
     try {
       await handler(req, res, next);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { statusCode?: number; message?: string; [key: string]: unknown };
       return sendResponse({
         res,
-        status: error.statusCode || HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
-        error: error.message || error,
-        message: error.message || API_RESPONSES.INTERNAL_SERVER_ERROR,
+        status: err.statusCode || HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+        error: err.message || err,
+        message: err.message || API_RESPONSES.INTERNAL_SERVER_ERROR,
       });
     }
   };
@@ -27,7 +28,7 @@ export const asyncHandler = (handler: AsyncFunction) => {
 // Custom error class for API errors
 export class APIError extends Error {
   statusCode: number;
-  constructor(message: string, statusCode: number, error?: any) {
+  constructor(message: string, statusCode: number) {
     super(message);
     this.statusCode = statusCode;
   }

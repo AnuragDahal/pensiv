@@ -1,4 +1,5 @@
 import { API_RESPONSES } from "../../constants/responses";
+import { Response as ExpressResponse } from "express";
 import {
   generateAccessAndRefreshToken,
   getUserByEmail,
@@ -30,7 +31,7 @@ export const generateTokens = async (userId: string) => {
 };
 
 export const setCookies = (
-  res: any,
+  res: ExpressResponse,
   accessToken: string,
   refreshToken: string
 ) => {

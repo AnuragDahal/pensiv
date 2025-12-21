@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import { marked } from "marked";
 import striptags from "striptags";
+import { IPostModel } from "@/types/posts";
 
-const postSchema = new mongoose.Schema(
+const postSchema = new mongoose.Schema<IPostModel>(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,

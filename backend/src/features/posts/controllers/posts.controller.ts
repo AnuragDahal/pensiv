@@ -5,6 +5,7 @@ import { HTTP_STATUS_CODES } from "../../../constants/statusCodes";
 import { sendResponse } from "../../../shared/services/response.service";
 import { APIError, asyncHandler } from "../../../shared/utils";
 import { Post } from "../models/post.model";
+import type { SortOrder } from "mongoose";
 import {
   buildFullPostResponse,
   createPost,
@@ -168,12 +169,13 @@ export const fetchAllPosts = asyncHandler(
     }
 
     // Build sort object
-    const sort: any = {};
+    const sort: { [key: string]: SortOrder } = {};
+
     if (filters.sortBy) {
-      const order = filters.sortOrder === "desc" ? -1 : 1;
+      const order: SortOrder = filters.sortOrder === "desc" ? -1 : 1;
       sort[filters.sortBy as string] = order;
     } else {
-      sort.createdAt = -1; // Default sort by creation date, newest first
+      sort.createdAt = -1; // Default sort
     }
 
     // Pagination

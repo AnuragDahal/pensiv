@@ -20,7 +20,7 @@ export const getCommentById = (id: string | Types.ObjectId) =>
 
 export const addReplyToComment = async (
   commentId: string,
-  reply: { userId: string | Types.ObjectId; content: any }
+  reply: { userId: string | Types.ObjectId; content: string }
 ) => {
   return Comments.findByIdAndUpdate(
     commentId,
@@ -38,7 +38,7 @@ export const toggleCommentReaction = async (
   const comment = await Comments.findById(commentId);
   
   let isReply = false;
-  let replyId = commentId;
+  const replyId = commentId;
   
   // If not found as a comment, search for it as a reply
   if (!comment) {
