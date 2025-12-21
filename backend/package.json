@@ -23,7 +23,9 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/marked": "^6.0.0",
     "@types/node": "^22.13.9",
+    "@types/striptags": "^3.1.1",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
     "cookie-parser": "^1.4.7",
@@ -42,8 +44,10 @@
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.3",
+    "marked": "^17.0.1",
     "module-alias": "^2.2.3",
     "mongoose": "^8.9.5",
+    "striptags": "^3.2.0",
     "tsc-alias": "^1.8.16",
     "zod": "^3.24.1"
   }
