@@ -49,31 +49,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
           originalRequest._retry = true;
 
           try {
-            const { refreshToken } = getTokens();
-
-            if (
-              !refreshToken ||
-              refreshToken === "null" ||
-              refreshToken === "undefined"
-            ) {
-              throw new Error("No refresh token available");
-            }
-
+            // Call Next.js internal API route (cookies are handled automatically)
             const res = await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
-              { refreshToken },
+              "/api/auth/refresh",
+              {},
               { withCredentials: true }
             );
 
-            const {
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
-            } = res.data;
+            const { accessToken: newAccessToken } = res.data.data;
 
-            if (newAccessToken && newRefreshToken) {
+            if (newAccessToken) {
               updateTokens({
                 accessToken: newAccessToken,
-                refreshToken: newRefreshToken,
+                refreshToken: useAuthStore.getState().refreshToken || "",
               });
 
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -84,7 +72,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } catch (refreshError) {
             console.error("Token refresh failed:", refreshError);
             logout();
-            router.push("/login"); // redirect on failure
+            router.push("/login");
           }
         }
 

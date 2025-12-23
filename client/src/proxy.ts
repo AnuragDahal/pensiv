@@ -25,18 +25,11 @@ function isTokenExpired(token: string): boolean {
 
 // Function to check if user is authenticated
 function isAuthenticated(request: NextRequest): boolean {
-  // Check for tokens in cookies first
+  // Check for tokens in cookies
   const accessTokenFromCookie = request.cookies.get("accessToken")?.value;
 
   if (accessTokenFromCookie && !isTokenExpired(accessTokenFromCookie)) {
     return true;
-  }
-
-  // Fallback: Check localStorage-like headers (if any custom headers are set)
-  const authHeader = request.headers.get("authorization");
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.substring(7);
-    return !isTokenExpired(token);
   }
 
   return false;
