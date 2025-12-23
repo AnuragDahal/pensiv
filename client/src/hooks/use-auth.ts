@@ -23,9 +23,9 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      // Call logout endpoint
+      // Call Next.js logout endpoint to clear cookies
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
+        "/api/auth/logout",
         {},
         { withCredentials: true }
       );
@@ -42,20 +42,22 @@ export function useAuth() {
   const refreshToken = async () => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
+        `/api/auth/refresh`,
         {},
         { withCredentials: true }
       );
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-        response.data.data;
+      const newAccessToken = response.data.data;
 
+      // Only update the access token in the store
+      // We keep the existing (valid) refresh token in the store if needed, 
+      // though typically the httpOnly cookie handles the persistence now.
       useAuthStore.getState().updateTokens({
         accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
+        refreshToken: useAuthStore.getState().refreshToken || "", // Keep existing or empty
       });
 
-      return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+      return { accessToken: newAccessToken, refreshToken: null };
     } catch (error) {
       console.error("Token refresh error:", error);
       logout();

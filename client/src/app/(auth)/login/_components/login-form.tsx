@@ -42,7 +42,7 @@ export default function LoginForm() {
     try {
       setIsLoading(true);
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        `/api/auth/login`,
         {
           email: values.email,
           password: values.password,

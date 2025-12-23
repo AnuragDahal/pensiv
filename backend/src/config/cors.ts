@@ -2,7 +2,7 @@ import { CorsOptions } from "cors";
 import { env } from "./env";
 
 export const corsOptions: CorsOptions = {
-    origin : env.FRONTEND_URL,
+    origin : [env.FRONTEND_URL,"http://localhost:3000"],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
         'Content-Type',
@@ -13,5 +13,4 @@ export const corsOptions: CorsOptions = {
     ],
     credentials: true, // This is important for cookies
     maxAge: 86400, // 24 hours
-    exposedHeaders: ['set-cookie'],
 }

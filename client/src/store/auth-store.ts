@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 // =======================
 // TYPES
@@ -66,6 +67,7 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: tokens.refreshToken,
           user: user || null,
         });
+        
 
         // Fetch full user data after login if not provided
         if (!user) {
