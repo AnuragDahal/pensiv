@@ -1,5 +1,6 @@
 "use client";
 import { useForm } from "react-hook-form";
+import { useAuthStore } from "@/store/auth-store";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -28,6 +29,12 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
+  const { logout } = useAuthStore();
+  
+  React.useEffect(() => {
+    logout();
+  }, [logout]);
+
   const form = useForm<z.infer<typeof signupFormSchema>>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {

@@ -28,7 +28,13 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
-  const { login, fetchUser } = useAuthStore();
+  const { login, fetchUser, logout } = useAuthStore();
+  
+  // If the user visits the login page, we should assume any existing session is invalid or stale
+  // and clear it to prevent the UI from thinking we are logged in.
+  React.useEffect(() => {
+    logout();
+  }, [logout]);
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),

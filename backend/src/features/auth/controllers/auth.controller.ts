@@ -127,7 +127,7 @@ export const userLogout = asyncHandler(async (req: Request, res: Response) => {
   const options = {
     httpOnly: true,
     secure: true,
-    sameSite: "lax" as const,
+    sameSite: "none" as const,
   };
 
   res.clearCookie("accessToken", options);
