@@ -1,10 +1,11 @@
-import { isAuthenticated, zodValidator } from "../../../middlewares";
 import { Router } from "express";
+import { isAuthenticated, zodValidator } from "../../../middlewares";
 import {
   accessTokenRefresh,
-  userLogin,
-  userSignup,
   getMe,
+  userLogin,
+  userLogout,
+  userSignup
 } from "../controllers/auth.controller";
 import {
   loginSchema,
@@ -18,5 +19,6 @@ router.post("/signup", zodValidator(signupSchema), userSignup);
 router.post("/login", zodValidator(loginSchema), userLogin);
 router.post("/refresh", zodValidator(tokenSchema), accessTokenRefresh);
 router.get("/me", isAuthenticated, getMe);
+router.post("/logout", isAuthenticated, userLogout);
 
 export default router;

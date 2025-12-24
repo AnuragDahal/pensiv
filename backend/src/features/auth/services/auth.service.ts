@@ -68,3 +68,17 @@ export const getUserByRefreshToken = async (
   }
   return user;
 };
+
+export const removeRefreshToken = async (userId: string | Types.ObjectId) => {
+  return User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        refreshToken: undefined,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+};

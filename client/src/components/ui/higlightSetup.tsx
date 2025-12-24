@@ -30,6 +30,7 @@ import cpp from "highlight.js/lib/languages/cpp";
 hljs.registerLanguage("javascript", javascript);
 hljs.registerLanguage("python", python);
 hljs.registerLanguage("html", html);
+hljs.registerLanguage("xml", html);
 hljs.registerLanguage("css", css);
 hljs.registerLanguage("bash", bash);
 hljs.registerLanguage("json", json);
@@ -53,5 +54,8 @@ hljs.registerLanguage("markdown", markdown);
 hljs.registerLanguage("http", http);
 hljs.registerLanguage("c", c);
 hljs.registerLanguage("cpp", cpp);
+hljs.registerLanguage("typescriptreact", typescript);
+hljs.registerLanguage("tsx", typescript);
+hljs.registerLanguage("jsx", javascript);
 
 export default hljs;

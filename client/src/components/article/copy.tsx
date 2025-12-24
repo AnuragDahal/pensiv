@@ -27,9 +27,10 @@ const Copy = ({ content }: CopyProps) => {
 
   return (
     <Button
-      variant={"secondary"}
+      variant="ghost"
+      size="icon"
       onClick={copyToClipboard}
-      className="p-2 rounded-md"
+      className="h-8 w-8 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
       aria-label={isCopied ? "Copied!" : "Copy code"}
     >
       {isCopied ? (

@@ -19,6 +19,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Initialize auth store from localStorage once
     initializeAuth();
 
+    // Check for expiration on mount/focus
+    const { accessToken, isAuthenticated } = useAuthStore.getState();
+    if (isAuthenticated && (isTokenExpired() || !accessToken)) {
+      // Proactively try to refresh if we think we are logged in but token is arguably stale
+       axios.post("/api/auth/refresh", {}, { withCredentials: true })
+        .then(res => {
+          if (res.data?.data?.accessToken) {
+            updateTokens({
+              accessToken: res.data.data.accessToken,
+              refreshToken: useAuthStore.getState().refreshToken || "",
+            });
+          }
+        })
+        .catch(() => {
+          // If passive refresh fails, we are not authenticated
+          logout();
+        });
+    }
+
     // Create interceptors
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
@@ -44,6 +63,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
+        
+        // Skip if the request is for the refresh endpoint itself to prevent loops
+        if (originalRequest.url?.includes("/api/auth/refresh")) {
+           return Promise.reject(error);
+        }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
@@ -64,6 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 refreshToken: useAuthStore.getState().refreshToken || "",
               });
 
+              // Update the original request with the new token
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
               return axios(originalRequest);
             } else {
@@ -71,8 +96,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
           } catch (refreshError) {
             console.error("Token refresh failed:", refreshError);
-            logout();
-            router.push("/login");
+            logout(); // Clear state
+            router.push("/login"); // Redirect
+            return Promise.reject(refreshError);
           }
         }
 

@@ -14,7 +14,10 @@ import {
   getUserById,
   getUserByRefreshToken,
   validateRefreshToken,
+  removeRefreshToken,
 } from "../services/auth.service";
+
+
 
 export const userSignup = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -113,5 +116,27 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
     status: HTTP_STATUS_CODES.OK,
     data: user,
     message: API_RESPONSES.USER_FETCHED,
+  });
+});
+
+export const userLogout = asyncHandler(async (req: Request, res: Response) => {
+  if (req.user?._id) {
+    await removeRefreshToken(req.user._id);
+  }
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax" as const,
+  };
+
+  res.clearCookie("accessToken", options);
+  res.clearCookie("refreshToken", options);
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    data: {},
+    message: "Logged out successfully",
   });
 });
