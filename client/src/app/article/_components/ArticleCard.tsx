@@ -55,7 +55,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             />
 
             <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
-              <Badge className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md">
+              <Badge className="mb-3 bg-accent text-white hover:bg-accent/90">
                 {category}
               </Badge>
               {featured && (
@@ -125,7 +125,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             />
 
             <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
-              <Badge className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md">
+              <Badge className="bg-accent text-white hover:bg-accent/90">
                 {category}
               </Badge>
               {featured && (

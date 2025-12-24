@@ -7,8 +7,6 @@ import Hero from "@/components/Hero";
 import Navbar from "@/components/NavBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPanel } from "@/components/user-panel";
-import { useAuth } from "@/hooks/use-auth";
 import { useHome } from "@/hooks/useHome";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -26,7 +24,6 @@ const categories = [
 
 const Index = () => {
   const { loading, recentArticles, featuredArticle } = useHome();
-  const { isAuthenticated, user } = useAuth();
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -41,7 +38,7 @@ const Index = () => {
                 <Link
                   key={category}
                   href={`/category/${category.toLowerCase()}`}
-                  className="px-4 py-2 rounded-full bg-white shadow-sm hover:shadow transition-shadow text-sm font-medium"
+                  className="px-4 py-2 hover:bg-accent/90 hover:text-white transition-colors duration-300 ease-in-out rounded-full bg-white shadow-sm text-sm font-medium"
                 >
                   {category}
                 </Link>
