@@ -27,7 +27,7 @@ export default function ArticlePage() {
   if (isInitialLoading) return <ArticleSkeleton />;
 
   if (!data) return null; // fail-safe after first load
-  if (isRefreshing) return <ArticleSkeleton />;
+
 
   return (
     <main className="min-h-screen bg-white pb-20">

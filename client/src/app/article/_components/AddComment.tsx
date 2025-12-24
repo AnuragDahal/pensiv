@@ -29,7 +29,6 @@ export default function AddComment({
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       onAddComment(values.comment, articleId);
-      toast("Comment added successfully!");
       form.reset(); // reset after submit
     } catch (error) {
       console.error("Form submission error", error);

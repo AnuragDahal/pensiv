@@ -27,8 +27,8 @@ export const useArticle = (slug: string): UseArticleResult => {
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
 
-  const fetch = useCallback(async () => {
-    setLoading(true);
+  const fetch = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(undefined);
     try {
       const resp = await axios.get<{ data: ArticleResponse }>(
@@ -39,7 +39,6 @@ export const useArticle = (slug: string): UseArticleResult => {
           },
         }
       );
-      // The backend already returns the shape we defined, so just set it.
       setData(resp.data.data);
     } catch (e: any) {
       setError(
@@ -51,6 +50,22 @@ export const useArticle = (slug: string): UseArticleResult => {
   }, [slug, accessToken]);
 
   const togglePostLikes = async (id: string) => {
+    // Optimistic update
+    const previousData = data;
+    if (!previousData) return;
+
+    const isLiked = previousData.likes.isLikedByUser;
+    const newCount = isLiked ? previousData.likes.count - 1 : previousData.likes.count + 1;
+
+    // Apply optimistic state
+    setData({
+      ...previousData,
+      likes: {
+        count: newCount,
+        isLikedByUser: !isLiked,
+      },
+    });
+
     try {
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/like`,
@@ -61,19 +76,23 @@ export const useArticle = (slug: string): UseArticleResult => {
           },
         }
       );
-      setData((prev) => {
+      
+      // Update with server response to be sure, but we already showed the change
+       setData((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
           likes: {
-            count: response.data.data.likes.count,
-            isLikedByUser: response.data.data.likes.isLikedByUser,
+            count: response.data?.data?.likes?.count ?? prev.likes.count,
+            isLikedByUser: response.data?.data?.likes?.isLikedByUser ?? prev.likes.isLikedByUser,
           },
         };
       });
-      toast.success(response.data.data.message);
+      toast.success(response.data?.message || "Success");
     } catch (err) {
       console.log(err);
+      // Revert on error
+      setData(previousData);
       toast.error("Failed to toggle like");
     }
   };
@@ -87,6 +106,6 @@ export const useArticle = (slug: string): UseArticleResult => {
     loading,
     togglePostLikes,
     error,
-    refetch: fetch,
+    refetch: () => fetch(true),
   };
 };

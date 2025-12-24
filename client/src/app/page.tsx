@@ -136,9 +136,6 @@ const Index = () => {
             </div>
           </div>
         </section>
-        {isAuthenticated && (
-          <UserPanel userName={user?.name} userEmail={user?.email} />
-        )}
       </main>
       <Footer />
     </div>
