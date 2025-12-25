@@ -27,15 +27,10 @@ function isTokenExpired(token: string): boolean {
 function isAuthenticated(request: NextRequest): boolean {
   // Check for tokens in cookies
   const accessToken = request.cookies.get("accessToken")?.value;
-  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  // Consider authenticated if EITHER token exists.
-  // If only refreshToken exists, the client/interceptor will handle refreshing the access token.
+  // With long-lived access tokens, we rely strictly on the access token.
+  // If it's expired/missing, we force a re-login to sync client state.
   if (accessToken && !isTokenExpired(accessToken)) {
-    return true;
-  }
-
-  if (refreshToken) {
     return true;
   }
 

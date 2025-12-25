@@ -163,7 +163,7 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
             <div className="h-px bg-border" />
 
             {/* Logout */}
-            <Link href="/auth/login">
+            <Link href="/login">
               <button
                 onClick={() => {
                   logout();
