@@ -45,7 +45,7 @@ export function useComment(onSuccess?: () => void) {
   const handleReply = async (
     commentId: string,
     content: string,
-    onSuccess?: () => void
+    onSuccessParam?: () => void
   ) => {
     if (!content.trim()) {
       toast.error("Reply content cannot be empty");
@@ -64,8 +64,11 @@ export function useComment(onSuccess?: () => void) {
           },
         }
       );
+      
+      const refresh = onSuccessParam || onSuccess;
+      await refresh?.();
+      
       toast.success("Reply sent successfully!");
-      onSuccess?.();
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Failed to send reply");
@@ -78,21 +81,31 @@ export function useComment(onSuccess?: () => void) {
   };
 
   const addComment = async (content: string, postId: string) => {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/comments/`,
-      { content, postId },
-      {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/`,
+        { content, postId },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        // We await the onSuccess (which is usually article refetch) 
+        // to minimize the gap between the toast and the comment appearing
+        await onSuccess?.();
+        toast.success("Comment added successfully!");
       }
-    );
-    if (response.status === 201) {
-      toast.success("Comment added successfully!");
-      onSuccess?.();
-    } else {
+    } catch (error) {
+      console.error("Add comment error:", error);
       toast.error("Failed to add comment");
+      throw error; // Throw to let the form know it failed
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,8 +125,8 @@ export function useComment(onSuccess?: () => void) {
       }
     );
     if (response.status === 200) {
+      await onSuccess?.();
       toast.success("Comment updated successfully!");
-      onSuccess?.();
     } else {
       toast.error("Failed to update comment");
     }

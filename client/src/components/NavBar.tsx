@@ -69,27 +69,7 @@ const Navbar: React.FC = () => {
               </Button>
             </div>
 
-            {isLoggedIn ? (
-              <div>
-                <div className="flex items-center space-x-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={
-                        user?.avatar ||
-                        "https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg"
-                      }
-                      alt={user?.name || user?.email || "User Avatar"}
-                    />
-                    <AvatarFallback>
-                      {user?.name?.[0] || user?.email?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-medium">
-                    {user?.name || user?.email || "User"}
-                  </span>
-                </div>
-              </div>
-            ) : (
+            {!isLoggedIn && (
               <>
                 <Link href="/login">
                   <Button variant="outline" className="rounded-full">

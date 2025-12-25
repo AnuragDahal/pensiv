@@ -39,11 +39,17 @@ export async function POST(request: Request) {
     cookieStore.set("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV ? "lax" : ("none" as const),
       maxAge: 60 * 60 * 24, // 1 day
       path: "/",
     });
-
+    cookieStore.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV ? "lax" : ("none" as const),
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
     return NextResponse.json(data);
   } catch (error) {
     console.error("Login route error:", error);

@@ -8,10 +8,11 @@ interface Props {
   comments: Comment[];
   postId: string;
   onRefresh: () => void; // parent refresh function
+  onCommentLike: (commentId: string) => void;
 }
 
-export const CommentList = ({ comments, onRefresh, postId }: Props) => {
-  const { handleLike, handleReply, handleUpdate } = useComment(onRefresh);
+export const CommentList = ({ comments, onRefresh, postId, onCommentLike }: Props) => {
+  const { handleReply, handleUpdate } = useComment(onRefresh);
 
   return (
     <div className="space-y-6">
@@ -21,7 +22,7 @@ export const CommentList = ({ comments, onRefresh, postId }: Props) => {
             postId={postId}
             onUpdate={handleUpdate}
             comment={comment}
-            onLike={handleLike}
+            onLike={onCommentLike}
             onReply={handleReply}
           />
           {/* Render replies (no nesting) */}
@@ -33,7 +34,7 @@ export const CommentList = ({ comments, onRefresh, postId }: Props) => {
                   postId={postId}
                   onUpdate={handleUpdate}
                   comment={{ ...reply, replies: [] }}
-                  onLike={handleLike}
+                  onLike={onCommentLike}
                   onReply={handleReply}
                   isReply={true}
                 />

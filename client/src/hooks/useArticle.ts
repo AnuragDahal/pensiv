@@ -14,6 +14,7 @@ export interface UseArticleResult {
   /** Refresh the article (e.g. after a like) */
   refetch: () => void;
   togglePostLikes: (id: string) => void;
+  toggleCommentLike: (commentId: string) => void;
 }
 
 /**
@@ -67,7 +68,7 @@ export const useArticle = (slug: string): UseArticleResult => {
     });
 
     try {
-      const response = await axios.patch(
+      await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/like`,
         {},
         {
@@ -76,24 +77,77 @@ export const useArticle = (slug: string): UseArticleResult => {
           },
         }
       );
-      
-      // Update with server response to be sure, but we already showed the change
-       setData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          likes: {
-            count: response.data?.data?.likes?.count ?? prev.likes.count,
-            isLikedByUser: response.data?.data?.likes?.isLikedByUser ?? prev.likes.isLikedByUser,
-          },
-        };
-      });
-      toast.success(response.data?.message || "Success");
     } catch (err) {
       console.log(err);
       // Revert on error
       setData(previousData);
       toast.error("Failed to toggle like");
+    }
+  };
+
+  const toggleCommentLike = async (commentId: string) => {
+    const previousData = data;
+    if (!previousData) return;
+
+    // Helper to update a comment in the array
+    const updateComment = (comments: any[]) => 
+      comments.map(c => {
+        if (c.id === commentId) {
+          const isLiked = c.likes.isLikedByUser;
+          return {
+            ...c,
+            likes: {
+              count: isLiked ? c.likes.count - 1 : c.likes.count + 1,
+              isLikedByUser: !isLiked
+            }
+          };
+        }
+        // Also check replies
+        if (c.replies?.length > 0) {
+          return {
+            ...c,
+            replies: c.replies.map((r: any) => {
+               if (r.id === commentId) {
+                const isLiked = r.likes.isLikedByUser;
+                return {
+                  ...r,
+                  likes: {
+                    count: isLiked ? r.likes.count - 1 : r.likes.count + 1,
+                    isLikedByUser: !isLiked
+                  }
+                };
+              }
+              return r;
+            })
+          };
+        }
+        return c;
+      });
+
+    // Apply optimistic state
+    setData({
+      ...previousData,
+      comments: updateComment(previousData.comments)
+    });
+
+    try {
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      // We don't necessarily need to set data again from response 
+      // unless the backend returns the new count which might be different due to other users.
+      // But for speed, optimistic + background refetch is best.
+    } catch (err) {
+      console.log(err);
+      // Revert on error
+      setData(previousData);
+      toast.error("Failed to toggle comment like");
     }
   };
 
@@ -105,6 +159,7 @@ export const useArticle = (slug: string): UseArticleResult => {
     data,
     loading,
     togglePostLikes,
+    toggleCommentLike,
     error,
     refetch: () => fetch(true),
   };

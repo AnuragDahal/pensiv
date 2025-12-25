@@ -18,7 +18,7 @@ import Profile from "@/components/profile";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { data, loading, refetch, togglePostLikes } = useArticle(slug!);
+  const { data, loading, refetch, togglePostLikes, toggleCommentLike } = useArticle(slug!);
   const { addComment } = useComment(refetch);
   const article = data as ArticleResponse;
 
@@ -126,6 +126,7 @@ export default function ArticlePage() {
             <CommentList
               comments={article.comments}
               onRefresh={refetch}
+              onCommentLike={toggleCommentLike}
               postId={article.post.id}
             />
           )}

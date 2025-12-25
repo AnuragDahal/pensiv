@@ -4,12 +4,13 @@ import { LikeButton } from "./like-button";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore } from "@/store/auth-store";
 
 interface Props {
   comment: CommentType;
   postId: string;
   onLike: (commentId: string) => void;
-  onReply: (commentId: string, content: string) => void;
+  onReply: (commentId: string, content: string) => Promise<void>;
   onUpdate: (
     commentId: string,
     content: string,
@@ -29,8 +30,12 @@ export const CommentCard = ({
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
+  const [isSendingReply, setIsSendingReply] = useState(false);
   const [update, setUpdate] = useState(comment.content);
   const [replyText, setReplyText] = useState("");
+
+  const { user } = useAuthStore();
+  const isAuthor = user?.id === comment.author.id;
 
   // Get initials from author name
   const getInitials = (name: string) => {
@@ -100,7 +105,7 @@ export const CommentCard = ({
               </Button>
             )}
 
-            {!isEditing && !isReplying && (
+            {isAuthor && !isEditing && !isReplying && (
               <Button
                 variant={"outline"}
                 onClick={() => setIsEditing(!isEditing)}
@@ -110,16 +115,18 @@ export const CommentCard = ({
             )}
             {isEditing && !isReplying && (
               <>
-                {" "}
                 <Button variant={"outline"} onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => onUpdate(comment.id, update, postId)}
+                  onClick={() => {
+                     onUpdate(comment.id, update, postId);
+                     setIsEditing(false);
+                  }}
                 >
                   Save
-                </Button>{" "}
+                </Button>
               </>
             )}
           </div>
@@ -134,24 +141,34 @@ export const CommentCard = ({
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 autoFocus
+                disabled={isSendingReply}
               />
 
               <div className="flex flex-col gap-1">
                 <Button
-                  onClick={() => {
-                    onReply(comment.id, replyText);
-                    setShowReplyBox(!showReplyBox);
-                    setReplyText("");
+                  onClick={async () => {
+                    setIsSendingReply(true);
+                    try {
+                      await onReply(comment.id, replyText);
+                      setShowReplyBox(false);
+                      setReplyText("");
+                      setIsReplying(false);
+                    } catch (error) {
+                      // error handled in hook
+                    } finally {
+                      setIsSendingReply(false);
+                    }
                   }}
-                  disabled={!replyText.trim()}
+                  disabled={!replyText.trim() || isSendingReply}
                 >
-                  Reply
+                  {isSendingReply ? "Replying..." : "Reply"}
                 </Button>
                 <Button
                   onClick={() => {
-                    setShowReplyBox(!showReplyBox);
-                    setIsReplying(!isReplying);
+                    setShowReplyBox(false);
+                    setIsReplying(false);
                   }}
+                  disabled={isSendingReply}
                 >
                   Cancel
                 </Button>
