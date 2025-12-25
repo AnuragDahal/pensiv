@@ -48,6 +48,7 @@ export interface Article {
   };
   category: string;
   createdAt: string;
+  isFeatured?: boolean;
   estimatedReadTime: number;
 }
 /** Recommended article (lighter payload) */

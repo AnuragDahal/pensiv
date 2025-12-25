@@ -105,6 +105,7 @@ const Index = () => {
                         estimatedReadTime={Math.ceil(
                           article.content.trim().split(/\s+/).length / 200
                         )}
+                        featured={article.isFeatured}
                       />
                     </div>
                   ))

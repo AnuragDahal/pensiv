@@ -20,7 +20,7 @@ interface Article {
   category: string;
   createdAt: string;
   content: string;
-  featured?: boolean;
+  isFeatured?: boolean;
 }
 
 const Articles = () => {
@@ -83,7 +83,7 @@ const Articles = () => {
                   estimatedReadTime={Math.ceil(
                     article.content.trim().split(/\s+/).length / 200
                   )}
-                  featured={article.featured}
+                  featured={article.isFeatured}
                 />
               ))
             )}

@@ -25,6 +25,7 @@ const RecommendedArticles = ({ articles }: RecommendedArticlesProps) => {
             estimatedReadTime={Math.ceil(
               rec.content.trim().split(/\s+/).length / 200
             )}
+            featured={rec.isFeatured}
           />
         ))}
       </div>

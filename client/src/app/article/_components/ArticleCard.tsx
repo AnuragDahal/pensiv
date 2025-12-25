@@ -31,7 +31,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   category,
   date,
   estimatedReadTime,
-  featured = false,
+  featured=false,
 }) => {
   return (
     <Link href={`/article/${slug}`} className="group block">
@@ -80,13 +80,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Avatar>
-                    <AvatarImage src={author.avatar} alt={author.name} />
-                    <AvatarFallback className="text-xs">
-                      {getInitials(author.name)}
-                    </AvatarFallback>
-                    ``
-                  </Avatar>
+                  <Profile name={author.name} avatar={author.avatar} />
                   <span className="text-sm font-medium truncate">
                     {author.name}
                   </span>

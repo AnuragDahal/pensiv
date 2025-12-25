@@ -69,6 +69,9 @@ export const togglePostReaction = async (
     reactionType: "like",
   });
 
+  // Sync to Post model for fast sorting/filtering
+  await Post.findByIdAndUpdate(postId, { likesCount });
+
   return {
     liked: !existingLike,
     likesCount,
@@ -132,7 +135,10 @@ export const buildFullPostResponse = async (
       // Process replies to get their likes
       const repliesWithLikes = await Promise.all(
         (comment.replies || []).map(async (reply: unknown) => {
-          const typedReply = reply as { _id: Types.ObjectId; [key: string]: unknown };
+          const typedReply = reply as {
+            _id: Types.ObjectId;
+            [key: string]: unknown;
+          };
           const replyLikes = await Reaction.countDocuments({
             reply: typedReply._id,
             reactionType: "like",
@@ -190,9 +196,7 @@ export const buildFullPostResponse = async (
   // 7. Increment views
   await Post.findByIdAndUpdate(postId, { $inc: { views: 1 } });
 
-  const formatAuthor = (
-    author: unknown
-  ) => {
+  const formatAuthor = (author: unknown) => {
     if (!author) return null;
     const authorObj = author as { _id: Types.ObjectId; [key: string]: unknown };
     const { _id, ...rest } = authorObj;
@@ -290,11 +294,29 @@ export const getRecentPosts = async (limit: number) => {
 
 // get the featured post via the likes and the views criteria
 export const getTopFeaturedPost = async () => {
-  const posts = await Post.find()
+  // 1. Get the "calculated" top post based on metrics
+  const topPosts = await Post.find()
     .sort({ likesCount: -1, views: -1 })
+    .limit(1);
+
+  if (topPosts.length === 0) return { featuredPost: [] };
+
+  const topPost = topPosts[0];
+
+  // 2. If this post isn't already the featured one in DB, sync it
+  if (!topPost.isFeatured) {
+    // Reset all posts that might be featured
+    await Post.updateMany({ isFeatured: true }, { isFeatured: false });
+    // Mark the new leader as featured
+    await Post.findByIdAndUpdate(topPost._id, { isFeatured: true });
+  }
+
+  // 3. Return the populated response
+  const post = await Post.findById(topPost._id)
     .populate("userId", "name avatar")
-    .limit(1)
     .lean();
+
+  if (!post) return { featuredPost: [] };
 
   const formatAuthor = (author: unknown) => {
     if (!author) return null;
@@ -302,19 +324,22 @@ export const getTopFeaturedPost = async () => {
     const { _id, ...rest } = authorObj;
     return { id: _id, ...rest };
   };
+
   return {
-    featuredPost: posts.map((post) => ({
-      id: post._id,
-      title: post.title,
-      slug: post.slug,
-      tags: post.tags,
-      coverImage: post.coverImage,
-      isFeatured: post.isFeatured,
-      createdAt: post.createdAt,
-      author: formatAuthor(post.userId),
-      category: post.category,
-      shortDescription: post.shortDescription,
-      content: post.content,
-    })),
+    featuredPost: [
+      {
+        id: post._id,
+        title: post.title,
+        slug: post.slug,
+        tags: post.tags,
+        coverImage: post.coverImage,
+        isFeatured: true,
+        createdAt: post.createdAt,
+        author: formatAuthor(post.userId),
+        category: post.category,
+        shortDescription: post.shortDescription,
+        content: post.content,
+      },
+    ],
   };
 };
