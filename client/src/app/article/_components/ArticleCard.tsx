@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Star } from "lucide-react";
 import Image from "next/image";
 import { getInitials } from "@/lib/utils";
+import Profile from "@/components/profile";
 
 interface ArticleCardProps {
   title: string;
@@ -148,12 +149,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
             <div className="flex items-center justify-between gap-4 pt-4 mt-auto border-t border-border/50">
               <div className="flex items-center gap-3">
-                <Avatar className="h-9 w-9 ring-2 ring-background">
-                  <AvatarImage src={author.avatar} alt={author.name} />
-                  <AvatarFallback className="text-xs">
-                    {getInitials(author.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <Profile name={author.name} avatar={author.avatar} />
                 <span className="text-sm font-medium">{author.name}</span>
               </div>
 

@@ -1,3 +1,4 @@
+import Profile from "@/components/profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,10 +56,7 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
                   </Badge>
                   <h2 className="text-white mb-2 drop-shadow-sm">{title}</h2>
                   <div className="flex items-center gap-3 text-white/90">
-                    <Avatar className="h-8 w-8 border-2 border-white/20">
-                      <AvatarImage src={author.avatar} alt={author.name} />
-                      <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <Profile name={author.name} avatar={author.avatar} />
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm">
                       <span className="font-medium">{author.name}</span>
                       <span className="hidden sm:inline-block">•</span>

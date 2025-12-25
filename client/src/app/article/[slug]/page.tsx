@@ -14,6 +14,7 @@ import { CommentList } from "../_components/CommentList";
 import { LikeButton } from "../_components/like-button";
 import RecommendedArticles from "../_components/RecommendedArticles";
 import { ShareButton } from "../_components/share-button";
+import Profile from "@/components/profile";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -27,7 +28,6 @@ export default function ArticlePage() {
   if (isInitialLoading) return <ArticleSkeleton />;
 
   if (!data) return null; // fail-safe after first load
-
 
   return (
     <main className="min-h-screen bg-white pb-20">
@@ -51,15 +51,10 @@ export default function ArticlePage() {
 
           <div className="flex items-center justify-between py-6 border-y border-gray-100">
             <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarImage
-                  src={article.post.author.avatar}
-                  alt={article.post.author.name}
-                />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                  {getInitials(article.post.author.name ?? "U")}
-                </AvatarFallback>
-              </Avatar>
+              <Profile
+                name={article.post.author.name}
+                avatar={article.post.author.avatar}
+              />
               <div>
                 <p className="font-semibold text-gray-900">
                   {article.post.author.name}
