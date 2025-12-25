@@ -81,7 +81,7 @@ const Articles = () => {
                   category={article.category}
                   date={article.createdAt}
                   estimatedReadTime={Math.ceil(
-                    article.content.split(" ").length / 200
+                    article.content.trim().split(/\s+/).length / 200
                   )}
                   featured={article.featured}
                 />

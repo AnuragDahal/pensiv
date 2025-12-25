@@ -22,7 +22,9 @@ const RecommendedArticles = ({ articles }: RecommendedArticlesProps) => {
             author={rec.author}
             date={rec.createdAt}
             category={rec.category}
-            estimatedReadTime={Math.ceil(rec.content.split(" ").length / 200)}
+            estimatedReadTime={Math.ceil(
+              rec.content.trim().split(/\s+/).length / 200
+            )}
           />
         ))}
       </div>

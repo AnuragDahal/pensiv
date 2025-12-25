@@ -60,7 +60,9 @@ const Index = () => {
             date={featuredArticle.createdAt}
             estimatedReadTime={
               featuredArticle.content
-                ? Math.ceil(featuredArticle.content.split(" ").length / 200)
+                ? Math.ceil(
+                    featuredArticle.content.trim().split(/\s+/).length / 200
+                  )
                 : 0
             }
           />
@@ -101,7 +103,7 @@ const Index = () => {
                         category={article.category}
                         date={article.createdAt}
                         estimatedReadTime={Math.ceil(
-                          article.content.split(" ").length / 200
+                          article.content.trim().split(/\s+/).length / 200
                         )}
                       />
                     </div>

@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,10 +82,11 @@ export default function AboutPage() {
               <div className="flex-1 text-center md:text-left">
                 <h2 className="text-3xl font-semibold mb-4">Meet the Author</h2>
                 <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                  Hi! I&apos;m Alex Johnson, a passionate writer and developer
-                  with over 8 years of experience in the tech industry. I love
-                  exploring new technologies, sharing insights, and helping
-                  others grow in their journey.
+                  Hi I am Anurag Dahal a passionate developer with over 2 years
+                  of experience in the tech industry.The main moto was to build
+                  a platform where sharing content is easy and accessible to
+                  everyone. I would love to connect with you and share my
+                  knowledge with you.
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-6">
                   <Badge variant="secondary">JavaScript</Badge>
@@ -197,7 +199,7 @@ export default function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild>
                 <Link
-                  href="mailto:hello@example.com"
+                  href="mailto:dahal.codecraft@gmail.com"
                   className="flex items-center gap-2"
                 >
                   <Mail className="h-4 w-4" />

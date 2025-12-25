@@ -21,11 +21,7 @@ interface UserPanelProps {
   userImage?: string;
 }
 
-export function UserPanel({
-  userName = "Alex Johnson",
-  userEmail = "alex@pensieve.com",
-  userImage,
-}: UserPanelProps) {
+export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const { logout } = useAuth();
@@ -73,18 +69,18 @@ export function UserPanel({
             {userImage ? (
               <Image
                 src={userImage || "/placeholder.svg"}
-                alt={userName}
+                alt={userName || "User"}
                 className="w-full h-full rounded-lg object-cover"
               />
             ) : (
-              userName.charAt(0).toUpperCase()
+              userName?.charAt(0).toUpperCase()
             )}
           </div>
 
           {/* User Info (hidden on mobile) */}
           <div className="hidden sm:flex flex-col gap-0.5 text-left">
             <span className="text-sm font-medium text-foreground leading-none">
-              {userName.split(" ")[0]}
+              {userName?.split(" ")[0]}
             </span>
             <span className="text-xs text-muted-foreground leading-none">
               Account
