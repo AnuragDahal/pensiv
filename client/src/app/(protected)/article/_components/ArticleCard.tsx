@@ -80,9 +80,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Profile name={author.name} avatar={author.avatar} />
+                  <Profile name={author?.name} avatar={author?.avatar} />
                   <span className="text-sm font-medium truncate">
-                    {author.name}
+                    {author?.name || "Anonymous"}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground shrink-0">
@@ -143,8 +143,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
             <div className="flex items-center justify-between gap-4 pt-4 mt-auto border-t border-border/50">
               <div className="flex items-center gap-3">
-                <Profile name={author.name} avatar={author.avatar} />
-                <span className="text-sm font-medium">{author.name}</span>
+                <Profile name={author?.name} avatar={author?.avatar} />
+                <span className="text-sm font-medium">{author?.name || "Anonymous"}</span>
               </div>
 
               <div className="flex items-center gap-4 text-sm text-muted-foreground">

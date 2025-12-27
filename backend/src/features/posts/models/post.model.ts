@@ -90,6 +90,23 @@ postSchema.virtual("commentsCount", {
   count: true, // Just return the count
 });
 
+// Text index for search functionality
+postSchema.index(
+  {
+    title: "text",
+    content: "text",
+    tags: "text",
+  },
+  {
+    weights: {
+      title: 10,
+      tags: 5,
+      content: 1,
+    },
+    name: "ArticleSearchIndex",
+  }
+);
+
 // index for the slug
 postSchema.index({ slug: 1 });
 

@@ -55,9 +55,9 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
                 </Badge>
                 <h2 className="text-white mb-2 drop-shadow-sm">{title}</h2>
                 <div className="flex items-center gap-3 text-white/90">
-                  <Profile name={author.name} avatar={author.avatar} />
+                  <Profile name={author?.name} avatar={author?.avatar} />
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm">
-                    <span className="font-medium">{author.name}</span>
+                    <span className="font-medium">{author?.name || "Anonymous"}</span>
                     <span className="hidden sm:inline-block">•</span>
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />

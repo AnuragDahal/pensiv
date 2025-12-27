@@ -1,10 +1,11 @@
 import { Comments } from "@/features/comments/models/comment.model";
 import { Reaction } from "@/features/reaction/models/reaction-model";
+import User from "@/features/auth/models/user.model";
 import { IPostModelResponse } from "@/types/posts";
 import { Types } from "mongoose";
 import { Post } from "../models/post.model";
 
-export const createPost = async (data: Record<string, number | null>) => {
+export const createPost = async (data: any) => {
   const post = await Post.create(data);
   return post;
 };
@@ -28,6 +29,115 @@ export const getAllPosts = (filter = {}) =>
     .populate("userId", "name email avatar")
     .populate("comments");
 
+/**
+ * Enhanced search and filtering service.
+ * Decisions on "WHERE to search" and "HOW to filter" are handled here.
+ */
+export const getFilteredArticles = async (query: {
+  q?: string;
+  category?: string;
+  page?: string;
+  limit?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}) => {
+  const {
+    q,
+    category,
+    page = "1",
+    limit = "10",
+    sortBy,
+    sortOrder = "desc",
+  } = query;
+  const pageNum = parseInt(page, 10);
+  const limitNum = parseInt(limit, 10);
+  const skip = (pageNum - 1) * limitNum;
+
+  // 1. Build Base Filter
+  const mongoQuery: any = {};
+
+  if (category && category !== "all") {
+    mongoQuery.category = category;
+  }
+
+  // 2. Handle Universal Search (q)
+  if (q) {
+    // Find users matching search term for author search
+    const users = await User.find({
+      $or: [
+        { name: { $regex: q, $options: "i" } },
+        { email: { $regex: q, $options: "i" } },
+      ],
+    }).select("_id");
+    const matchedAuthorIds = users.map((u) => u._id);
+
+    // Search across Title, Content, Tags, and Author Name
+    mongoQuery.$or = [
+      { title: { $regex: q, $options: "i" } },
+      { content: { $regex: q, $options: "i" } },
+      { tags: { $regex: q, $options: "i" } },
+      { userId: { $in: matchedAuthorIds } },
+    ];
+  }
+
+  // 3. Sorting logic
+  const sort: any = {};
+  const order = sortOrder === "asc" ? 1 : -1;
+  if (sortBy) {
+    sort[sortBy] = order;
+  } else {
+    // Default: prioritize isFeatured, then newest
+    sort.isFeatured = -1;
+    sort.createdAt = -1;
+  }
+
+  // 4. Execution
+  const [posts, totalPosts] = await Promise.all([
+    Post.find(mongoQuery)
+      .populate("userId", "name avatar")
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    Post.countDocuments(mongoQuery),
+  ]);
+
+  const totalPages = Math.ceil(totalPosts / limitNum);
+
+  const formatAuthor = (author: any) => {
+    if (!author) return null;
+    // If it's just an ID (not populated)
+    if (typeof author === "string" || author instanceof Types.ObjectId) {
+      return { id: author.toString(), name: "Anonymous", avatar: "" };
+    }
+    const { _id, id, ...rest } = author;
+    return { id: (_id || id || "").toString(), ...rest };
+  };
+
+  return {
+    posts: posts.map((post: any) => ({
+      id: post._id,
+      title: post.title,
+      slug: post.slug,
+      tags: post.tags,
+      coverImage: post.coverImage,
+      isFeatured: post.isFeatured,
+      createdAt: post.createdAt,
+      author: formatAuthor(post.userId),
+      category: post.category,
+      shortDescription: post.shortDescription,
+      content: post.content,
+    })),
+    pagination: {
+      currentPage: pageNum,
+      totalPages,
+      totalPosts,
+      hasNextPage: pageNum < totalPages,
+      hasPrevPage: pageNum > 1,
+    },
+  };
+};
+
 export const getPostsByUserId = (userId: string | Types.ObjectId) =>
   Post.find({ userId })
     .populate("comments")
@@ -35,7 +145,7 @@ export const getPostsByUserId = (userId: string | Types.ObjectId) =>
 
 export const updatePostById = (
   id: string | Types.ObjectId,
-  data: Record<string, number | null>
+  data: any
 ) => Post.findByIdAndUpdate(id, data, { new: true });
 
 export const deletePost = (id: string | Types.ObjectId) =>
@@ -52,10 +162,8 @@ export const togglePostReaction = async (
   });
 
   if (existingLike) {
-    // Unlike: Remove the like
     await Reaction.deleteOne({ _id: existingLike._id });
   } else {
-    // Like: Create new like
     await Reaction.create({
       user: userId,
       post: postId,
@@ -63,13 +171,11 @@ export const togglePostReaction = async (
     });
   }
 
-  // Get updated like count
   const likesCount = await Reaction.countDocuments({
     post: postId,
     reactionType: "like",
   });
 
-  // Sync to Post model for fast sorting/filtering
   await Post.findByIdAndUpdate(postId, { likesCount });
 
   return {
@@ -91,13 +197,11 @@ export const buildFullPostResponse = async (
 
   if (!post) return null;
 
-  // 2. Get like count
   const likesCount = await Reaction.countDocuments({
     post: postId,
     reactionType: "like",
   });
 
-  // 3. Is liked by user?
   let isLikedByUser = false;
   if (userId) {
     const userLike = await Reaction.findOne({
@@ -108,7 +212,6 @@ export const buildFullPostResponse = async (
     isLikedByUser = !!userLike;
   }
 
-  // 4. Comments + replies
   const comments = await Comments.find({ postId })
     .populate("userId", "name email avatar")
     .populate("replies.userId", "name email avatar")
@@ -116,7 +219,7 @@ export const buildFullPostResponse = async (
     .lean();
 
   const commentsWithLikes = await Promise.all(
-    comments.map(async (comment) => {
+    comments.map(async (comment: any) => {
       const commentLikes = await Reaction.countDocuments({
         comment: comment._id,
         reactionType: "like",
@@ -132,15 +235,10 @@ export const buildFullPostResponse = async (
         isLikedByUserComment = !!userLike;
       }
 
-      // Process replies to get their likes
       const repliesWithLikes = await Promise.all(
-        (comment.replies || []).map(async (reply: unknown) => {
-          const typedReply = reply as {
-            _id: Types.ObjectId;
-            [key: string]: unknown;
-          };
+        (comment.replies || []).map(async (reply: any) => {
           const replyLikes = await Reaction.countDocuments({
-            reply: typedReply._id,
+            reply: reply._id,
             reactionType: "like",
           });
 
@@ -148,25 +246,16 @@ export const buildFullPostResponse = async (
           if (userId) {
             const userReplyLike = await Reaction.findOne({
               user: userId,
-              reply: typedReply._id,
+              reply: reply._id,
               reactionType: "like",
             });
             isLikedByUserReply = !!userReplyLike;
           }
 
           return {
-            ...typedReply,
+            ...reply,
             likesCount: replyLikes,
             isLikedByUser: isLikedByUserReply,
-          } as {
-            _id: Types.ObjectId;
-            content: string;
-            createdAt: Date;
-            updatedAt: Date;
-            userId: { _id: Types.ObjectId; [key: string]: unknown };
-            likesCount: number;
-            isLikedByUser: boolean;
-            [key: string]: unknown;
           };
         })
       );
@@ -180,7 +269,6 @@ export const buildFullPostResponse = async (
     })
   );
 
-  // 6. Recommended posts
   const recommendedPosts = await Post.find({
     _id: { $ne: postId },
     $or: [{ tags: { $in: post.tags } }, { userId: post.userId }],
@@ -193,17 +281,18 @@ export const buildFullPostResponse = async (
     .sort({ createdAt: -1 })
     .lean();
 
-  // 7. Increment views
   await Post.findByIdAndUpdate(postId, { $inc: { views: 1 } });
 
-  const formatAuthor = (author: unknown) => {
+  const formatAuthor = (author: any) => {
     if (!author) return null;
-    const authorObj = author as { _id: Types.ObjectId; [key: string]: unknown };
-    const { _id, ...rest } = authorObj;
-    return { id: _id, ...rest };
+    // If it's just an ID (not populated)
+    if (typeof author === "string" || author instanceof Types.ObjectId) {
+      return { id: author.toString(), name: "Anonymous", avatar: "" };
+    }
+    const { _id, id, ...rest } = author;
+    return { id: (_id || id || "").toString(), ...rest };
   };
 
-  // final structured response
   return {
     post: {
       id: post._id,
@@ -224,7 +313,7 @@ export const buildFullPostResponse = async (
       count: likesCount,
       isLikedByUser,
     },
-    comments: commentsWithLikes.map((comment) => ({
+    comments: commentsWithLikes.map((comment: any) => ({
       id: comment._id,
       content: comment.content,
       createdAt: comment.createdAt,
@@ -234,7 +323,7 @@ export const buildFullPostResponse = async (
         count: comment.likesCount,
         isLikedByUser: comment.isLikedByUser,
       },
-      replies: comment.replies.map((reply) => ({
+      replies: comment.replies.map((reply: any) => ({
         id: reply._id,
         content: reply.content,
         createdAt: reply.createdAt,
@@ -268,11 +357,15 @@ export const getRecentPosts = async (limit: number) => {
     .limit(limit)
     .populate("userId", "name avatar")
     .lean();
-  const formatAuthor = (author: unknown) => {
+  
+  const formatAuthor = (author: any) => {
     if (!author) return null;
-    const authorObj = author as { _id: Types.ObjectId; [key: string]: unknown };
-    const { _id, ...rest } = authorObj;
-    return { id: _id, ...rest };
+    // If it's just an ID (not populated)
+    if (typeof author === "string" || author instanceof Types.ObjectId) {
+      return { id: author.toString(), name: "Anonymous", avatar: "" };
+    }
+    const { _id, id, ...rest } = author;
+    return { id: (_id || id || "").toString(), ...rest };
   };
 
   return {
@@ -292,9 +385,7 @@ export const getRecentPosts = async (limit: number) => {
   };
 };
 
-// get the featured post via the likes and the views criteria
 export const getTopFeaturedPost = async () => {
-  // 1. Get the "calculated" top post based on metrics
   const topPosts = await Post.find()
     .sort({ likesCount: -1, views: -1 })
     .limit(1);
@@ -303,26 +394,25 @@ export const getTopFeaturedPost = async () => {
 
   const topPost = topPosts[0];
 
-  // 2. If this post isn't already the featured one in DB, sync it
   if (!topPost.isFeatured) {
-    // Reset all posts that might be featured
     await Post.updateMany({ isFeatured: true }, { isFeatured: false });
-    // Mark the new leader as featured
     await Post.findByIdAndUpdate(topPost._id, { isFeatured: true });
   }
 
-  // 3. Return the populated response
   const post = await Post.findById(topPost._id)
     .populate("userId", "name avatar")
     .lean();
 
   if (!post) return { featuredPost: [] };
 
-  const formatAuthor = (author: unknown) => {
+  const formatAuthor = (author: any) => {
     if (!author) return null;
-    const authorObj = author as { _id: Types.ObjectId; [key: string]: unknown };
-    const { _id, ...rest } = authorObj;
-    return { id: _id, ...rest };
+    // If it's just an ID (not populated)
+    if (typeof author === "string" || author instanceof Types.ObjectId) {
+      return { id: author.toString(), name: "Anonymous", avatar: "" };
+    }
+    const { _id, id, ...rest } = author;
+    return { id: (_id || id || "").toString(), ...rest };
   };
 
   return {

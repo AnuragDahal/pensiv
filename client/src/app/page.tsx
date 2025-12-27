@@ -1,6 +1,6 @@
 "use client";
-import ArticleCard from "@/app/article/_components/ArticleCard";
-import FeaturedArticle from "@/app/article/_components/FeaturedArticle";
+import ArticleCard from "@/app/(protected)/article/_components/ArticleCard";
+import FeaturedArticle from "@/app/(protected)/article/_components/FeaturedArticle";
 import { ArticleListSkeleton } from "@/components/article/ArticleListSkeleton";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";

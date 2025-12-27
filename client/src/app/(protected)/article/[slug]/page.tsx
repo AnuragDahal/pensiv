@@ -23,8 +23,6 @@ export default function ArticlePage() {
   const article = data as ArticleResponse;
 
   const isInitialLoading = loading && !data; // first load only
-  const isRefreshing = loading && data; // background refresh
-
   if (isInitialLoading) return <ArticleSkeleton />;
 
   if (!data) return null; // fail-safe after first load

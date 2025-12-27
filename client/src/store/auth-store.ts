@@ -167,24 +167,30 @@ export const useAuthStore = create<AuthState>()(
 
       // HYDRATE AUTH FROM STORAGE
       initializeAuth: () => {
+        // Prevent re-initialization if already in progress or done
+        if (typeof window === "undefined") return;
+
         const stored = localStorage.getItem("auth-storage");
 
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            const { accessToken, refreshToken, user } = parsed.state || parsed;
+            const state = parsed.state || parsed;
+            const { accessToken, refreshToken, user } = state;
 
-            if (accessToken && refreshToken) {
+            if (accessToken && accessToken !== "null" && refreshToken && refreshToken !== "null") {
               set({
                 accessToken,
                 refreshToken,
                 user: user || null,
-                isAuthenticated: !!accessToken,
+                isAuthenticated: true,
                 isAuthInitialized: true,
               });
 
-              // Fetch fresh user data after hydration
-              get().fetchUser();
+              // Fetch fresh user data after hydration only if we don't have it
+              if (!user) {
+                get().fetchUser();
+              }
             } else {
               set({
                 accessToken: null,
@@ -193,14 +199,10 @@ export const useAuthStore = create<AuthState>()(
                 isAuthenticated: false,
                 isAuthInitialized: true,
               });
-              localStorage.removeItem("auth-storage");
             }
           } catch (error) {
             console.error("Error parsing auth storage:", error);
             set({
-              accessToken: null,
-              refreshToken: null,
-              user: null,
               isAuthenticated: false,
               isAuthInitialized: true,
             });

@@ -10,6 +10,7 @@ import {
   buildFullPostResponse,
   createPost,
   getAllPosts,
+  getFilteredArticles,
   getPostById,
   getPostBySlug,
   getPostsByUserId,
@@ -149,66 +150,10 @@ export const getAllPostByUserId = asyncHandler(
 
 export const fetchAllPosts = asyncHandler(
   async (req: Request, res: Response) => {
-    const { ...filters } = req.query;
+    const query = req.query;
 
-    // Build filter object
-    const filter: FilterQuery<typeof Post> = {};
-
-    // Search functionality - search in title, content, and shortDescription
-    if (filters.search) {
-      filter.$or = [
-        { title: { $regex: filters.search, $options: "i" } },
-        { content: { $regex: filters.search, $options: "i" } },
-        { shortDescription: { $regex: filters.search, $options: "i" } },
-      ];
-    }
-
-    // Filter by tags
-    if (filters.tags) {
-      filter.tags = { $regex: filters.tags, $options: "i" };
-    }
-
-    // Build sort object
-    const sort: { [key: string]: SortOrder } = {};
-
-    if (filters.sortBy) {
-      const order: SortOrder = filters.sortOrder === "desc" ? -1 : 1;
-      sort[filters.sortBy as string] = order;
-    } else {
-      sort.createdAt = -1; // Default sort
-    }
-
-    // Pagination
-    const pageNum = parseInt(filters.page as string, 10) || 1;
-    const limitNum = parseInt(filters.limit as string, 10) || 10;
-    const skip = (pageNum - 1) * limitNum; // Execute query
-    const posts = await getAllPosts(filter)
-      .select("-__v")
-      .populate({
-        path: "comments",
-        populate: {
-          path: "userId",
-          select: "name email avatar replies",
-        },
-      })
-      .populate("userId", "name email avatar bio")
-      .sort(sort)
-      .skip(skip)
-      .limit(limitNum);
-    // Get total count for pagination
-    const totalPosts = await Post.countDocuments(filter);
-    const totalPages = Math.ceil(totalPosts / limitNum);
-
-    const responseData = {
-      posts,
-      pagination: {
-        currentPage: pageNum,
-        totalPages,
-        totalPosts,
-        hasNextPage: pageNum < totalPages,
-        hasPrevPage: pageNum > 1,
-      },
-    };
+    // Backend decides: WHERE to search, HOW to filter, WHAT order to return
+    const responseData = await getFilteredArticles(query);
 
     return sendResponse({
       res,

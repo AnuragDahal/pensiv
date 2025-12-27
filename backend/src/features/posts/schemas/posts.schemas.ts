@@ -16,6 +16,8 @@ export const queryParams = z.object({
   limit: z.string().optional(),
   sortBy: z.string().optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
+  q: z.string().optional(),
+  category: z.string().optional(),
 });
 
 export type PostSchemaType = z.infer<typeof postSchema>;

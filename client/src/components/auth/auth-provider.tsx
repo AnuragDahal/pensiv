@@ -3,17 +3,14 @@
 import { useAuthStore } from "@/store/auth-store";
 import { useEffect } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation"; // optional: Next router for redirects
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { initializeAuth, updateTokens, logout, isTokenExpired, getTokens } =
+  const { initializeAuth, updateTokens, logout, isTokenExpired } =
     useAuthStore();
-
-  const router = useRouter(); // optional, for redirect
 
   useEffect(() => {
     // Initialize auth store from localStorage once
@@ -23,11 +20,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const { accessToken, isAuthenticated } = useAuthStore.getState();
     if (isAuthenticated && (isTokenExpired() || !accessToken)) {
       // Proactively try to refresh if we think we are logged in but token is arguably stale
-       axios.post("/api/auth/refresh", {}, { withCredentials: true })
-        .then(res => {
-          if (res.data?.data?.accessToken) {
+      axios
+        .post("/api/auth/refresh", {}, { withCredentials: true })
+        .then((res) => {
+          const refreshData = res.data?.data;
+          const newAccessToken =
+            typeof refreshData === "string"
+              ? refreshData
+              : refreshData?.accessToken;
+
+          if (newAccessToken) {
             updateTokens({
-              accessToken: res.data.data.accessToken,
+              accessToken: newAccessToken,
               refreshToken: useAuthStore.getState().refreshToken || "",
             });
           }
@@ -38,7 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
     }
 
-    // Create interceptors
+    // Create axios interceptors for attaching tokens and handling token refresh
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
         const { accessToken, isAuthenticated } = useAuthStore.getState();
@@ -53,7 +57,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
 
-        config.withCredentials = true; // send cookies if needed
+        config.withCredentials = true;
         return config;
       },
       (error) => Promise.reject(error)
@@ -63,10 +67,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        
+
         // Skip if the request is for the refresh endpoint itself to prevent loops
         if (originalRequest.url?.includes("/api/auth/refresh")) {
-           return Promise.reject(error);
+          return Promise.reject(error);
         }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -80,7 +84,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
               { withCredentials: true }
             );
 
-            const { accessToken: newAccessToken } = res.data.data;
+            const refreshData = res.data.data;
+            const newAccessToken =
+              typeof refreshData === "string"
+                ? refreshData
+                : refreshData?.accessToken;
 
             if (newAccessToken) {
               updateTokens({
@@ -96,8 +104,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
           } catch (refreshError) {
             console.error("Token refresh failed:", refreshError);
-            logout(); // Clear state
-            router.push("/login"); // Redirect
+            logout();
+            // Note: Redirects are now handled by route group layouts
             return Promise.reject(refreshError);
           }
         }
@@ -111,7 +119,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [initializeAuth, updateTokens, logout, isTokenExpired, getTokens, router]);
+  }, [initializeAuth, updateTokens, logout, isTokenExpired]);
 
   return <>{children}</>;
 }
