@@ -96,7 +96,7 @@ const Articles = () => {
   };
 
 
-  const categories = ["all", "technology", "lifestyle", "business", "coding"]; // Example categories
+  const categories = ["all", "technology", "lifestyle", "business", "coding", "design", "health"];
 
   return (
     <div className="min-h-screen bg-background p-6 md:p-10">

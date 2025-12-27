@@ -11,16 +11,7 @@ import { useHome } from "@/hooks/useHome";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const categories = [
-  "Technology",
-  "Design",
-  "Health",
-  "Finance",
-  "Lifestyle",
-  "Productivity",
-  "Travel",
-  "Food",
-];
+const categories = ["Technology", "Lifestyle", "Business", "Coding", "Design", "Health"];
 
 const Index = () => {
   const { loading, recentArticles, featuredArticle } = useHome();
@@ -37,7 +28,7 @@ const Index = () => {
               {categories.map((category) => (
                 <Link
                   key={category}
-                  href={`/category/${category.toLowerCase()}`}
+                  href={`/article?category=${category.toLowerCase()}`}
                   className="px-4 py-2 hover:bg-accent/90 hover:text-white transition-colors duration-300 ease-in-out rounded-full bg-white shadow-sm text-sm font-medium"
                 >
                   {category}

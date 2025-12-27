@@ -154,7 +154,7 @@ const Navbar: React.FC = () => {
               Articles
             </Link>
             <Link
-              href="/create"
+              href="/article/create"
               className="py-2 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
