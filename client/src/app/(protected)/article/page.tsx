@@ -6,8 +6,6 @@ import { useEffect, useState, useCallback } from "react";
 import ArticleCard from "./_components/ArticleCard";
 import { ArticleListSkeleton } from "@/components/article/ArticleListSkeleton";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -51,9 +49,9 @@ const Articles = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  
+
   const { isAuthenticated, isAuthInitialized } = useAuthStore();
+  const searchQuery = searchParams.get("q") || "";
 
   const currentCategory = searchParams.get("category") || "all";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -97,10 +95,6 @@ const Articles = () => {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateQueryParams({ q: searchQuery || null });
-  };
 
   const categories = ["all", "technology", "lifestyle", "business", "coding"]; // Example categories
 
@@ -108,25 +102,13 @@ const Articles = () => {
     <div className="min-h-screen bg-background p-6 md:p-10">
       <div className="max-w-7xl mx-auto space-y-12">
         <section className="space-y-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h2 className="text-4xl font-extrabold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Exploration
-              </h2>
-              <p className="text-muted-foreground text-lg max-w-md">
-                Discover stories, thinking, and expertise from writers on any topic.
-              </p>
-            </div>
-
-            <form onSubmit={handleSearch} className="relative w-full md:w-96 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                placeholder="Search articles, authors, tags..."
-                className="pl-11 pr-4 h-12 bg-secondary/50 border-none rounded-2xl focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </form>
+          <div>
+            <h2 className="text-4xl font-extrabold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Exploration
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-md">
+              Discover stories, thinking, and expertise from writers on any topic.
+            </p>
           </div>
 
           <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">

@@ -55,12 +55,14 @@ export const getFilteredArticles = async (query: {
 
   // 1. Build Base Filter
   const mongoQuery: any = {};
+  const filters: any[] = [];
 
+  // 2. Handle Category Filter (when explicitly filtering by category)
   if (category && category !== "all") {
-    mongoQuery.category = category;
+    filters.push({ category: { $regex: new RegExp(`^${category}$`, "i") } });
   }
 
-  // 2. Handle Universal Search (q)
+  // 3. Handle Universal Search (q) - search across Title, Content, Tags, Category, and Author Name
   if (q) {
     // Find users matching search term for author search
     const users = await User.find({
@@ -71,16 +73,24 @@ export const getFilteredArticles = async (query: {
     }).select("_id");
     const matchedAuthorIds = users.map((u) => u._id);
 
-    // Search across Title, Content, Tags, and Author Name
-    mongoQuery.$or = [
-      { title: { $regex: q, $options: "i" } },
-      { content: { $regex: q, $options: "i" } },
-      { tags: { $regex: q, $options: "i" } },
-      { userId: { $in: matchedAuthorIds } },
-    ];
+    // Search across Title, Content, Tags, Category, and Author Name
+    filters.push({
+      $or: [
+        { title: { $regex: q, $options: "i" } },
+        { content: { $regex: q, $options: "i" } },
+        { tags: { $regex: q, $options: "i" } },
+        { category: { $regex: q, $options: "i" } },
+        { userId: { $in: matchedAuthorIds } },
+      ],
+    });
   }
 
-  // 3. Sorting logic
+  // 4. Combine filters using $and if multiple conditions exist
+  if (filters.length > 0) {
+    mongoQuery.$and = filters;
+  }
+
+  // 5. Sorting logic
   const sort: any = {};
   const order = sortOrder === "asc" ? 1 : -1;
   if (sortBy) {
@@ -91,7 +101,7 @@ export const getFilteredArticles = async (query: {
     sort.createdAt = -1;
   }
 
-  // 4. Execution
+  // 6. Execution
   const [posts, totalPosts] = await Promise.all([
     Post.find(mongoQuery)
       .populate("userId", "name avatar")
