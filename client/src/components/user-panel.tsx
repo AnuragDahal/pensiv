@@ -1,17 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ChevronUp,
-  LogOut,
-  Settings,
-  User,
-  FileText,
-} from "lucide-react";
+import { ChevronUp, LogOut, Settings, User, FileText } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { getInitials } from "@/lib/utils";
 
 interface UserPanelProps {
   userName?: string;
@@ -22,7 +15,6 @@ interface UserPanelProps {
 export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { logout } = useAuth();
-  const router = useRouter();
 
   const menuItems = [
     {
@@ -53,15 +45,15 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
           aria-label="User menu"
         >
           {/* Avatar */}
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 overflow-hidden">
             {userImage ? (
-              <Image
-                src={userImage || "/placeholder.svg"}
+              <img
+                src={userImage}
                 alt={userName || "User"}
-                className="w-full h-full rounded-lg object-cover"
+                className="w-full h-full object-cover"
               />
             ) : (
-              userName?.charAt(0).toUpperCase()
+              <span>{getInitials(userName || "U")}</span>
             )}
           </div>
 

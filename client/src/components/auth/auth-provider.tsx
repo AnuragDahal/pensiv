@@ -9,15 +9,12 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { initializeAuth, updateTokens, logout, isTokenExpired } =
-    useAuthStore();
-
   useEffect(() => {
     // Initialize auth store from localStorage once
-    initializeAuth();
+    useAuthStore.getState().initializeAuth();
 
     // Check for expiration on mount/focus
-    const { accessToken, isAuthenticated } = useAuthStore.getState();
+    const { accessToken, isAuthenticated, isTokenExpired, updateTokens, logout } = useAuthStore.getState();
     if (isAuthenticated && (isTokenExpired() || !accessToken)) {
       // Proactively try to refresh if we think we are logged in but token is arguably stale
       axios
@@ -30,7 +27,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               : refreshData?.accessToken;
 
           if (newAccessToken) {
-            updateTokens({
+            useAuthStore.getState().updateTokens({
               accessToken: newAccessToken,
               refreshToken: useAuthStore.getState().refreshToken || "",
             });
@@ -38,7 +35,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         })
         .catch(() => {
           // If passive refresh fails, we are not authenticated
-          logout();
+          useAuthStore.getState().logout();
         });
     }
 
@@ -91,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 : refreshData?.accessToken;
 
             if (newAccessToken) {
-              updateTokens({
+              useAuthStore.getState().updateTokens({
                 accessToken: newAccessToken,
                 refreshToken: useAuthStore.getState().refreshToken || "",
               });
@@ -104,7 +101,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
           } catch (refreshError) {
             console.error("Token refresh failed:", refreshError);
-            logout();
+            useAuthStore.getState().logout();
             // Note: Redirects are now handled by route group layouts
             return Promise.reject(refreshError);
           }
@@ -119,7 +116,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [initializeAuth, updateTokens, logout, isTokenExpired]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   return <>{children}</>;
 }

@@ -8,5 +8,11 @@ export function GlobalUserPanel() {
 
   if (!isAuthenticated) return null;
 
-  return <UserPanel userName={user?.name} userEmail={user?.email} />;
+  return (
+    <UserPanel
+      userName={user?.name}
+      userEmail={user?.email}
+      userImage={user?.avatar}
+    />
+  );
 }

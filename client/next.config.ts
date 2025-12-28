@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // reactStrictMode: false, // Optional: re-enable for better bug detection
   images: {
     remotePatterns: [
       {
