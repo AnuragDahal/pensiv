@@ -54,6 +54,7 @@ const categories = [
 
 export default function CreateArticleForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const router = useRouter();
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
@@ -85,9 +86,33 @@ export default function CreateArticleForm() {
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
     try {
       setIsLoading(true);
+
+      // Upload cover image if selected
+      let coverImageUrl = values.coverImage || "";
+      if (coverImageFile) {
+        toast.loading("Uploading cover image...", { id: "upload" });
+        const { uploadImage } = await import("@/lib/supabase/client");
+        const url = await uploadImage(coverImageFile, "covers");
+
+        if (!url) {
+          toast.error("Failed to upload cover image", { id: "upload" });
+          setIsLoading(false);
+          return;
+        }
+
+        coverImageUrl = url;
+        toast.success("Cover image uploaded", { id: "upload" });
+      }
+
+      // Create article with uploaded image URL
+      const articleData = {
+        ...values,
+        coverImage: coverImageUrl,
+      };
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
-        values,
+        articleData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -95,6 +120,7 @@ export default function CreateArticleForm() {
           },
         }
       );
+
       toast.success("Article created successfully!");
       setTimeout(() => {
         router.replace(`/article/${response.data.data.slug}`);
@@ -112,9 +138,14 @@ export default function CreateArticleForm() {
     }
   };
 
-  const handleImageUpload = (url: string) => {
-    form.setValue("coverImage", url);
+  const handleImageSelect = (file: File | null) => {
+    setCoverImageFile(file);
   };
+
+  // Cleanup: remove unused handleImageUpload if it exists
+  // const handleImageUpload = (url: string) => {
+  //   form.setValue("coverImage", url);
+  // };
 
   return (
     <Form {...form}>
@@ -172,27 +203,16 @@ export default function CreateArticleForm() {
         <FormField
           control={form.control}
           name="coverImage"
-          render={({ field }) => (
+          render={() => (
             <FormItem>
-              <FormLabel>Cover Image</FormLabel>
+              <FormLabel>Cover Image (Optional)</FormLabel>
               <FormControl>
-                <div className="space-y-4">
-                  <ImageUpload
-                    // onImageDelete={handleImageDelete}
-                    onImageUpload={handleImageUpload}
-                    currentImage={field.value}
-                    label=""
-                  />
-                  {field.value && (
-                    <Image
-                      height={300}
-                      width={500}
-                      src={field.value}
-                      alt="Cover Preview"
-                      className="w-full max-h-64 object-cover rounded-md border"
-                    />
-                  )}
-                </div>
+                <ImageUpload
+                  mode="deferred"
+                  onImageSelect={handleImageSelect}
+                  onImageUpload={() => {}} // Required but unused in deferred mode
+                  label=""
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

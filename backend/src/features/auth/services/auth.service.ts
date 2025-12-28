@@ -82,3 +82,29 @@ export const removeRefreshToken = async (userId: string | Types.ObjectId) => {
     }
   );
 };
+
+import { Post } from "../../posts/models/post.model";
+
+export const getMeStats = async (userId: string | Types.ObjectId) => {
+  const [postCount, articles] = await Promise.all([
+    Post.countDocuments({ userId }),
+    Post.find({ userId }).select("likesCount"),
+  ]);
+
+  const totalLikes = articles.reduce((acc, curr) => acc + (curr.likesCount || 0), 0);
+
+  return {
+    postCount,
+    totalLikes,
+    followersCount: 0,
+  };
+};
+
+export const updateUser = async (
+  userId: string | Types.ObjectId,
+  data: Partial<IUser>
+) => {
+  return User.findByIdAndUpdate(userId, data, { new: true }).select(
+    "-password -__v -refreshToken"
+  );
+};

@@ -15,11 +15,11 @@ import { postSchema, queryParams } from "../schemas/posts.schemas";
 const router = Router();
 
 router.get("/", zodValidator(queryParams), fetchAllPosts);
+router.get("/me", getAllPostsOfAuthenticatedUser);
 router.get("/:id", getSinglePost);
 router.put("/:id", zodValidator(postSchema), updatePost);
 router.post("/", zodValidator(postSchema), addNewPost);
-router.get("/", getAllPostsOfAuthenticatedUser);
-router.get("/:userId", getAllPostByUserId);
+router.get("/author/:userId", getAllPostByUserId);
 router.patch("/:id/like", updatePostReaction);
 router.get("/slug/:slug", getUserPostBySlug);
 

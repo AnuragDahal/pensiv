@@ -13,6 +13,11 @@ type User = {
   name?: string;
   avatar?: string;
   bio?: string;
+  stats?: {
+    postCount: number;
+    totalLikes: number;
+    followersCount: number;
+  };
 };
 
 type AuthState = {

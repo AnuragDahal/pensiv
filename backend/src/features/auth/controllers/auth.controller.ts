@@ -15,6 +15,8 @@ import {
   getUserByRefreshToken,
   validateRefreshToken,
   removeRefreshToken,
+  updateUser,
+  getMeStats,
 } from "../services/auth.service";
 
 
@@ -138,5 +140,50 @@ export const userLogout = asyncHandler(async (req: Request, res: Response) => {
     status: HTTP_STATUS_CODES.OK,
     data: {},
     message: "Logged out successfully",
+  });
+});
+
+export const updateMe = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user?._id) {
+    throw new APIError(
+      API_RESPONSES.UNAUTHORIZED,
+      HTTP_STATUS_CODES.UNAUTHORIZED
+    );
+  }
+
+  const user = await updateUser(req.user._id.toString(), req.body);
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    data: user,
+    message: "Profile updated successfully",
+  });
+});
+
+export const getMeWithStats = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user?._id) {
+    throw new APIError(
+      API_RESPONSES.UNAUTHORIZED,
+      HTTP_STATUS_CODES.UNAUTHORIZED
+    );
+  }
+
+  const [user, stats] = await Promise.all([
+    getUserById(req.user._id.toString()).select(
+      "-password -createdAt -updatedAt -__v -refreshToken"
+    ),
+    getMeStats(req.user._id.toString()),
+  ]);
+
+  if (!user) {
+    throw new APIError(API_RESPONSES.USER_NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND);
+  }
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    data: { ...user.toJSON(), stats },
+    message: "User and stats fetched successfully",
   });
 });

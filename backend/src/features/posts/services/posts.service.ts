@@ -40,6 +40,7 @@ export const getFilteredArticles = async (query: {
   limit?: string;
   sortBy?: string;
   sortOrder?: string;
+  userId?: string;
 }) => {
   const {
     q,
@@ -48,6 +49,7 @@ export const getFilteredArticles = async (query: {
     limit = "10",
     sortBy,
     sortOrder = "desc",
+    userId,
   } = query;
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
@@ -60,6 +62,11 @@ export const getFilteredArticles = async (query: {
   // 2. Handle Category Filter (when explicitly filtering by category)
   if (category && category !== "all") {
     filters.push({ category: { $regex: new RegExp(`^${category}$`, "i") } });
+  }
+
+  // Handle UserId Filter
+  if (userId) {
+    filters.push({ userId: new Types.ObjectId(userId) });
   }
 
   // 3. Handle Universal Search (q) - search across Title, Content, Tags, Category, and Author Name

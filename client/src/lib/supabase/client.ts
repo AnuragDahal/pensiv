@@ -15,38 +15,38 @@ export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey);
 // Upload image to Supabase Storage
 export const uploadImage = async (
   file: File,
-  bucket: string = "coverimages"
+  folder: string = "covers" // "covers", "avatars", etc.
 ): Promise<string | null> => {
   try {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2)}.${fileExt}`;
-
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
+    // Validate that we have an actual File object
+    if (!file || !(file instanceof File)) {
+      console.error("Invalid file object provided to uploadImage");
       return null;
     }
 
-    const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-
-    if (!data || !data.publicUrl) {
-      console.error("Public URL not found");
+    // Extra safety: ensure it's not a blob URL somehow passed as a file
+    if (file.name.startsWith("data:") || file.name.startsWith("blob:")) {
+      console.error("Cannot upload blob URL or data URL");
       return null;
     }
 
-    console.log("Public URL:", data.publicUrl);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("folder", folder);
 
-    return data.publicUrl;
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("Upload error:", error);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.url;
   } catch (error) {
     console.error("Upload error:", error);
     return null;
@@ -54,29 +54,35 @@ export const uploadImage = async (
 };
 
 // Delete image from Supabase Storage
-export const deleteImage = async (
-  url: string,
-  bucket: string = "coverimages"
-): Promise<boolean> => {
+export const deleteImage = async (url: string): Promise<boolean> => {
   try {
-    // For: https://your-project.supabase.co/storage/v1/object/public/coverimages/abc123.jpg
-    const parts = url.split(`/public/${bucket}/`);
-    if (parts.length < 2) {
-      console.error("Invalid URL:", url);
+    // Validate URL - don't try to delete blob or data URLs
+    if (!url || url.startsWith("data:") || url.startsWith("blob:")) {
+      console.warn("Cannot delete blob/data URL, skipping:", url.substring(0, 50));
       return false;
     }
 
-    const path = parts[1]; // ✅ This is 'abc123.jpg'
-
-    console.log("Deleting:", path);
-
-    const { error } = await supabase.storage.from(bucket).remove([path]);
-
-    if (error) {
-      console.error("Supabase delete error:", error);
+    // Only delete actual Supabase URLs
+    if (!url.startsWith("http")) {
+      console.warn("Invalid URL format for deletion:", url);
+      return false;
     }
 
-    return !error;
+    const response = await fetch("/api/upload", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("Delete error:", error);
+      return false;
+    }
+
+    return true;
   } catch (err) {
     console.error("Delete failed:", err);
     return false;

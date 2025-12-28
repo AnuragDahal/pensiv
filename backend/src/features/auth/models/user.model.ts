@@ -26,6 +26,10 @@ export const userSchema = new mongoose.Schema<IUserModel>(
       type: String,
       required: false,
     },
+    bio: {
+      type: String,
+      required: false,
+    },
     otp: {
       type: Number,
       required: false,

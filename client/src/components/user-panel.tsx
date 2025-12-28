@@ -6,14 +6,12 @@ import {
   LogOut,
   Settings,
   User,
-  Bell,
-  HelpCircle,
-  Moon,
-  Sun,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface UserPanelProps {
   userName?: string;
@@ -23,34 +21,24 @@ interface UserPanelProps {
 
 export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const { logout } = useAuth();
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    // In a real app, this would update your theme context/system
-  };
+  const router = useRouter();
 
   const menuItems = [
     {
       icon: User,
       label: "Profile",
-      onClick: () => console.log("Profile clicked"),
+      href: "/profile",
     },
     {
-      icon: Bell,
-      label: "Notifications",
-      onClick: () => console.log("Notifications clicked"),
+      icon: FileText,
+      label: "My Articles",
+      href: "/article?author=me",
     },
     {
       icon: Settings,
       label: "Settings",
-      onClick: () => console.log("Settings clicked"),
-    },
-    {
-      icon: HelpCircle,
-      label: "Help & Support",
-      onClick: () => console.log("Help clicked"),
+      href: "/settings",
     },
   ];
 
@@ -112,12 +100,10 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
             {/* Menu Items */}
             <div className="py-2">
               {menuItems.map((item, index) => (
-                <button
+                <Link
                   key={index}
-                  onClick={() => {
-                    item.onClick();
-                    setIsOpen(false);
-                  }}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
                   className="w-full px-4 py-2.5 flex items-center gap-3 text-sm text-foreground hover:bg-accent/40 transition-colors duration-150 text-left"
                 >
                   <item.icon
@@ -125,56 +111,24 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
                     className="text-muted-foreground flex-shrink-0"
                   />
                   <span>{item.label}</span>
-                </button>
+                </Link>
               ))}
             </div>
 
             {/* Divider */}
             <div className="h-px bg-border" />
 
-            {/* Theme Toggle */}
+            {/* Logout */}
             <button
               onClick={() => {
-                toggleTheme();
+                logout();
                 setIsOpen(false);
               }}
-              className="w-full px-4 py-2.5 flex items-center gap-3 text-sm text-foreground hover:bg-accent/40 transition-colors duration-150 text-left"
+              className="w-full px-4 py-2.5 flex items-center gap-3 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150 text-left"
             >
-              {isDark ? (
-                <>
-                  <Sun
-                    size={16}
-                    className="text-muted-foreground flex-shrink-0"
-                  />
-                  <span>Light Mode</span>
-                </>
-              ) : (
-                <>
-                  <Moon
-                    size={16}
-                    className="text-muted-foreground flex-shrink-0"
-                  />
-                  <span>Dark Mode</span>
-                </>
-              )}
+              <LogOut size={16} className="flex-shrink-0" />
+              <span>Logout</span>
             </button>
-
-            {/* Divider */}
-            <div className="h-px bg-border" />
-
-            {/* Logout */}
-            <Link href="/login">
-              <button
-                onClick={() => {
-                  logout();
-                  setIsOpen(false);
-                }}
-                className="w-full px-4 py-2.5 flex items-center gap-3 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150 text-left"
-              >
-                <LogOut size={16} className="flex-shrink-0" />
-                <span>Logout</span>
-              </button>
-            </Link>
           </div>
         )}
 

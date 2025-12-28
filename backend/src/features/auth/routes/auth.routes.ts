@@ -5,7 +5,9 @@ import {
   getMe,
   userLogin,
   userLogout,
-  userSignup
+  userSignup,
+  updateMe,
+  getMeWithStats
 } from "../controllers/auth.controller";
 import {
   loginSchema,
@@ -18,7 +20,8 @@ const router = Router();
 router.post("/signup", zodValidator(signupSchema), userSignup);
 router.post("/login", zodValidator(loginSchema), userLogin);
 router.post("/refresh", zodValidator(tokenSchema), accessTokenRefresh);
-router.get("/me", isAuthenticated, getMe);
+router.get("/me", isAuthenticated, getMeWithStats);
+router.patch("/update", isAuthenticated, updateMe);
 router.post("/logout", isAuthenticated, userLogout);
 
 export default router;

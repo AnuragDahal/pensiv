@@ -11,23 +11,28 @@ import Image from "next/image";
 
 interface ImageUploadProps {
   onImageUpload: (url: string) => void;
+  onImageSelect?: (file: File | null) => void; // New: for deferred upload
   currentImage?: string;
   label?: string;
   className?: string;
   accept?: string;
+  mode?: "immediate" | "deferred"; // New: upload mode
 }
 
 export default function ImageUpload({
   onImageUpload,
+  onImageSelect,
   currentImage,
   label = "Upload Image",
   className = "",
   accept = "image/*",
+  mode = "immediate", // Default to old behavior for backward compatibility
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const [isDragging, setIsDragging] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>(currentImage || "");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const processFile = async (file: File) => {
@@ -43,30 +48,36 @@ export default function ImageUpload({
       return;
     }
 
-    // Create preview
+    // Create preview (always show immediately)
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
-    // Upload to Supabase
-    setIsUploading(true);
-    try {
-      const url = await uploadImage(file);
-      if (url) {
-        setImageUrl(url);
-        onImageUpload(url);
-        toast.success("Image uploaded successfully");
-      } else {
-        toast.error("Failed to upload image");
+    if (mode === "deferred") {
+      // Deferred mode: just store the file, don't upload yet
+      setSelectedFile(file);
+      onImageSelect?.(file);
+    } else {
+      // Immediate mode: upload right away (old behavior)
+      setIsUploading(true);
+      try {
+        const url = await uploadImage(file);
+        if (url) {
+          setImageUrl(url);
+          onImageUpload(url);
+          toast.success("Image uploaded successfully");
+        } else {
+          toast.error("Failed to upload image");
+          setPreview(currentImage || null);
+        }
+      } catch {
+        toast.error("Upload failed");
         setPreview(currentImage || null);
+      } finally {
+        setIsUploading(false);
       }
-    } catch {
-      toast.error("Upload failed");
-      setPreview(currentImage || null);
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -100,23 +111,34 @@ export default function ImageUpload({
   };
 
   const handleRemove = async () => {
-    if (!imageUrl) {
-      toast.error("No image to delete");
-      return;
-    }
-
-    const success = await deleteImage(imageUrl);
-
-    if (success) {
-      toast.success("Image removed successfully");
+    if (mode === "deferred") {
+      // Deferred mode: just clear local state
       setPreview(null);
-      setImageUrl("");
-      onImageUpload("");
+      setSelectedFile(null);
+      onImageSelect?.(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } else {
-      toast.error("Failed to remove image");
+      // Immediate mode: delete from Supabase
+      if (!imageUrl) {
+        toast.error("No image to delete");
+        return;
+      }
+
+      const success = await deleteImage(imageUrl);
+
+      if (success) {
+        toast.success("Image removed successfully");
+        setPreview(null);
+        setImageUrl("");
+        onImageUpload("");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } else {
+        toast.error("Failed to remove image");
+      }
     }
   };
 

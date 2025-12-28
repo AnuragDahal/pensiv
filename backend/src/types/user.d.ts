@@ -4,6 +4,7 @@ export interface IUserModel {
   email: string;
   password: string;
   avatar?: string;
+  bio?: string;
   accessToken?: string;
   refreshToken?: string;
   otp?: number;

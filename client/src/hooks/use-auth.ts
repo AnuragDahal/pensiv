@@ -80,7 +80,6 @@ export function useAuth() {
   const refetchUser = async () => {
     try {
       await storeRefetchUser();
-      toast.success("User data refreshed");
       return useAuthStore.getState().user;
     } catch (error) {
       console.error("User refetch error:", error);
