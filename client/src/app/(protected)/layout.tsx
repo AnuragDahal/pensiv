@@ -3,8 +3,6 @@
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
-import Navbar from "@/components/NavBar";
-import Footer from "@/components/Footer";
 
 export default function ProtectedLayout({
   children,
