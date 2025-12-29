@@ -3,6 +3,8 @@
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
+import Navbar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 
 export default function ProtectedLayout({
   children,
@@ -30,5 +32,9 @@ export default function ProtectedLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1">{children}</main>
+    </div>
+  );
 }

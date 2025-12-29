@@ -1,7 +1,7 @@
+import { ReactNode } from "react";
+import { Metadata } from "next";
 import Navbar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import React, { ReactNode } from "react";
-import { Metadata } from "next";
 
 interface ArticleLayoutProps {
   children: ReactNode;
@@ -15,7 +15,7 @@ export default function ArticleLayout({ children }: ArticleLayoutProps) {
   return (
     <>
       <Navbar />
-      <div className="mt-10 pb-6">{children}</div>
+      {children}
       <Footer />
     </>
   );

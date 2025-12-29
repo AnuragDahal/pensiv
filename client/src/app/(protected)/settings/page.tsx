@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { User, Lock, Trash2, Shield, Globe, Loader2, Github, Linkedin, Twitter, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import ImageUpload from "@/components/ui/image-upload";
 import axios from "axios";
@@ -163,6 +164,15 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       <div className="max-w-5xl mx-auto">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Link href="/" className="hover:text-primary transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">Settings</span>
+        </div>
+
         <div className="flex flex-col gap-2 mb-6 md:mb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
             Settings

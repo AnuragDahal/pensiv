@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronUp, LogOut, Settings, User, FileText } from "lucide-react";
+import { ChevronUp, LogOut, Settings, User, FileText, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { getInitials } from "@/lib/utils";
@@ -17,6 +17,11 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
   const { logout } = useAuth();
 
   const menuItems = [
+    {
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      href: "/dashboard",
+    },
     {
       icon: User,
       label: "Profile",

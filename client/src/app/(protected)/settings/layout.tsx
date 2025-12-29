@@ -1,5 +1,3 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/NavBar";
 import { Metadata } from "next";
 import React from "react";
 
@@ -22,13 +20,7 @@ export const metadata: Metadata = {
 };
 
 const layout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <>
-      <Navbar />
-      <div className="mt-10 pb-6">{children}</div>
-      <Footer />
-    </>
-  );
+  return <div className="mt-10 pb-6">{children}</div>;
 };
 
 export default layout;
