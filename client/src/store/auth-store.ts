@@ -7,12 +7,20 @@ import axios from "axios";
 // TYPES
 // =======================
 
+type SocialLinks = {
+  github?: string;
+  linkedin?: string;
+  twitter?: string;
+  portfolio?: string;
+};
+
 type User = {
   id: string;
   email: string;
   name?: string;
   avatar?: string;
   bio?: string;
+  socialLinks?: SocialLinks;
   stats?: {
     postCount: number;
     totalLikes: number;

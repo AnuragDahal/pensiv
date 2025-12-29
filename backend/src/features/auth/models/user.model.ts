@@ -30,6 +30,24 @@ export const userSchema = new mongoose.Schema<IUserModel>(
       type: String,
       required: false,
     },
+    socialLinks: {
+      github: {
+        type: String,
+        required: false,
+      },
+      linkedin: {
+        type: String,
+        required: false,
+      },
+      twitter: {
+        type: String,
+        required: false,
+      },
+      portfolio: {
+        type: String,
+        required: false,
+      },
+    },
     otp: {
       type: Number,
       required: false,

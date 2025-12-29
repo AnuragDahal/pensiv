@@ -84,14 +84,20 @@ export const removeRefreshToken = async (userId: string | Types.ObjectId) => {
 };
 
 import { Post } from "../../posts/models/post.model";
+import { Reaction } from "../../reaction/models/reaction-model";
 
 export const getMeStats = async (userId: string | Types.ObjectId) => {
-  const [postCount, articles] = await Promise.all([
+  const [postCount, userPosts] = await Promise.all([
     Post.countDocuments({ userId }),
-    Post.find({ userId }).select("likesCount"),
+    Post.find({ userId }).select("_id"),
   ]);
 
-  const totalLikes = articles.reduce((acc, curr) => acc + (curr.likesCount || 0), 0);
+  const postIds = userPosts.map((post) => post._id);
+
+  const totalLikes = await Reaction.countDocuments({
+    post: { $in: postIds },
+    reactionType: "like",
+  });
 
   return {
     postCount,

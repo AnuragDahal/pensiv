@@ -11,14 +11,19 @@ export default function ProtectedLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, isTokenExpired } = useAuthStore();
+  const { isAuthenticated, isTokenExpired, isAuthInitialized } = useAuthStore();
 
   useEffect(() => {
-    // Redirect unauthenticated users to login
-    if (!isAuthenticated || isTokenExpired()) {
+    // Only redirect after auth has been initialized
+    if (isAuthInitialized && (!isAuthenticated || isTokenExpired())) {
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [isAuthenticated, isTokenExpired, router, pathname]);
+  }, [isAuthenticated, isTokenExpired, isAuthInitialized, router, pathname]);
+
+  // Show loading state while auth is initializing
+  if (!isAuthInitialized) {
+    return null;
+  }
 
   // Don't render protected content if not authenticated
   if (!isAuthenticated || isTokenExpired()) {

@@ -1,10 +1,19 @@
 import { Types } from "mongoose";
+
+export interface SocialLinks {
+  github?: string;
+  linkedin?: string;
+  twitter?: string;
+  portfolio?: string;
+}
+
 export interface IUserModel {
   name: string;
   email: string;
   password: string;
   avatar?: string;
   bio?: string;
+  socialLinks?: SocialLinks;
   accessToken?: string;
   refreshToken?: string;
   otp?: number;
