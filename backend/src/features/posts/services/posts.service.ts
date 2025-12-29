@@ -59,6 +59,9 @@ export const getFilteredArticles = async (query: {
   const mongoQuery: any = {};
   const filters: any[] = [];
 
+  // Filter to show only published posts (exclude drafts from public endpoints)
+  filters.push({ status: "published" });
+
   // 2. Handle Category Filter (when explicitly filtering by category)
   if (category && category !== "all") {
     filters.push({ category: { $regex: new RegExp(`^${category}$`, "i") } });
@@ -288,6 +291,7 @@ export const buildFullPostResponse = async (
 
   const recommendedPosts = await Post.find({
     _id: { $ne: postId },
+    status: "published",
     $or: [{ tags: { $in: post.tags } }, { userId: post.userId }],
   })
     .select(
@@ -369,7 +373,7 @@ export const buildFullPostResponse = async (
 };
 
 export const getRecentPosts = async (limit: number) => {
-  const posts = await Post.find()
+  const posts = await Post.find({ status: "published" })
     .sort({ createdAt: -1 })
     .limit(limit)
     .populate("userId", "name avatar")
@@ -403,7 +407,7 @@ export const getRecentPosts = async (limit: number) => {
 };
 
 export const getTopFeaturedPost = async () => {
-  const topPosts = await Post.find()
+  const topPosts = await Post.find({ status: "published" })
     .sort({ likesCount: -1, views: -1 })
     .limit(1);
 

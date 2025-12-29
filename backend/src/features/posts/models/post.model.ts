@@ -30,6 +30,13 @@ const postSchema = new mongoose.Schema<IPostModel>(
     // for recommendation algorithm
     views: { type: Number, default: 0 },
 
+    // draft/published status
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "published", // Existing posts default to published
+    },
+
     createdAt: { type: Date, default: Date.now },
   },
   {

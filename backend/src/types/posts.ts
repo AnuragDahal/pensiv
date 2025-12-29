@@ -15,6 +15,7 @@ export interface IPostResponse {
   tags: string[];
   isFeatured: boolean;
   views: number;
+  status: "draft" | "published";
   createdAt: Date;
   updatedAt: Date;
   author: IAuthor;
@@ -34,6 +35,7 @@ export interface IPostModel {
   tags: string[];
   isFeatured: boolean;
   views: number;
+  status: "draft" | "published";
   createdAt: Date;
   updatedAt: Date;
 }

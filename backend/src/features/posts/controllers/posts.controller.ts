@@ -173,6 +173,14 @@ export const updatePost = asyncHandler(async (req: Request, res: Response) => {
     );
   }
 
+  // SECURITY: Verify ownership
+  if (post.userId.toString() !== req.user?._id.toString()) {
+    throw new APIError(
+      "You don't have permission to edit this post",
+      HTTP_STATUS_CODES.FORBIDDEN
+    );
+  }
+
   await updatePostById(req.params.id, req.body);
 
   return sendResponse({

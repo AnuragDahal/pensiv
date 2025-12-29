@@ -3,6 +3,7 @@ import {
   Bold,
   Code,
   Heading2,
+  ImageIcon,
   Italic,
   Link2,
   List,
@@ -10,6 +11,7 @@ import {
   Redo,
   Undo,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) return null;
@@ -19,6 +21,27 @@ export const MenuBar = ({ editor }: { editor: Editor | null }) => {
     if (url) {
       editor.chain().focus().setLink({ href: url }).run();
     }
+  };
+
+  const addImage = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image must be less than 5MB");
+        return;
+      }
+
+      // Show local preview using blob URL
+      const blobUrl = URL.createObjectURL(file);
+      editor.chain().focus().setImage({ src: blobUrl }).run();
+    };
+    input.click();
   };
 
   const buttons = [
@@ -63,6 +86,12 @@ export const MenuBar = ({ editor }: { editor: Editor | null }) => {
       action: addLink,
       isActive: editor.isActive("link"),
       label: "Add Link",
+    },
+    {
+      icon: ImageIcon,
+      action: addImage,
+      isActive: editor.isActive("image"),
+      label: "Insert Image",
     },
     { type: "divider" },
     {

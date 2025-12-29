@@ -46,6 +46,9 @@ export function RecentArticlesTable({ articles }: RecentArticlesTableProps) {
                 <th className="text-left py-4 px-4 text-sm font-semibold">
                   Category
                 </th>
+                <th className="text-left py-4 px-4 text-sm font-semibold">
+                  Status
+                </th>
                 <th className="text-center py-4 px-4 text-sm font-semibold">
                   Views
                 </th>
@@ -91,6 +94,15 @@ export function RecentArticlesTable({ articles }: RecentArticlesTableProps) {
                   <td className="py-4 px-4">
                     <Badge variant="secondary" className="capitalize">
                       {article.category}
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-4">
+                    <Badge
+                      variant={
+                        article.status === "published" ? "default" : "secondary"
+                      }
+                    >
+                      {article.status === "draft" ? "Draft" : "Published"}
                     </Badge>
                   </td>
                   <td className="py-4 px-4 text-center">
@@ -167,9 +179,19 @@ export function RecentArticlesTable({ articles }: RecentArticlesTableProps) {
                       {article.title}
                     </h3>
                   </Link>
-                  <Badge variant="secondary" className="capitalize text-xs mb-2">
-                    {article.category}
-                  </Badge>
+                  <div className="flex gap-2 mb-2">
+                    <Badge variant="secondary" className="capitalize text-xs">
+                      {article.category}
+                    </Badge>
+                    <Badge
+                      variant={
+                        article.status === "published" ? "default" : "secondary"
+                      }
+                      className="text-xs"
+                    >
+                      {article.status === "draft" ? "Draft" : "Published"}
+                    </Badge>
+                  </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Eye size={14} />

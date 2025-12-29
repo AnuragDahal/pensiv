@@ -13,6 +13,7 @@ export interface Article {
   tags: string[];
   views: number;
   likesCount: number;
+  status: "draft" | "published";
   createdAt: string;
   updatedAt?: string;
   author: {

@@ -9,6 +9,7 @@ export const postSchema = z.object({
     .min(1, "At least one tag is required"),
   category: z.string().min(1, "Category is required"),
   featured: z.boolean().optional(),
+  status: z.enum(["draft", "published"]).default("published"),
 });
 
 export const queryParams = z.object({

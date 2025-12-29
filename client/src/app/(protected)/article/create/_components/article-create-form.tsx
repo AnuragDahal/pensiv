@@ -23,15 +23,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import axios from "axios";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { MenuBar } from "../../_components/menu-bar";
-import { TagsInputField } from "./form-fields/tags-input-field";
 import Link from "@tiptap/extension-link";
+import TiptapImage from "@tiptap/extension-image";
+import { uploadInlineImages } from "@/app/(protected)/article/_lib/upload-inline-images";
+import { uploadImageWithRetry } from "@/app/(protected)/article/_lib/upload-with-retry";
+import { MenuBar } from "@/app/(protected)/article/_components/menu-bar";
+import { TagsInputField } from "@/app/(protected)/article/create/_components/form-fields/tags-input-field";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -39,6 +41,7 @@ const articleSchema = z.object({
   category: z.string().min(1, "Category is required"),
   tags: z.array(z.string().min(1, "tag cannot be empty")).min(1),
   coverImage: z.string().optional(),
+  status: z.enum(["draft", "published"]).default("published"),
 });
 
 const categories = [
@@ -66,10 +69,21 @@ export default function CreateArticleForm() {
       category: "",
       coverImage: "",
       tags: [],
+      status: "published",
     },
   });
   const editor = useEditor({
-    extensions: [StarterKit, Link],
+    extensions: [
+      StarterKit,
+      Link,
+      TiptapImage.configure({
+        inline: true,
+        allowBase64: true, // Allow blob URLs during editing
+        HTMLAttributes: {
+          class: "rounded-lg max-w-full h-auto my-4",
+        },
+      }),
+    ],
     content: "",
     onUpdate: ({ editor }) => {
       // Update form value whenever content changes
@@ -87,32 +101,53 @@ export default function CreateArticleForm() {
     try {
       setIsLoading(true);
 
-      // Upload cover image if selected
-      let coverImageUrl = values.coverImage || "";
+      // 1. Upload cover image if selected
+      let coverImageUrl = "";
       if (coverImageFile) {
-        toast.loading("Uploading cover image...", { id: "upload" });
-        const { uploadImage } = await import("@/lib/supabase/client");
-        const url = await uploadImage(coverImageFile, "covers");
-
-        if (!url) {
-          toast.error("Failed to upload cover image", { id: "upload" });
+        toast.loading("Uploading cover image...", { id: "cover-upload" });
+        try {
+          coverImageUrl = await uploadImageWithRetry(coverImageFile, "covers");
+          toast.success("Cover image uploaded", { id: "cover-upload" });
+        } catch (error) {
+          toast.error("Failed to upload cover image after 3 attempts", {
+            id: "cover-upload",
+          });
           setIsLoading(false);
-          return;
+          return; // Abort pipeline
         }
-
-        coverImageUrl = url;
-        toast.success("Cover image uploaded", { id: "upload" });
       }
 
-      // Create article with uploaded image URL
-      const articleData = {
-        ...values,
-        coverImage: coverImageUrl,
-      };
+      // 2. Upload inline images from content
+      toast.loading("Processing inline images...", { id: "inline-images" });
+      const imageResult = await uploadInlineImages(values.content);
+
+      if (!imageResult.success) {
+        toast.error(
+          imageResult.error ||
+            "Failed to upload inline images after 3 attempts",
+          { id: "inline-images" }
+        );
+        setIsLoading(false);
+        return; // Abort pipeline - no DB writes
+      }
+
+      toast.success("All images uploaded successfully", {
+        id: "inline-images",
+      });
+
+      // 3. Create article with uploaded images
+      toast.loading("Creating article...", { id: "create" });
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
-        articleData,
+        {
+          title: values.title,
+          content: imageResult.updatedHtml, // Use HTML with Supabase URLs
+          category: values.category,
+          tags: values.tags,
+          coverImage: coverImageUrl,
+          status: values.status, // "draft" or "published"
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -121,9 +156,15 @@ export default function CreateArticleForm() {
         }
       );
 
-      toast.success("Article created successfully!");
+      toast.success("Article created successfully!", { id: "create" });
+
+      // Redirect based on status
       setTimeout(() => {
-        router.replace(`/article/${response.data.data.slug}`);
+        if (values.status === "draft") {
+          router.replace("/dashboard");
+        } else {
+          router.replace(`/article/${response.data.data.slug}`);
+        }
       }, 0);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -226,12 +267,21 @@ export default function CreateArticleForm() {
             <FormItem>
               <FormLabel>Content</FormLabel>
               <FormControl>
-                <div className="border rounded-lg max-h-[500px] overflow-y-auto">
+                <div className="border rounded-lg overflow-hidden">
                   <MenuBar editor={editor} />
                   <EditorContent
                     editor={editor}
                     {...field}
-                    className="h-[300px] w-full"
+                    className="prose prose-lg max-w-none px-4 py-3 min-h-[400px] max-h-[500px] overflow-y-auto
+                               prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-4
+                               prose-p:text-gray-700 prose-p:leading-7
+                               prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800
+                               prose-strong:font-bold prose-strong:text-gray-900
+                               prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
+                               prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4
+                               prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4
+                               prose-li:text-gray-700 prose-li:my-1
+                               focus:outline-none"
                   />
                 </div>
               </FormControl>
@@ -257,9 +307,29 @@ export default function CreateArticleForm() {
           )}
         /> */}
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Creating Article..." : "Create Article"}
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1"
+            onClick={() => {
+              form.setValue("status", "draft");
+              form.handleSubmit(onSubmit)();
+            }}
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save as Draft"}
+          </Button>
+
+          <Button
+            type="submit"
+            className="flex-1"
+            onClick={() => form.setValue("status", "published")}
+            disabled={isLoading}
+          >
+            {isLoading ? "Publishing..." : "Publish Article"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
