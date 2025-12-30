@@ -5,14 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
   User,
   Edit2,
   LayoutDashboard,
@@ -21,7 +13,16 @@ import {
   Trophy,
   Star,
   Zap,
+  ChevronRight,
 } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -30,16 +31,21 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 pb-12">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-          <Link href="/" className="hover:text-primary transition-colors">
-            Home
-          </Link>
-          <span>/</span>
-          <span className="text-foreground">Profile</span>
-        </div>
-
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <ChevronRight />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem>
+              <BreadcrumbPage>Profile</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         {/* Header Section - No Cover Image */}
         <div className="relative mb-8 md:mb-12">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-6 md:p-8 rounded-2xl md:rounded-3xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50">

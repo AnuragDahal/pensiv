@@ -1,27 +1,48 @@
 "use client";
 
-import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Key, Shield } from "lucide-react";
+import { Lock, Key, Shield, ChevronRight } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
 export default function SecuritySettingsPage() {
   return (
     <>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-        <Link href="/" className="hover:text-primary transition-colors">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/settings/profile" className="hover:text-primary transition-colors">
-          Settings
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">Security</span>
-      </div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Settings</BreadcrumbPage>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Security</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Security Settings Content */}
       <div className="space-y-6">
@@ -62,7 +83,9 @@ export default function SecuritySettingsPage() {
             </div>
             <div className="flex gap-3 pt-4">
               <Button disabled>Update Password</Button>
-              <Button variant="outline" disabled>Cancel</Button>
+              <Button variant="outline" disabled>
+                Cancel
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -79,7 +102,8 @@ export default function SecuritySettingsPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground mb-4">
-              Two-factor authentication is not currently enabled. Enable it to add an extra layer of security.
+              Two-factor authentication is not currently enabled. Enable it to
+              add an extra layer of security.
             </p>
             <Button disabled variant="outline">
               <Key size={16} className="mr-2" />

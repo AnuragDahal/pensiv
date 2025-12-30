@@ -13,21 +13,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Loader2,
-  Github,
-  Linkedin,
-  Twitter,
-  ExternalLink,
-  Globe,
-  User,
-} from "lucide-react";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import ImageUpload from "@/components/ui/image-upload";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import {
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
+  ChevronRight,
+  User,
+  Loader2,
+  Github,
+  Linkedin,
+  Twitter,
+  Globe,
+  ExternalLink,
+} from "lucide-react";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -46,18 +53,48 @@ export default function SettingsPage() {
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [urlErrors, setUrlErrors] = useState<Record<string, string>>({});
 
+  // Initial values for change detection
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    bio: "",
+    avatar: "",
+    githubUrl: "",
+    linkedinUrl: "",
+    twitterUrl: "",
+    portfolioUrl: "",
+  });
+
   useEffect(() => {
     if (user) {
-      setName(user.name || "");
-      setBio(user.bio || "");
-      setAvatar(user.avatar || "");
-      setAvatarPreview(user.avatar || ""); // Initialize preview with current avatar
+      const initialName = user.name || "";
+      const initialBio = user.bio || "";
+      const initialAvatar = user.avatar || "";
+      const initialGithub = user.socialLinks?.github || "";
+      const initialLinkedin = user.socialLinks?.linkedin || "";
+      const initialTwitter = user.socialLinks?.twitter || "";
+      const initialPortfolio = user.socialLinks?.portfolio || "";
+
+      setName(initialName);
+      setBio(initialBio);
+      setAvatar(initialAvatar);
+      setAvatarPreview(initialAvatar); // Initialize preview with current avatar
 
       // Initialize social links
-      setGithubUrl(user.socialLinks?.github || "");
-      setLinkedinUrl(user.socialLinks?.linkedin || "");
-      setTwitterUrl(user.socialLinks?.twitter || "");
-      setPortfolioUrl(user.socialLinks?.portfolio || "");
+      setGithubUrl(initialGithub);
+      setLinkedinUrl(initialLinkedin);
+      setTwitterUrl(initialTwitter);
+      setPortfolioUrl(initialPortfolio);
+
+      // Set initial values for change detection
+      setInitialValues({
+        name: initialName,
+        bio: initialBio,
+        avatar: initialAvatar,
+        githubUrl: initialGithub,
+        linkedinUrl: initialLinkedin,
+        twitterUrl: initialTwitter,
+        portfolioUrl: initialPortfolio,
+      });
     }
   }, [user]);
 
@@ -87,6 +124,33 @@ export default function SettingsPage() {
     } catch {
       return "Please enter a valid URL (including https://)";
     }
+  };
+
+  // Check if any changes have been made
+  const hasChanges = (): boolean => {
+    return (
+      name !== initialValues.name ||
+      bio !== initialValues.bio ||
+      avatarFile !== null ||
+      githubUrl !== initialValues.githubUrl ||
+      linkedinUrl !== initialValues.linkedinUrl ||
+      twitterUrl !== initialValues.twitterUrl ||
+      portfolioUrl !== initialValues.portfolioUrl
+    );
+  };
+
+  // Reset form to initial values
+  const handleCancel = () => {
+    setName(initialValues.name);
+    setBio(initialValues.bio);
+    setAvatar(initialValues.avatar);
+    setAvatarPreview(initialValues.avatar);
+    setAvatarFile(null);
+    setGithubUrl(initialValues.githubUrl);
+    setLinkedinUrl(initialValues.linkedinUrl);
+    setTwitterUrl(initialValues.twitterUrl);
+    setPortfolioUrl(initialValues.portfolioUrl);
+    setUrlErrors({});
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -180,18 +244,19 @@ export default function SettingsPage() {
     <>
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-        <Link href="/" className="hover:text-primary transition-colors">
-          Home
-        </Link>
-        <span>/</span>
-        <Link
-          href="/settings/profile"
-          className="hover:text-primary transition-colors"
-        >
-          Settings
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">Profile</span>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            <BreadcrumbSeparator>
+              <ChevronRight />
+            </BreadcrumbSeparator>
+            <BreadcrumbLink href="/settings">Settings</BreadcrumbLink>
+            <BreadcrumbSeparator>
+              <ChevronRight />
+            </BreadcrumbSeparator>
+            <BreadcrumbPage>Profile</BreadcrumbPage>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
       {/* Profile Settings Content */}
@@ -305,14 +370,15 @@ export default function SettingsPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push("/profile")}
+                  onClick={handleCancel}
+                  disabled={!hasChanges() || isUpdating}
                   className="rounded-lg sm:rounded-full px-6 h-11 font-medium"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isUpdating}
+                  disabled={isUpdating || !hasChanges()}
                   className="rounded-lg sm:rounded-full px-6 md:px-8 h-11 md:h-12 font-bold shadow-lg shadow-primary/20 gap-2"
                 >
                   {isUpdating ? (

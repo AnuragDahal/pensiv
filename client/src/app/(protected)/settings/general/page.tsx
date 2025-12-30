@@ -1,24 +1,45 @@
 "use client";
 
-import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Globe } from "lucide-react";
+import { ChevronRight, Globe } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
 export default function GeneralSettingsPage() {
   return (
     <>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-        <Link href="/" className="hover:text-primary transition-colors">
-          Home
-        </Link>
-        <span>/</span>
-        <Link href="/settings/profile" className="hover:text-primary transition-colors">
-          Settings
-        </Link>
-        <span>/</span>
-        <span className="text-foreground">General</span>
-      </div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Settings</BreadcrumbPage>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>General</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* General Settings Content */}
       <div className="space-y-6">
@@ -34,7 +55,8 @@ export default function GeneralSettingsPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">
-              General settings coming soon. This will include language preferences, timezone settings, and more.
+              General settings coming soon. This will include language
+              preferences, timezone settings, and more.
             </p>
           </CardContent>
         </Card>
