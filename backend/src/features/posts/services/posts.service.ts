@@ -179,20 +179,34 @@ export const togglePostReaction = async (
   postId: string,
   userId: string
 ): Promise<{ liked: boolean; likesCount: number }> => {
-  const existingLike = await Reaction.findOne({
+  // Use atomic findOneAndDelete to prevent race conditions
+  const deletedLike = await Reaction.findOneAndDelete({
     user: userId,
     post: postId,
     reactionType: "like",
   });
 
-  if (existingLike) {
-    await Reaction.deleteOne({ _id: existingLike._id });
-  } else {
-    await Reaction.create({
-      user: userId,
-      post: postId,
-      reactionType: "like",
-    });
+  let liked = false;
+
+  if (!deletedLike) {
+    // Like didn't exist, so create it
+    // Use try-catch to handle race condition where another request creates it first
+    try {
+      await Reaction.create({
+        user: userId,
+        post: postId,
+        reactionType: "like",
+      });
+      liked = true;
+    } catch (error: any) {
+      // If duplicate key error (E11000), it means another request created it first
+      // In this case, treat it as a successful like
+      if (error.code === 11000) {
+        liked = true;
+      } else {
+        throw error;
+      }
+    }
   }
 
   const likesCount = await Reaction.countDocuments({
@@ -203,7 +217,7 @@ export const togglePostReaction = async (
   await Post.findByIdAndUpdate(postId, { likesCount });
 
   return {
-    liked: !existingLike,
+    liked,
     likesCount,
   };
 };

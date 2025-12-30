@@ -36,40 +36,49 @@ export const toggleCommentReaction = async (
 ) => {
   // First, check if this ID is a comment
   const comment = await Comments.findById(commentId);
-  
+
   let isReply = false;
   const replyId = commentId;
-  
+
   // If not found as a comment, search for it as a reply
   if (!comment) {
     const commentWithReply = await Comments.findOne({
       "replies._id": commentId,
     });
-    
+
     if (!commentWithReply) {
       throw new Error("Comment or reply not found");
     }
-    
+
     isReply = true;
   }
-  
-  // Check for existing reaction
-  const existing = await Reaction.findOne({
+
+  // Use atomic findOneAndDelete to prevent race conditions
+  const deletedReaction = await Reaction.findOneAndDelete({
     user: userId,
     ...(isReply ? { reply: replyId } : { comment: commentId }),
     reactionType: "like",
   });
 
-  if (existing) {
-    await Reaction.deleteOne({ _id: existing._id });
+  if (deletedReaction) {
     return { liked: false };
   }
 
-  await Reaction.create({
-    user: userId,
-    ...(isReply ? { reply: replyId } : { comment: commentId }),
-    reactionType: "like",
-  });
-
-  return { liked: true };
+  // Like didn't exist, so create it
+  // Use try-catch to handle race condition where another request creates it first
+  try {
+    await Reaction.create({
+      user: userId,
+      ...(isReply ? { reply: replyId } : { comment: commentId }),
+      reactionType: "like",
+    });
+    return { liked: true };
+  } catch (error: any) {
+    // If duplicate key error (E11000), it means another request created it first
+    // In this case, treat it as a successful like
+    if (error.code === 11000) {
+      return { liked: true };
+    }
+    throw error;
+  }
 };
