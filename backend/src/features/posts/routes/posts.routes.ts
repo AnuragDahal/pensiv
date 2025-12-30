@@ -8,6 +8,7 @@ import {
   getSinglePost,
   getPostForEdit,
   getUserPostBySlug,
+  removePost,
   updatePost,
   updatePostReaction,
 } from "../controllers/posts.controller";
@@ -20,6 +21,7 @@ router.get("/me", getAllPostsOfAuthenticatedUser);
 router.get("/edit/:id", getPostForEdit);
 router.get("/:id", getSinglePost);
 router.put("/:id", zodValidator(postSchema), updatePost);
+router.delete("/:id", removePost);
 router.post("/", zodValidator(postSchema), addNewPost);
 router.get("/author/:userId", getAllPostByUserId);
 router.patch("/:id/like", updatePostReaction);

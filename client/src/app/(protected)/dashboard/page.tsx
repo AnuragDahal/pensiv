@@ -21,7 +21,7 @@ import { AlertCircle, LayoutDashboard } from "lucide-react";
 import DashboardSkeleton from "./_components/DashBoardSkeleton";
 
 export default function DashboardPage() {
-  const { data, loading, error, user } = useDashboardData();
+  const { data, loading, error, user, refetch } = useDashboardData();
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -100,7 +100,10 @@ export default function DashboardPage() {
                   </span>
                 </Link>
               </div>
-              <RecentArticlesTable articles={data.recentArticles} />
+              <RecentArticlesTable
+                articles={data.recentArticles}
+                onArticleDeleted={refetch}
+              />
             </div>
           </div>
 

@@ -114,7 +114,7 @@ export default function ProfilePage() {
               </Card>
             </Link>
 
-            <Link href="/article?author=me" className="group">
+            <Link href="/my-articles" className="group">
               <Card className="rounded-2xl md:rounded-3xl border-border/50 shadow-sm hover:shadow-md hover:border-primary/30 transition-all p-5 md:p-6 bg-gradient-to-br from-primary/5 to-transparent">
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors flex-shrink-0">

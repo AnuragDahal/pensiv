@@ -9,6 +9,7 @@ import type { SortOrder } from "mongoose";
 import {
   buildFullPostResponse,
   createPost,
+  deletePost,
   getAllPosts,
   getFilteredArticles,
   getPostById,
@@ -311,3 +312,36 @@ export const getHomePosts = asyncHandler(
     });
   }
 );
+
+export const removePost = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user?._id) {
+    throw new APIError(
+      API_RESPONSES.UNAUTHORIZED,
+      HTTP_STATUS_CODES.UNAUTHORIZED
+    );
+  }
+
+  const post = await getPostByIdForEdit(req.params.id);
+  if (!post) {
+    throw new APIError(
+      API_RESPONSES.RESOURCE_NOT_FOUND,
+      HTTP_STATUS_CODES.NOT_FOUND
+    );
+  }
+
+  // SECURITY: Verify ownership
+  if (post.userId.toString() !== req.user._id.toString()) {
+    throw new APIError(
+      "You don't have permission to delete this post",
+      HTTP_STATUS_CODES.FORBIDDEN
+    );
+  }
+
+  await deletePost(req.params.id);
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    message: API_RESPONSES.RESOURCE_DELETED,
+  });
+});

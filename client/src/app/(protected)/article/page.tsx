@@ -45,14 +45,13 @@ const Articles = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
 
   const { isAuthenticated, isAuthInitialized, user } = useAuthStore();
   const searchQuery = searchParams.get("q") || "";
-  const authorQuery = searchParams.get("author") || "";
 
   const currentCategory = searchParams.get("category") || "all";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -61,12 +60,6 @@ const Articles = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams(searchParams.toString());
-      
-      // Handle "author=me" by injecting current user ID
-      if (params.get("author") === "me" && user?.id) {
-        params.delete("author");
-        params.set("userId", user.id);
-      }
 
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts?${params.toString()}`
@@ -79,7 +72,7 @@ const Articles = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, user?.id]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (isAuthInitialized && isAuthenticated) {
@@ -103,7 +96,6 @@ const Articles = () => {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-
   const categories = ["all", "technology", "lifestyle", "business", "coding", "design", "health"];
 
   return (
@@ -112,12 +104,10 @@ const Articles = () => {
         <section className="space-y-8">
           <div>
             <h2 className="text-4xl font-extrabold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              {authorQuery === "me" ? "My Articles" : "Exploration"}
+              Exploration
             </h2>
             <p className="text-muted-foreground text-lg max-w-md">
-              {authorQuery === "me" 
-                ? "Manage and review your published stories and drafts." 
-                : "Discover stories, thinking, and expertise from writers on any topic."}
+              Discover stories, thinking, and expertise from writers on any topic.
             </p>
           </div>
 
