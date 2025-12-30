@@ -7,11 +7,11 @@ interface RecommendedArticlesProps {
 
 const RecommendedArticles = ({ articles }: RecommendedArticlesProps) => {
   return (
-    <section className="max-w-7xl mx-auto px-4 mt-20 bg-gray-50 py-8 rounded-3xl">
+    <section className="max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 mt-20 bg-gray-50 py-8 rounded-3xl">
       <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
         Recommended For You
       </h2>
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
         {articles.map((rec) => (
           <ArticleCard
             key={rec.id}

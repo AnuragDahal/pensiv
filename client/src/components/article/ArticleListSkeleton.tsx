@@ -1,99 +1,86 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 
-export function MobileArticleSkeleton() {
+export function ArticleCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      {/* Article image skeleton */}
-      <Skeleton className="w-full h-64" />
+    <Card className="overflow-hidden rounded-xl border border-border">
+      {/* Cover Image Skeleton - 3:2 aspect ratio */}
+      <Skeleton className="w-full aspect-[3/2]" />
 
-      <div className="p-4 space-y-3">
-        {/* Lifestyle badge skeleton */}
-        <Skeleton className="h-6 w-20 rounded-full" />
+      <div className="p-4 md:p-5 space-y-3">
+        {/* Title skeleton - 2 lines */}
+        <div className="space-y-2">
+          <Skeleton className="h-5 md:h-6 w-full" />
+          <Skeleton className="h-5 md:h-6 w-3/4" />
+        </div>
 
-        {/* Title skeleton */}
-        <Skeleton className="h-7 w-3/4" />
-
-        {/* Description skeleton - 2 lines */}
+        {/* Excerpt skeleton - 2 lines */}
         <div className="space-y-2">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
         </div>
 
         {/* Author and date row */}
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between pt-3 border-t border-border/50">
           <div className="flex items-center gap-2">
             {/* Avatar skeleton */}
-            <Skeleton className="h-8 w-8 rounded-full" />
+            <Skeleton className="h-6 w-6 rounded-full" />
             {/* Author name skeleton */}
-            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 md:h-4 w-20 md:w-24" />
           </div>
           {/* Date skeleton */}
-          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-3 w-16" />
         </div>
       </div>
     </Card>
   );
 }
 
-export function DesktopArticleSkeleton() {
+export function FeaturedArticleSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      <div className="flex gap-6 p-6">
-        {/* Article image skeleton - left side */}
-        <Skeleton className="w-80 h-64 flex-shrink-0 rounded-lg" />
-
-        {/* Content section - right side */}
-        <div className="flex-1 space-y-4">
-          {/* Lifestyle badge skeleton */}
-          <Skeleton className="h-6 w-20 rounded-full" />
-
-          {/* Title skeleton */}
-          <Skeleton className="h-8 w-2/3" />
-
-          {/* Description skeleton - 2 lines */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-4/5" />
+    <div className="py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+          {/* Image Skeleton */}
+          <div className="w-full md:w-1/2 lg:w-3/5">
+            <Skeleton className="w-full aspect-[4/3] md:aspect-[16/9] rounded-2xl" />
           </div>
 
-          {/* Author and metadata row */}
-          <div className="flex items-center justify-between pt-4">
-            <div className="flex items-center gap-3">
-              {/* Avatar skeleton */}
-              <Skeleton className="h-10 w-10 rounded-full" />
-              {/* Author name skeleton */}
-              <Skeleton className="h-4 w-28" />
-            </div>
-            <div className="flex items-center gap-4">
-              {/* Date skeleton */}
-              <Skeleton className="h-4 w-24" />
-              {/* Read time skeleton */}
-              <Skeleton className="h-4 w-20" />
+          {/* Content Skeleton */}
+          <div className="w-full md:w-1/2 lg:w-2/5">
+            <div className="max-w-lg space-y-4">
+              {/* Featured Badge */}
+              <Skeleton className="h-6 w-32 rounded-full" />
+
+              {/* Title - 2 lines */}
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-3/4" />
+              </div>
+
+              {/* Description - 3 lines */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+
+              {/* Button */}
+              <Skeleton className="h-10 w-32 rounded-full" />
             </div>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
-export function ArticleListSkeleton({ count = 2 }: { count?: number }) {
+export function ArticleListSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <>
-      {/* Mobile view - stacked cards */}
-      <div className="md:hidden space-y-4">
-        {Array.from({ length: count }).map((_, i) => (
-          <MobileArticleSkeleton key={i} />
-        ))}
-      </div>
-
-      {/* Desktop view - horizontal cards */}
-      <div className="hidden md:block space-y-6">
-        {Array.from({ length: count }).map((_, i) => (
-          <DesktopArticleSkeleton key={i} />
-        ))}
-      </div>
-    </>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+      {Array.from({ length: count }).map((_, i) => (
+        <ArticleCardSkeleton key={i} />
+      ))}
+    </div>
   );
 }

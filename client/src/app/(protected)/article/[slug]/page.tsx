@@ -89,7 +89,7 @@ export default function ArticlePage() {
 
       {/* ----- Thumbnail Placeholder ----- */}
       <div className="max-w-4xl mx-auto px-4 mb-12">
-        <div className="aspect-[21/9] w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center overflow-hidden relative">
+        <div className="aspect-[4/3] md:aspect-[16/9] lg:aspect-[21/9] w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center overflow-hidden relative">
           <Image
             src={article.post.coverImage ?? null}
             alt={article.post.title ?? "cover"}

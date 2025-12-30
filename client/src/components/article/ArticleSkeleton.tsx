@@ -40,7 +40,7 @@ export default function ArticleSkeleton() {
 
       {/* ----- Thumbnail ----- */}
       <div className="max-w-4xl mx-auto px-4 mb-12">
-        <div className="aspect-[21/9] w-full bg-gray-200 rounded-2xl"></div>
+        <div className="aspect-[4/3] md:aspect-[16/9] lg:aspect-[21/9] w-full bg-gray-200 rounded-2xl"></div>
       </div>
 
       {/* ----- Content ----- */}

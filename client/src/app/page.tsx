@@ -1,7 +1,7 @@
 "use client";
 import ArticleCard from "@/app/(protected)/article/_components/ArticleCard";
 import FeaturedArticle from "@/app/(protected)/article/_components/FeaturedArticle";
-import { ArticleListSkeleton } from "@/components/article/ArticleListSkeleton";
+import { ArticleListSkeleton, FeaturedArticleSkeleton } from "@/components/article/ArticleListSkeleton";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/NavBar";
@@ -39,7 +39,7 @@ const Index = () => {
         </section>
         {/* Featured Article */}
         {loading || !featuredArticle ? (
-          <ArticleListSkeleton count={1} />
+          <FeaturedArticleSkeleton />
         ) : (
           <FeaturedArticle
             slug={featuredArticle.slug}
@@ -60,7 +60,7 @@ const Index = () => {
         )}
         {/* Recent Articles */}
         <section className="py-12 md:py-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 max-w-[1600px]">
             <div className="flex justify-between items-end mb-8">
               <h2 className="text-2xl md:text-3xl font-semibold">
                 Recent Articles
@@ -72,37 +72,28 @@ const Index = () => {
                 </Button>
               </Link>
             </div>
-            <div className="min-h-scrren bg-background p-6 md:p-10">
-              <div className="max-w-7xl mx-auto space-y-16">
-                {loading ? (
-                  <ArticleListSkeleton count={4} />
-                ) : (
-                  recentArticles.map((article) => (
-                    <div
-                      key={article.id}
-                      className="animate-fade-in"
-                      style={{
-                        animationDelay: `${(parseInt(article.id) - 2) * 100}ms`,
-                      }}
-                    >
-                      <ArticleCard
-                        slug={article.slug}
-                        title={article.title}
-                        excerpt={article.shortDescription}
-                        coverImage={article.coverImage}
-                        author={article.author}
-                        category={article.category}
-                        date={article.createdAt}
-                        estimatedReadTime={Math.ceil(
-                          article.content.trim().split(/\s+/).length / 200
-                        )}
-                        featured={article.isFeatured}
-                      />
-                    </div>
-                  ))
-                )}
+            {loading ? (
+              <ArticleListSkeleton count={4} />
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+                {recentArticles.map((article) => (
+                  <ArticleCard
+                    key={article.id}
+                    slug={article.slug}
+                    title={article.title}
+                    excerpt={article.shortDescription}
+                    coverImage={article.coverImage}
+                    author={article.author}
+                    category={article.category}
+                    date={article.createdAt}
+                    estimatedReadTime={Math.ceil(
+                      article.content.trim().split(/\s+/).length / 200
+                    )}
+                    featured={article.isFeatured}
+                  />
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </section>
         {/* Newsletter */}
