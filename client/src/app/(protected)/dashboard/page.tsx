@@ -8,42 +8,23 @@ import { PerformanceChart } from "./_components/PerformanceChart";
 import { CategoryDistribution } from "./_components/CategoryDistribution";
 import { ActivityFeed } from "./_components/ActivityFeed";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { AlertCircle, LayoutDashboard } from "lucide-react";
+import DashboardSkeleton from "./_components/DashBoardSkeleton";
 
 export default function DashboardPage() {
   const { data, loading, error, user } = useDashboardData();
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <Skeleton className="h-10 w-64 mb-2" />
-            <Skeleton className="h-5 w-96" />
-          </div>
-
-          {/* Stats Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-32 rounded-2xl" />
-            ))}
-          </div>
-
-          {/* Quick Actions Skeleton */}
-          <div className="flex gap-4 mb-8">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-14 w-48 rounded-xl" />
-            ))}
-          </div>
-
-          {/* Content Skeleton */}
-          <Skeleton className="h-96 rounded-2xl" />
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error) {
@@ -52,8 +33,13 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto">
           <Card className="rounded-2xl border-destructive/50">
             <CardContent className="py-12 text-center">
-              <AlertCircle size={48} className="mx-auto mb-4 text-destructive" />
-              <h3 className="text-lg font-semibold mb-2">Error loading dashboard</h3>
+              <AlertCircle
+                size={48}
+                className="mx-auto mb-4 text-destructive"
+              />
+              <h3 className="text-lg font-semibold mb-2">
+                Error loading dashboard
+              </h3>
               <p className="text-muted-foreground">{error}</p>
             </CardContent>
           </Card>
@@ -71,13 +57,19 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-            <Link href="/" className="hover:text-primary transition-colors">
-              Home
-            </Link>
-            <span>/</span>
-            <span className="text-foreground">Dashboard</span>
-          </div>
+          <Breadcrumb className="mb-2">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Dashboard</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
             <LayoutDashboard className="text-primary" size={32} />
             Dashboard
