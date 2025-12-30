@@ -1,14 +1,5 @@
 "use client";
 
-import { ChevronRight, Shield } from "lucide-react";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import {
   Card,
   CardHeader,
@@ -16,30 +7,14 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { SettingsBreadcrumb } from "@/app/(protected)/settings/_components/SettingsBreadcrumb";
+import { Shield } from "lucide-react";
 
 export default function PrivacySettingsPage() {
   return (
     <>
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Settings</BreadcrumbPage>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Privacy</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <SettingsBreadcrumb currentPage="Privacy" />
 
       {/* Privacy Settings Content */}
       <div className="space-y-6">

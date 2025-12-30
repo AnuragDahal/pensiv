@@ -187,3 +187,44 @@ export const getMeWithStats = asyncHandler(async (req: Request, res: Response) =
     message: "User and stats fetched successfully",
   });
 });
+
+export const updatePassword = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user?._id) {
+    throw new APIError(
+      API_RESPONSES.UNAUTHORIZED,
+      HTTP_STATUS_CODES.UNAUTHORIZED
+    );
+  }
+
+  const { currentPassword, newPassword } = req.body;
+
+  // Get user with password field
+  const user = await getUserById(req.user._id.toString()).select("+password");
+
+  if (!user) {
+    throw new APIError(
+      API_RESPONSES.USER_NOT_FOUND,
+      HTTP_STATUS_CODES.NOT_FOUND
+    );
+  }
+
+  // Verify current password
+  const isPasswordValid = await user.isPasswordCorrect(currentPassword);
+  if (!isPasswordValid) {
+    throw new APIError(
+      "Current password is incorrect",
+      HTTP_STATUS_CODES.BAD_REQUEST
+    );
+  }
+
+  // Update password
+  user.password = newPassword;
+  await user.save();
+
+  return sendResponse({
+    res,
+    status: HTTP_STATUS_CODES.OK,
+    data: {},
+    message: "Password updated successfully",
+  });
+});

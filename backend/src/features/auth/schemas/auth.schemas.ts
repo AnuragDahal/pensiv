@@ -14,3 +14,8 @@ export const loginSchema = z.object({
 export const tokenSchema = z.object({
   refreshToken: z.string(),
 });
+
+export const updatePasswordSchema = z.object({
+  currentPassword: z.string().min(6, "Password must be at least 6 characters long"),
+  newPassword: z.string().min(6, "Password must be at least 6 characters long"),
+});

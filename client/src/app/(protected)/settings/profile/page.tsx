@@ -18,15 +18,8 @@ import ImageUpload from "@/components/ui/image-upload";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { SettingsBreadcrumb } from "@/app/(protected)/settings/_components/SettingsBreadcrumb";
 import {
-  Breadcrumb,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
-  ChevronRight,
   User,
   Loader2,
   Github,
@@ -243,22 +236,7 @@ export default function SettingsPage() {
   return (
     <>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-            <BreadcrumbSeparator>
-              <ChevronRight />
-            </BreadcrumbSeparator>
-            <BreadcrumbLink href="/settings">Settings</BreadcrumbLink>
-            <BreadcrumbSeparator>
-              <ChevronRight />
-            </BreadcrumbSeparator>
-            <BreadcrumbPage>Profile</BreadcrumbPage>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-
+      <SettingsBreadcrumb currentPage="Profile" />
       {/* Profile Settings Content */}
       <div className="space-y-6">
         {/* Profile Section */}

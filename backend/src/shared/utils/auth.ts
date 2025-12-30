@@ -15,7 +15,7 @@ export const validateUserCredentials = async (
   }
   const isMatch = await user.isPasswordCorrect(password);
   if (!isMatch) {
-    throw new Error(API_RESPONSES.UNAUTHORIZED);
+    throw new Error(API_RESPONSES.AUTHENTICATION_FAILED);
   }
   return user;
 };

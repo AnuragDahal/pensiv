@@ -1,14 +1,5 @@
 "use client";
 
-import { ChevronRight, Globe } from "lucide-react";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import {
   Card,
   CardHeader,
@@ -16,30 +7,14 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { SettingsBreadcrumb } from "@/app/(protected)/settings/_components/SettingsBreadcrumb";
+import { Globe } from "lucide-react";
 
 export default function GeneralSettingsPage() {
   return (
     <>
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>Settings</BreadcrumbPage>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage>General</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <SettingsBreadcrumb currentPage="General" />
 
       {/* General Settings Content */}
       <div className="space-y-6">
