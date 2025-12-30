@@ -30,7 +30,7 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
     {
       icon: FileText,
       label: "My Articles",
-      href: "/article?author=me",
+      href: "/my-articles",
     },
     {
       icon: Settings,

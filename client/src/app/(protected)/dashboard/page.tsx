@@ -98,9 +98,16 @@ export default function DashboardPage() {
           {/* Left Column: Recent Articles */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg md:text-xl font-bold mb-4">
-                Recent Articles
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg md:text-xl font-bold">
+                  Recent Articles
+                </h2>
+                <Link href="/my-articles">
+                  <span className="text-sm text-primary hover:underline cursor-pointer">
+                    View All Articles →
+                  </span>
+                </Link>
+              </div>
               <RecentArticlesTable articles={data.recentArticles} />
             </div>
           </div>
