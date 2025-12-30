@@ -12,6 +12,7 @@ import {
   getAllPosts,
   getFilteredArticles,
   getPostById,
+  getPostByIdForEdit,
   getPostBySlug,
   getPostsByUserId,
   getRecentPosts,
@@ -165,7 +166,7 @@ export const fetchAllPosts = asyncHandler(
 );
 
 export const updatePost = asyncHandler(async (req: Request, res: Response) => {
-  const post = await getPostById(req.params.id);
+  const post = await getPostByIdForEdit(req.params.id);
   if (!post) {
     throw new APIError(
       API_RESPONSES.RESOURCE_NOT_FOUND,
@@ -178,6 +179,14 @@ export const updatePost = asyncHandler(async (req: Request, res: Response) => {
     throw new APIError(
       "You don't have permission to edit this post",
       HTTP_STATUS_CODES.FORBIDDEN
+    );
+  }
+
+  // Prevent unpublishing: once published, cannot be changed back to draft
+  if (post.status === "published" && req.body.status === "draft") {
+    throw new APIError(
+      "Published articles cannot be unpublished. You can only update the content.",
+      HTTP_STATUS_CODES.BAD_REQUEST
     );
   }
 
@@ -225,6 +234,49 @@ export const updatePostReaction = asyncHandler(
     });
   }
 );
+
+export const getPostForEdit = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!req.user?._id) {
+      throw new APIError(
+        API_RESPONSES.UNAUTHORIZED,
+        HTTP_STATUS_CODES.UNAUTHORIZED
+      );
+    }
+
+    const post = await getPostByIdForEdit(req.params.id);
+    if (!post) {
+      throw new APIError(
+        API_RESPONSES.RESOURCE_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
+    }
+
+    // Verify ownership
+    if (post.userId.toString() !== req.user._id.toString()) {
+      throw new APIError(
+        "You don't have permission to edit this post",
+        HTTP_STATUS_CODES.FORBIDDEN
+      );
+    }
+
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.OK,
+      message: API_RESPONSES.RESOURCE_FETCHED,
+      data: {
+        id: post._id,
+        title: post.title,
+        content: post.content,
+        category: post.category,
+        tags: post.tags,
+        coverImage: post.coverImage,
+        status: post.status,
+      },
+    });
+  }
+);
+
 export const getUserPostBySlug = asyncHandler(async (req, res) => {
   const slug = req.params.slug;
   const userId = req.user?._id?.toString();

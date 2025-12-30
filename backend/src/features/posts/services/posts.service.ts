@@ -23,6 +23,9 @@ export const getPostById = (id: string | Types.ObjectId) =>
       ],
     })
     .populate("userId", "name email avatar");
+export const getPostByIdForEdit = (id: string | Types.ObjectId) =>
+  Post.findById(id);
+
 
 export const getAllPosts = (filter = {}) =>
   Post.find(filter)
@@ -162,6 +165,7 @@ export const getPostsByUserId = (userId: string | Types.ObjectId) =>
   Post.find({ userId })
     .populate("comments")
     .populate("userId", "name email avatar");
+
 
 export const updatePostById = (
   id: string | Types.ObjectId,

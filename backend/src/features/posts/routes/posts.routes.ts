@@ -6,6 +6,7 @@ import {
   getAllPostByUserId,
   getAllPostsOfAuthenticatedUser,
   getSinglePost,
+  getPostForEdit,
   getUserPostBySlug,
   updatePost,
   updatePostReaction,
@@ -16,6 +17,7 @@ const router = Router();
 
 router.get("/", zodValidator(queryParams), fetchAllPosts);
 router.get("/me", getAllPostsOfAuthenticatedUser);
+router.get("/edit/:id", getPostForEdit);
 router.get("/:id", getSinglePost);
 router.put("/:id", zodValidator(postSchema), updatePost);
 router.post("/", zodValidator(postSchema), addNewPost);
