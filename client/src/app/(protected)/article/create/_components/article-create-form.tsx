@@ -30,17 +30,20 @@ import { toast } from "sonner";
 import { z } from "zod";
 import Link from "@tiptap/extension-link";
 import TiptapImage from "@tiptap/extension-image";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import lowlight from "@/lib/lowlight-setup";
 import { uploadInlineImages } from "@/app/(protected)/article/_lib/upload-inline-images";
 import { uploadImageWithRetry } from "@/app/(protected)/article/_lib/upload-with-retry";
 import { MenuBar } from "@/app/(protected)/article/_components/menu-bar";
 import { TagsInputField } from "@/app/(protected)/article/create/_components/form-fields/tags-input-field";
+import "./editor-styles.css";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   category: z.string().min(1, "Category is required"),
   tags: z.array(z.string().min(1, "tag cannot be empty")).min(1),
-  coverImage: z.string().optional(),
+  coverImage: z.string().min(1, "Cover image is required"),
   status: z.enum(["draft", "published"]).default("published"),
 });
 
@@ -72,13 +75,20 @@ export default function CreateArticleForm() {
       status: "published",
     },
   });
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false, // Disable default code block
+      }),
       Link,
+      CodeBlockLowlight.configure({
+        lowlight,
+        defaultLanguage: "javascript",
+      }),
       TiptapImage.configure({
         inline: true,
-        allowBase64: true, // Allow blob URLs during editing
+        allowBase64: true,
         HTMLAttributes: {
           class: "rounded-lg max-w-full h-auto my-4",
         },
@@ -86,35 +96,43 @@ export default function CreateArticleForm() {
     ],
     content: "",
     onUpdate: ({ editor }) => {
-      // Update form value whenever content changes
       form.setValue("content", editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-lg max-w-none px-4 py-3 min-h-[400px] max-h-[500px] overflow-y-auto focus:outline-none',
+      },
     },
   });
 
-  // Sync initial value
   useEffect(() => {
     if (editor && form.getValues("content")) {
       editor.commands.setContent(form.getValues("content"));
     }
   }, [editor, form]);
+
   const onSubmit = async (values: z.infer<typeof articleSchema>) => {
     try {
       setIsLoading(true);
 
-      // 1. Upload cover image if selected
+      // 1. Upload cover image (required)
+      if (!coverImageFile) {
+        toast.error("Cover image is required");
+        setIsLoading(false);
+        return;
+      }
+
       let coverImageUrl = "";
-      if (coverImageFile) {
-        toast.loading("Uploading cover image...", { id: "cover-upload" });
-        try {
-          coverImageUrl = await uploadImageWithRetry(coverImageFile, "covers");
-          toast.success("Cover image uploaded", { id: "cover-upload" });
-        } catch (error) {
-          toast.error("Failed to upload cover image after 3 attempts", {
-            id: "cover-upload",
-          });
-          setIsLoading(false);
-          return; // Abort pipeline
-        }
+      toast.loading("Uploading cover image...", { id: "cover-upload" });
+      try {
+        coverImageUrl = await uploadImageWithRetry(coverImageFile, "covers");
+        toast.success("Cover image uploaded", { id: "cover-upload" });
+      } catch (error) {
+        toast.error("Failed to upload cover image after 3 attempts", {
+          id: "cover-upload",
+        });
+        setIsLoading(false);
+        return;
       }
 
       // 2. Upload inline images from content
@@ -128,7 +146,7 @@ export default function CreateArticleForm() {
           { id: "inline-images" }
         );
         setIsLoading(false);
-        return; // Abort pipeline - no DB writes
+        return;
       }
 
       toast.success("All images uploaded successfully", {
@@ -142,11 +160,11 @@ export default function CreateArticleForm() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
         {
           title: values.title,
-          content: imageResult.updatedHtml, // Use HTML with Supabase URLs
+          content: imageResult.updatedHtml,
           category: values.category,
           tags: values.tags,
           coverImage: coverImageUrl,
-          status: values.status, // "draft" or "published"
+          status: values.status,
         },
         {
           headers: {
@@ -158,7 +176,6 @@ export default function CreateArticleForm() {
 
       toast.success("Article created successfully!", { id: "create" });
 
-      // Redirect based on status
       setTimeout(() => {
         if (values.status === "draft") {
           router.replace("/dashboard");
@@ -181,12 +198,13 @@ export default function CreateArticleForm() {
 
   const handleImageSelect = (file: File | null) => {
     setCoverImageFile(file);
+    if (file) {
+      form.setValue("coverImage", "selected");
+      form.clearErrors("coverImage");
+    } else {
+      form.setValue("coverImage", "");
+    }
   };
-
-  // Cleanup: remove unused handleImageUpload if it exists
-  // const handleImageUpload = (url: string) => {
-  //   form.setValue("coverImage", url);
-  // };
 
   return (
     <Form {...form}>
@@ -246,12 +264,12 @@ export default function CreateArticleForm() {
           name="coverImage"
           render={() => (
             <FormItem>
-              <FormLabel>Cover Image (Optional)</FormLabel>
+              <FormLabel>Cover Image</FormLabel>
               <FormControl>
                 <ImageUpload
                   mode="deferred"
                   onImageSelect={handleImageSelect}
-                  onImageUpload={() => {}} // Required but unused in deferred mode
+                  onImageUpload={() => {}}
                   label=""
                 />
               </FormControl>
@@ -259,7 +277,7 @@ export default function CreateArticleForm() {
             </FormItem>
           )}
         />
-        {/*TODO: A Markdown editor to be added here  */}
+
         <FormField
           control={form.control}
           name="content"
@@ -269,43 +287,13 @@ export default function CreateArticleForm() {
               <FormControl>
                 <div className="border rounded-lg overflow-hidden">
                   <MenuBar editor={editor} />
-                  <EditorContent
-                    editor={editor}
-                    {...field}
-                    className="prose prose-lg max-w-none px-4 py-3 min-h-[400px] max-h-[500px] overflow-y-auto
-                               prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-4
-                               prose-p:text-gray-700 prose-p:leading-7
-                               prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800
-                               prose-strong:font-bold prose-strong:text-gray-900
-                               prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
-                               prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4
-                               prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4
-                               prose-li:text-gray-700 prose-li:my-1
-                               focus:outline-none"
-                  />
+                  <EditorContent editor={editor} {...field} />
                 </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        {/* <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Write your article content here..."
-                  className="min-h-[300px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         <div className="flex gap-4">
           <Button

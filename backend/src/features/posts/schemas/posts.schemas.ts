@@ -3,7 +3,7 @@ import { z } from "zod";
 export const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
-  coverImage: z.string().url("Invalid URL").optional(),
+  coverImage: z.string().url("Invalid URL").min(1, "Cover image is required"),
   tags: z
     .array(z.string().min(1, "Tag cannot be empty"))
     .min(1, "At least one tag is required"),

@@ -1,0 +1,33 @@
+/* Tiptap Editor Code Block Styling */
+/* Make code blocks visible and styled in the editor */
+
+.ProseMirror pre {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.ProseMirror pre code {
+  color: inherit !important;
+  background: none !important;
+  padding: 0 !important;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* Selected code block */
+.ProseMirror pre.ProseMirror-selectednode {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Placeholder for empty code blocks */
+.ProseMirror pre:empty:before {
+  content: 'Type or paste your code here...';
+  color: #64748b;
+  font-style: italic;
+}

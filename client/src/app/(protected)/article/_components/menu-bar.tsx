@@ -1,7 +1,8 @@
+import { cn } from "@/lib/utils";
 import type { Editor } from "@tiptap/react";
 import {
   Bold,
-  Code,
+  Code2,
   Heading2,
   ImageIcon,
   Italic,
@@ -13,8 +14,38 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+const LANGUAGES = [
+  { value: "javascript", label: "JavaScript" },
+  { value: "typescript", label: "TypeScript" },
+  { value: "python", label: "Python" },
+  { value: "java", label: "Java" },
+  { value: "cpp", label: "C++" },
+  { value: "c", label: "C" },
+  { value: "go", label: "Go" },
+  { value: "rust", label: "Rust" },
+  { value: "php", label: "PHP" },
+  { value: "ruby", label: "Ruby" },
+  { value: "swift", label: "Swift" },
+  { value: "kotlin", label: "Kotlin" },
+  { value: "bash", label: "Bash" },
+  { value: "shell", label: "Shell" },
+  { value: "sql", label: "SQL" },
+  { value: "html", label: "HTML" },
+  { value: "css", label: "CSS" },
+  { value: "json", label: "JSON" },
+  { value: "yaml", label: "YAML" },
+  { value: "markdown", label: "Markdown" },
+];
+
 export const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) return null;
+
+  const currentLanguage = editor.getAttributes("codeBlock").language || "javascript";
+  const isCodeBlockActive = editor.isActive("codeBlock");
+
+  const setLanguage = (language: string) => {
+    editor.chain().focus().updateAttributes("codeBlock", { language }).run();
+  };
 
   const addLink = () => {
     const url = window.prompt("Enter URL:");
@@ -58,10 +89,10 @@ export const MenuBar = ({ editor }: { editor: Editor | null }) => {
       label: "Italic (Ctrl+I)",
     },
     {
-      icon: Code,
-      action: () => editor.chain().focus().toggleCode().run(),
-      isActive: editor.isActive("code"),
-      label: "Code (Ctrl+E)",
+      icon: Code2,
+      action: () => editor.chain().focus().toggleCodeBlock().run(),
+      isActive: editor.isActive("codeBlock"),
+      label: "Code Block (Ctrl+Alt+C)",
     },
     {
       icon: Heading2,
@@ -109,7 +140,7 @@ export const MenuBar = ({ editor }: { editor: Editor | null }) => {
   ];
 
   return (
-    <div className="flex gap-1 p-2 border-b bg-gray-50 flex-wrap">
+    <div className="flex gap-1 p-2 border-b bg-gray-50 flex-wrap items-center">
       {buttons.map((btn, idx) =>
         btn.type === "divider" ? (
           <div key={idx} className="w-px bg-gray-300 mx-1" />
@@ -119,14 +150,34 @@ export const MenuBar = ({ editor }: { editor: Editor | null }) => {
             type="button"
             onClick={btn.action}
             title={btn.label}
-            className={`p-2 rounded transition-colors ${
-              btn.isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-200"
-            }`}
+            className={cn(
+              "p-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500",
+              btn.isActive ? "bg-gray-100" : ""
+            )}
           >
             {/* @ts-expect-error the icon prop is not defined in the button type */}
             <btn.icon />
           </button>
         )
+      )}
+
+      {/* Language selector - only show when code block is active */}
+      {isCodeBlockActive && (
+        <>
+          <div className="w-px bg-gray-300 mx-1" />
+          <select
+            value={currentLanguage}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="px-2 py-1 text-sm border rounded bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            title="Select code language"
+          >
+            {LANGUAGES.map((lang) => (
+              <option key={lang.value} value={lang.value}>
+                {lang.label}
+              </option>
+            ))}
+          </select>
+        </>
       )}
     </div>
   );
