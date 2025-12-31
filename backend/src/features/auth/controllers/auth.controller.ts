@@ -19,8 +19,6 @@ import {
   getMeStats,
 } from "../services/auth.service";
 
-
-
 export const userSignup = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
   const existingUser = await getUserByEmail(email);
@@ -32,12 +30,24 @@ export const userSignup = asyncHandler(async (req: Request, res: Response) => {
     );
   }
 
-  const user = await createUser(req.body);
+  const { user, userId } = await createUser(req.body);
+
+  if (!user || !userId) {
+    throw new APIError(
+      API_RESPONSES.RESOURCE_CREATION_FAILED,
+      HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR
+    );
+  }
+
+  // Generate tokens and set cookies for auto-login
+  const { accessToken, refreshToken } = await generateTokens(userId);
+
+  setCookies(res, accessToken, refreshToken);
 
   return sendResponse({
     res,
     status: HTTP_STATUS_CODES.CREATED,
-    data: user,
+    data: { accessToken, refreshToken },
     message: API_RESPONSES.USER_CREATED,
   });
 });
@@ -110,9 +120,17 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
       HTTP_STATUS_CODES.BAD_REQUEST
     );
   }
-  const user = await getUserById(req.user._id.toString()).select(
+  const user = await getUserById(req.user._id).select(
     "-password -createdAt -updatedAt -__v -refreshToken"
   );
+
+  if (!user) {
+    throw new APIError(
+      API_RESPONSES.USER_NOT_FOUND,
+      HTTP_STATUS_CODES.NOT_FOUND
+    );
+  }
+
   return sendResponse({
     res,
     status: HTTP_STATUS_CODES.OK,
@@ -151,7 +169,7 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
     );
   }
 
-  const user = await updateUser(req.user._id.toString(), req.body);
+  const user = await updateUser(req.user._id, req.body);
 
   return sendResponse({
     res,
@@ -161,70 +179,93 @@ export const updateMe = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-export const getMeWithStats = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.user?._id) {
-    throw new APIError(
-      API_RESPONSES.UNAUTHORIZED,
-      HTTP_STATUS_CODES.UNAUTHORIZED
-    );
+export const getMeWithStats = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!req.user?._id) {
+      throw new APIError(
+        API_RESPONSES.UNAUTHORIZED,
+        HTTP_STATUS_CODES.UNAUTHORIZED
+      );
+    }
+
+    const userId = req.user._id;
+
+    try {
+      const [user, stats] = await Promise.all([
+        getUserById(userId),
+        getMeStats(userId),
+      ]);
+
+      if (!user) {
+        throw new APIError(
+          API_RESPONSES.USER_NOT_FOUND,
+          HTTP_STATUS_CODES.NOT_FOUND
+        );
+      }
+
+      // Manually exclude sensitive fields from response
+      const userResponse = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        bio: user.bio,
+        socialLinks: user.socialLinks,
+        stats,
+      };
+
+      return sendResponse({
+        res,
+        status: HTTP_STATUS_CODES.OK,
+        data: userResponse,
+        message: "User and stats fetched successfully",
+      });
+    } catch (error) {
+      console.error("Error in getMeWithStats:", error);
+      throw error;
+    }
   }
+);
 
-  const [user, stats] = await Promise.all([
-    getUserById(req.user._id.toString()).select(
-      "-password -createdAt -updatedAt -__v -refreshToken"
-    ),
-    getMeStats(req.user._id.toString()),
-  ]);
+export const updatePassword = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!req.user?._id) {
+      throw new APIError(
+        API_RESPONSES.UNAUTHORIZED,
+        HTTP_STATUS_CODES.UNAUTHORIZED
+      );
+    }
 
-  if (!user) {
-    throw new APIError(API_RESPONSES.USER_NOT_FOUND, HTTP_STATUS_CODES.NOT_FOUND);
+    const { currentPassword, newPassword } = req.body;
+
+    // Get user with password field
+    const user = await getUserById(req.user._id).select("+password");
+
+    if (!user) {
+      throw new APIError(
+        API_RESPONSES.USER_NOT_FOUND,
+        HTTP_STATUS_CODES.NOT_FOUND
+      );
+    }
+
+    // Verify current password
+    const isPasswordValid = await user.isPasswordCorrect(currentPassword);
+    if (!isPasswordValid) {
+      throw new APIError(
+        "Current password is incorrect",
+        HTTP_STATUS_CODES.BAD_REQUEST
+      );
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    return sendResponse({
+      res,
+      status: HTTP_STATUS_CODES.OK,
+      data: {},
+      message: "Password updated successfully",
+    });
   }
-
-  return sendResponse({
-    res,
-    status: HTTP_STATUS_CODES.OK,
-    data: { ...user.toJSON(), stats },
-    message: "User and stats fetched successfully",
-  });
-});
-
-export const updatePassword = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.user?._id) {
-    throw new APIError(
-      API_RESPONSES.UNAUTHORIZED,
-      HTTP_STATUS_CODES.UNAUTHORIZED
-    );
-  }
-
-  const { currentPassword, newPassword } = req.body;
-
-  // Get user with password field
-  const user = await getUserById(req.user._id.toString()).select("+password");
-
-  if (!user) {
-    throw new APIError(
-      API_RESPONSES.USER_NOT_FOUND,
-      HTTP_STATUS_CODES.NOT_FOUND
-    );
-  }
-
-  // Verify current password
-  const isPasswordValid = await user.isPasswordCorrect(currentPassword);
-  if (!isPasswordValid) {
-    throw new APIError(
-      "Current password is incorrect",
-      HTTP_STATUS_CODES.BAD_REQUEST
-    );
-  }
-
-  // Update password
-  user.password = newPassword;
-  await user.save();
-
-  return sendResponse({
-    res,
-    status: HTTP_STATUS_CODES.OK,
-    data: {},
-    message: "Password updated successfully",
-  });
-});
+);

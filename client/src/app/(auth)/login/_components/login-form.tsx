@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
 
 const loginFormSchema = z.object({
@@ -28,8 +28,9 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, fetchUser, logout } = useAuthStore();
-  
+
   // If the user visits the login page, we should assume any existing session is invalid or stale
   // and clear it to prevent the UI from thinking we are logged in.
   React.useEffect(() => {
@@ -64,9 +65,21 @@ export default function LoginForm() {
       // Store tokens in Zustand store
       login({ accessToken, refreshToken });
 
-      fetchUser();
+      await fetchUser();
       toast.success(res.data.message);
-      router.push("/");
+
+      // Small delay to ensure auth state is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Redirect to callback URL if it exists, otherwise go to home
+      const callbackUrl = searchParams.get("callbackUrl");
+      if (callbackUrl) {
+        // The callbackUrl is already decoded by searchParams.get()
+        // Just use it directly as a path
+        router.push(callbackUrl);
+      } else {
+        router.push("/");
+      }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Login failed");

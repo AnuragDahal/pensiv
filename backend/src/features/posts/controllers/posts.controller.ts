@@ -99,17 +99,13 @@ export const getAllPostsOfAuthenticatedUser = asyncHandler(
         },
       })
       .populate("userId", "name email avatar bio");
-    if (!posts || posts.length === 0) {
-      throw new APIError(
-        API_RESPONSES.RESOURCE_NOT_FOUND,
-        HTTP_STATUS_CODES.NOT_FOUND
-      );
-    }
+
+    // Return empty array for new users instead of throwing error
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.OK,
       message: API_RESPONSES.RESOURCE_FETCHED,
-      data: posts,
+      data: posts || [],
     });
   }
 );

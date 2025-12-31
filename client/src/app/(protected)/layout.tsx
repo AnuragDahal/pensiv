@@ -16,7 +16,7 @@ export default function ProtectedLayout({
   useEffect(() => {
     // Only redirect after auth has been initialized
     if (isAuthInitialized && (!isAuthenticated || isTokenExpired())) {
-      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      router.replace(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
     }
   }, [isAuthenticated, isTokenExpired, isAuthInitialized, router, pathname]);
 

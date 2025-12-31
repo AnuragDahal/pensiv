@@ -1,9 +1,15 @@
+"use client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import LoginForm from "./_components/login-form";
 
-const Login: React.FC = () => {
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+  const signupUrl = callbackUrl ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup";
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -33,7 +39,7 @@ const Login: React.FC = () => {
           <div className="mt-8 text-center">
             <p className="text-muted-foreground">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-accent hover:underline">
+              <Link href={signupUrl} className="text-accent hover:underline">
                 Sign up
               </Link>
             </p>
@@ -44,4 +50,10 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default function Login() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
+  );
+}

@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { toast } from "sonner";
 import { Eye, EyeOff, Lock } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const signupFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -29,8 +29,9 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
-  const { logout } = useAuthStore();
-  
+  const searchParams = useSearchParams();
+  const { login, fetchUser, logout } = useAuthStore();
+
   React.useEffect(() => {
     logout();
   }, [logout]);
@@ -53,10 +54,35 @@ export default function SignupForm() {
           name: values.name,
           email: values.email,
           password: values.password,
+        },
+        {
+          withCredentials: true, // Important for cookies
         }
       );
+
+      // Extract tokens from response (backend now returns tokens)
+      const { accessToken, refreshToken } = res.data.data;
+
+      // Store tokens in Zustand store
+      login({ accessToken, refreshToken });
+
+      // Fetch user data
+      await fetchUser();
+
       toast.success(res.data.message);
-      router.push("/login");
+
+      // Small delay to ensure auth state is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Redirect to callback URL if it exists, otherwise go to home
+      const callbackUrl = searchParams.get("callbackUrl");
+      if (callbackUrl) {
+        // The callbackUrl is already decoded by searchParams.get()
+        // Just use it directly as a path
+        router.push(callbackUrl);
+      } else {
+        router.push("/");
+      }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Signup failed");

@@ -187,7 +187,7 @@ export function useDashboardData() {
 
       const articles: Article[] = response.data.data || [];
 
-      // Calculate all metrics
+      // Calculate all metrics - even if empty
       const stats = calculateStats(articles);
       const recentArticles = articles
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -205,9 +205,33 @@ export function useDashboardData() {
         categoryDistribution,
         recentActivity,
       });
-    } catch (err) {
+      setError(null); // Clear any previous errors
+    } catch (err: any) {
       console.error("Error fetching dashboard data:", err);
-      setError("Failed to load dashboard data");
+
+      // For new users with no posts, treat as empty data instead of error
+      if (err?.response?.status === 404 || err?.response?.data?.data?.length === 0) {
+        setData({
+          stats: {
+            totalArticles: 0,
+            totalLikes: 0,
+            totalViews: 0,
+            engagementRate: 0,
+            monthlyGrowth: {
+              articles: 0,
+              likes: 0,
+              views: 0,
+            },
+          },
+          recentArticles: [],
+          topArticles: [],
+          categoryDistribution: [],
+          recentActivity: [],
+        });
+        setError(null);
+      } else {
+        setError("Failed to load dashboard data");
+      }
     } finally {
       setLoading(false);
     }

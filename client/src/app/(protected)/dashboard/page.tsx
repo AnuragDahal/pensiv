@@ -48,6 +48,66 @@ export default function DashboardPage() {
     );
   }
 
+  // Handle empty state for new users
+  const isNewUser = data && data.stats.totalArticles === 0;
+
+  if (isNewUser) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Header */}
+          <div>
+            <Breadcrumb className="mb-2">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
+              <LayoutDashboard className="text-primary" size={32} />
+              Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Welcome, {user?.name}! Get started by creating your first article.
+            </p>
+          </div>
+
+          {/* Empty State */}
+          <Card className="rounded-2xl">
+            <CardContent className="py-16 text-center">
+              <LayoutDashboard
+                size={64}
+                className="mx-auto mb-6 text-muted-foreground/50"
+              />
+              <h3 className="text-2xl font-semibold mb-3">
+                Welcome to Your Dashboard
+              </h3>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                You haven't created any articles yet. Start writing to see your stats, analytics, and performance metrics here.
+              </p>
+              <Link
+                href="/article/create"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+              >
+                Create Your First Article
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <QuickActions />
+        </div>
+      </div>
+    );
+  }
+
   if (!data) {
     return null;
   }
