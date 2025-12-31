@@ -11,7 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts",
+    "seed:full": "ts-node -r tsconfig-paths/register scripts/comprehensive-seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -49,6 +50,7 @@
     "mongoose": "^8.9.5",
     "striptags": "^3.2.0",
     "tsc-alias": "^1.8.16",
+    "unsplash-js": "^7.0.20",
     "zod": "^3.24.1"
   },
   "pnpm": {

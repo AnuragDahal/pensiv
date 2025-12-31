@@ -114,7 +114,6 @@ postSchema.index(
   }
 );
 
-// index for the slug
-postSchema.index({ slug: 1 });
+// Note: slug index is already created by unique: true on the slug field
 
 export const Post = mongoose.model("Post", postSchema);
