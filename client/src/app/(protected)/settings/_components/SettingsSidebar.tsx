@@ -12,8 +12,6 @@ export function SettingsSidebar() {
   const menuItems = [
     { icon: User, label: "Profile", href: "/settings/profile" },
     { icon: Lock, label: "Security", href: "/settings/security" },
-    { icon: Globe, label: "General", href: "/settings/general" },
-    { icon: Shield, label: "Privacy", href: "/settings/privacy" },
   ];
 
   return (
@@ -36,14 +34,6 @@ export function SettingsSidebar() {
             </Link>
           );
         })}
-        <Separator className="my-4" />
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive gap-3 rounded-lg text-sm"
-        >
-          <Trash2 size={16} />
-          Delete Account
-        </Button>
       </nav>
     </aside>
   );

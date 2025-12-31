@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronUp, LogOut, Settings, User, FileText, LayoutDashboard } from "lucide-react";
+import { ChevronUp, LogOut, Settings, User, FileText, LayoutDashboard, Pencil, FilePlus2, Plus } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { getInitials } from "@/lib/utils";
@@ -28,10 +28,16 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
       href: "/profile",
     },
     {
+      icon:Plus,
+      label:"Create",
+      href:"/article/create"
+    },
+    {
       icon: FileText,
       label: "My Articles",
       href: "/my-articles",
     },
+    
     {
       icon: Settings,
       label: "Settings",

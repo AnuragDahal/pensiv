@@ -79,21 +79,23 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           </p>
 
           {/* Author & Date */}
-          <div className="flex items-center justify-between gap-2 pt-3 border-t border-border/50 mt-auto">
+          <div className="flex items-center justify-between gap-2 pt-3 mt-auto">
             <div className="flex items-center gap-2 min-w-0">
               <Profile name={author?.name} avatar={author?.avatar} size="sm" />
               <span className="text-xs md:text-sm font-medium truncate">
                 {author?.name || "Anonymous"}
               </span>
             </div>
+
             <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-              <Calendar className="h-3 w-3" />
+              {/* <Calendar className="h-3 w-3" />
               <span>
                 {new Date(date).toLocaleDateString(undefined, {
                   month: "short",
                   day: "numeric",
                 })}
-              </span>
+              </span> */}
+              {estimatedReadTime} min read
             </div>
           </div>
         </div>

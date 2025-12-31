@@ -156,7 +156,7 @@ export default function DashboardPage() {
                 </h2>
                 <Link href="/my-articles">
                   <span className="text-sm text-primary hover:underline cursor-pointer">
-                    View All Articles →
+                    View All Articles
                   </span>
                 </Link>
               </div>

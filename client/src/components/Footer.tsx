@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  href="/create"
+                  href="/article/create"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Write

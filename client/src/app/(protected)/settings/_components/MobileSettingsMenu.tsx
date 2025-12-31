@@ -18,18 +18,6 @@ export function MobileSettingsMenu() {
       href: "/settings/security",
       description: "Password, authentication, and account security",
     },
-    {
-      icon: Globe,
-      label: "General",
-      href: "/settings/general",
-      description: "General preferences and application settings",
-    },
-    {
-      icon: Shield,
-      label: "Privacy",
-      href: "/settings/privacy",
-      description: "Control your privacy and data sharing preferences",
-    },
   ];
 
   return (

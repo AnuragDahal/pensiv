@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
@@ -14,7 +13,7 @@ const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -66,13 +65,12 @@ const Navbar: React.FC = () => {
             </Link>
           </nav>{" "}
           <div className="hidden lg:flex items-center space-x-4">
-            <form
-              onSubmit={handleSearch}
-              className="relative group"
-            >
-              <div className={`relative transition-all duration-300 ${
-                searchFocused ? "w-72" : "w-56"
-              }`}>
+            <form onSubmit={handleSearch} className="relative group">
+              <div
+                className={`relative transition-all duration-300 ${
+                  searchFocused ? "w-72" : "w-56"
+                }`}
+              >
                 <Input
                   type="text"
                   value={searchQuery}
