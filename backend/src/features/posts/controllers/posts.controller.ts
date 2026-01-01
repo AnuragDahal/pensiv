@@ -274,7 +274,7 @@ export const getPostForEdit = asyncHandler(
   }
 );
 
-export const getUserPostBySlug = asyncHandler(async (req, res) => {
+export const getUserPostBySlug = asyncHandler(async (req: Request, res: Response) => {
   const slug = req.params.slug;
   const userId = req.user?._id?.toString();
 

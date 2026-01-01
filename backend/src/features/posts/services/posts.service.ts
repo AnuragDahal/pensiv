@@ -72,7 +72,7 @@ export const getFilteredArticles = async (query: {
 
   // Handle UserId Filter
   if (userId) {
-    filters.push({ userId: new Types.ObjectId(userId) });
+    filters.push({ userId: Types.ObjectId.createFromHexString(userId) });
   }
 
   // 3. Handle Universal Search (q) - search across Title, Content, Tags, Category, and Author Name

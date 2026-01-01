@@ -1,3 +1,4 @@
+/// <reference path="./types/express.d.ts" />
 import { connect } from "./shared/database";
 import {
   authRoutes,
