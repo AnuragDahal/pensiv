@@ -30,6 +30,7 @@ const Navbar: React.FC = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/article?q=${encodeURIComponent(searchQuery)}`);
+      setMobileMenuOpen(false);
       setSearchQuery("");
     }
   };
@@ -45,7 +46,13 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <Link href="/">
-            <Image src="/logo.png" alt="Pensiv" width={50} height={50} className="rounded-sm" />
+            <Image
+              src="/logo.png"
+              alt="Pensiv"
+              width={50}
+              height={50}
+              className="rounded-sm"
+            />
           </Link>
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -164,20 +171,24 @@ const Navbar: React.FC = () => {
               About
             </Link>
 
-            <Link
-              href="/signup"
-              className="py-2 font-medium"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Signup
-            </Link>
-            <Link
-              href="/login"
-              className="py-2 font-medium"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Login
-            </Link>
+            {!isLoggedIn && (
+              <>
+                <Link
+                  href="/signup"
+                  className="py-2 font-medium"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Signup
+                </Link>
+                <Link
+                  href="/login"
+                  className="py-2 font-medium"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
