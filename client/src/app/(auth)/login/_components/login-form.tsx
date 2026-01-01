@@ -10,19 +10,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import axios from "axios";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
-
-const loginFormSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+import apiClient from "@/lib/api/client";
+import { loginSchema, type LoginFormData } from "@/lib/schemas";
+import { API_ENDPOINTS, ROUTES } from "@/lib/constants";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -37,25 +33,22 @@ export default function LoginForm() {
     logout();
   }, [logout]);
 
-  const form = useForm<z.infer<typeof loginFormSchema>>({
-    resolver: zodResolver(loginFormSchema),
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
+  const onSubmit = async (values: LoginFormData) => {
     try {
       setIsLoading(true);
-      const res = await axios.post(
-        `/api/auth/login`,
+      const res = await apiClient.post(
+        API_ENDPOINTS.AUTH.LOGIN,
         {
           email: values.email,
           password: values.password,
-        },
-        {
-          withCredentials: true, // Important for cookies
         }
       );
 
@@ -74,18 +67,12 @@ export default function LoginForm() {
       // Redirect to callback URL if it exists, otherwise go to home
       const callbackUrl = searchParams.get("callbackUrl");
       if (callbackUrl) {
-        // The callbackUrl is already decoded by searchParams.get()
-        // Just use it directly as a path
         router.push(callbackUrl);
       } else {
-        router.push("/");
+        router.push(ROUTES.HOME);
       }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Login failed");
-      } else {
-        toast.error("Login failed");
-      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setIsLoading(false);
     }

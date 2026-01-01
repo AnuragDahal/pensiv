@@ -1,9 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useAuthStore } from "@/store/auth-store";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import {
   Form,
   FormControl,
@@ -18,12 +16,9 @@ import React from "react";
 import { toast } from "sonner";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-const signupFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+import apiClient from "@/lib/api/client";
+import { signupSchema, type SignupFormData } from "@/lib/schemas";
+import { API_ENDPOINTS, ROUTES } from "@/lib/constants";
 
 export default function SignupForm() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -36,8 +31,8 @@ export default function SignupForm() {
     logout();
   }, [logout]);
 
-  const form = useForm<z.infer<typeof signupFormSchema>>({
-    resolver: zodResolver(signupFormSchema),
+  const form = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -45,22 +40,19 @@ export default function SignupForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof signupFormSchema>) => {
+  const onSubmit = async (values: SignupFormData) => {
     try {
       setIsLoading(true);
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`,
+      const res = await apiClient.post(
+        API_ENDPOINTS.AUTH.SIGNUP,
         {
           name: values.name,
           email: values.email,
           password: values.password,
-        },
-        {
-          withCredentials: true, // Important for cookies
         }
       );
 
-      // Extract tokens from response (backend now returns tokens)
+      // Extract tokens from response
       const { accessToken, refreshToken } = res.data.data;
 
       // Store tokens in Zustand store
@@ -77,18 +69,12 @@ export default function SignupForm() {
       // Redirect to callback URL if it exists, otherwise go to home
       const callbackUrl = searchParams.get("callbackUrl");
       if (callbackUrl) {
-        // The callbackUrl is already decoded by searchParams.get()
-        // Just use it directly as a path
         router.push(callbackUrl);
       } else {
-        router.push("/");
+        router.push(ROUTES.HOME);
       }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Signup failed");
-      } else {
-        toast.error("Signup failed");
-      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Signup failed");
     } finally {
       setIsLoading(false);
     }
