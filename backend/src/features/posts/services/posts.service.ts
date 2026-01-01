@@ -1,7 +1,7 @@
-import { Comments } from "@/features/comments/models/comment.model";
-import { Reaction } from "@/features/reaction/models/reaction-model";
-import User from "@/features/auth/models/user.model";
-import { IPostModelResponse } from "@/types/posts";
+import { Comments } from "../../comments/models/comment.model";
+import { Reaction } from "../../reaction/models/reaction-model";
+import User from "../../auth/models/user.model";
+import { IPostModelResponse } from "../../../types/posts";
 import { Types } from "mongoose";
 import { Post } from "../models/post.model";
 
@@ -25,7 +25,6 @@ export const getPostById = (id: string | Types.ObjectId) =>
     .populate("userId", "name email avatar");
 export const getPostByIdForEdit = (id: string | Types.ObjectId) =>
   Post.findById(id);
-
 
 export const getAllPosts = (filter = {}) =>
   Post.find(filter)
@@ -166,11 +165,8 @@ export const getPostsByUserId = (userId: string | Types.ObjectId) =>
     .populate("comments")
     .populate("userId", "name email avatar");
 
-
-export const updatePostById = (
-  id: string | Types.ObjectId,
-  data: any
-) => Post.findByIdAndUpdate(id, data, { new: true });
+export const updatePostById = (id: string | Types.ObjectId, data: any) =>
+  Post.findByIdAndUpdate(id, data, { new: true });
 
 export const deletePost = (id: string | Types.ObjectId) =>
   Post.findByIdAndDelete(id);
@@ -396,7 +392,7 @@ export const getRecentPosts = async (limit: number) => {
     .limit(limit)
     .populate("userId", "name avatar")
     .lean();
-  
+
   const formatAuthor = (author: any) => {
     if (!author) return null;
     // If it's just an ID (not populated)

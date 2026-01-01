@@ -8,14 +8,13 @@ import {
 } from "./features";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import { corsOptions } from "./config/cors";
 import { asyncHandler } from "./shared/utils";
 import { isAuthenticated } from "./middlewares";
 import { commentsRoutes } from "./features/comments";
 
-dotenv.config();
+// Note: dotenv.config() is called in config/env.ts - no need to call again
 
 const app = express();
 
