@@ -1,15 +1,33 @@
 import mongoose from "mongoose";
 import { env } from "../../config/env";
 
-export const connect = async () => {
-  try {
-    const connection = await mongoose.connect(env.MONGO_URI);
+let isConnected = false;
 
+export const connect = async () => {
+  // If already connected, return immediately
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return;
+  }
+
+  try {
+    // Mongoose maintains its own connection pool and reuses connections
+    const connection = await mongoose.connect(env.MONGO_URI, {
+      bufferCommands: false, // Disable buffering for serverless
+    });
+
+    isConnected = true;
     const host = connection.connection.host;
     console.log(`Connected to MongoDB at host: ${host}`);
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
-    process.exit(1);
+    isConnected = false;
+
+    // Don't exit in serverless environments, throw error instead
+    if (process.env.VERCEL || process.env.LAMBDA_TASK_ROOT) {
+      throw error;
+    } else {
+      process.exit(1);
+    }
   }
 };
 

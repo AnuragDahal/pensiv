@@ -6,7 +6,6 @@ import {
   fetchAllPosts,
   getHomePosts,
 } from "./features";
-import { gracefulShutdown } from "./shared/database/gracefulShutdown";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -16,51 +15,50 @@ import { asyncHandler } from "./shared/utils";
 import { isAuthenticated } from "./middlewares";
 import { commentsRoutes } from "./features/comments";
 
-// Types are loaded automatically by TypeScript - no need to import
-
 dotenv.config();
 
 const app = express();
 
+// Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// Ensure DB connection before mounting routes
-connect()
-  .then(() => {
-    // public route to fetch all posts
-    // This route should be accessible without authentication
-    app.get("/api/posts", fetchAllPosts);
-    app.get("/api/posts/home", getHomePosts);
-
-    // Mount routes only after DB connection
-    app.use("/api/auth", authRoutes);
-    app.use("/api/posts", isAuthenticated, postsRoutes);
-    app.use("/api/comments", isAuthenticated, commentsRoutes);
-    app.get(
-      "/",
-      asyncHandler(async (_req: Request, res: Response): Promise<void> => {
-        res.send("Hello, World!");
-      })
-    );
-  })
-  .catch((error: Error) => {
-    console.error("Failed to connect to MongoDB:", error);
-  });
-
-// Graceful shutdown for serverless (Vercel, etc.)
-if (process.env.VERCEL || process.env.SERVERLESS) {
-  ["SIGINT", "SIGTERM", "SIGUSR2"].forEach((signal) => {
-    process.on(signal, async () => {
-      await gracefulShutdown(signal);
-      process.exit(0);
+// Database connection middleware - ensures connection before each request
+app.use(async (req: Request, res: Response, next) => {
+  try {
+    await connect();
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed"
     });
+  }
+});
+
+// Routes - must be defined synchronously for Vercel
+app.get("/", asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  res.send("Hello, World!");
+}));
+
+// Public routes
+app.get("/api/posts", fetchAllPosts);
+app.get("/api/posts/home", getHomePosts);
+
+// Protected routes
+app.use("/api/auth", authRoutes);
+app.use("/api/posts", isAuthenticated, postsRoutes);
+app.use("/api/comments", isAuthenticated, commentsRoutes);
+
+// Only start server if not in serverless environment (for local development)
+if (!process.env.VERCEL && !process.env.LAMBDA_TASK_ROOT) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
 }
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server is running on port ${process.env.PORT || 3000}`);
-});
 
 export default app;
