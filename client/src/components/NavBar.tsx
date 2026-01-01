@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -97,7 +97,7 @@ const Navbar: React.FC = () => {
               </div>
             </form>
 
-            {!isLoggedIn && (
+            {!isLoggedIn && !isLoading && (
               <>
                 <Link href="/login">
                   <Button variant="outline" className="rounded-full">
@@ -171,7 +171,7 @@ const Navbar: React.FC = () => {
               About
             </Link>
 
-            {!isLoggedIn && (
+            {!isLoggedIn && !isLoading && (
               <>
                 <Link
                   href="/signup"
