@@ -1,7 +1,27 @@
 {
-  "name": "client",
-  "version": "0.1.0",
+  "name": "pensiv-client",
+  "version": "1.0.0",
+  "description": "Frontend client for Pensiv - A modern, full-stack blogging platform",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnuragDahal/pensiv.git"
+  },
+  "keywords": [
+    "blog",
+    "cms",
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwindcss",
+    "blogging-platform"
+  ],
+  "author": "Anurag Dahal",
+  "license": "MIT",
+  "homepage": "https://github.com/AnuragDahal/pensiv#readme",
+  "bugs": {
+    "url": "https://github.com/AnuragDahal/pensiv/issues"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
