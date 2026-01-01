@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
             <Link href="/" className="text-2xl font-serif font-bold text-navy">
-              Pensieve
+              Pensiv
             </Link>
             <p className="mt-4 text-muted-foreground max-w-md">
               A modern publishing platform where readers find dynamic thinking,
@@ -104,7 +104,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Pensieve. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Pensiv. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link
               href="/privacy"

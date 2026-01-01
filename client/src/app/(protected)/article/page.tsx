@@ -50,7 +50,7 @@ const Articles = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
 
-  const { isAuthenticated, isAuthInitialized, user } = useAuthStore();
+  const { isAuthenticated, isAuthInitialized } = useAuthStore();
   const searchQuery = searchParams.get("q") || "";
 
   const currentCategory = searchParams.get("category") || "all";
@@ -96,10 +96,18 @@ const Articles = () => {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const categories = ["all", "technology", "lifestyle", "business", "coding", "design", "health"];
+  const categories = [
+    "all",
+    "technology",
+    "lifestyle",
+    "business",
+    "coding",
+    "design",
+    "health",
+  ];
 
   return (
-    <div className="min-h-screen bg-background px-6 py-6 sm:px-8 md:px-10 lg:px-12 xl:px-16">
+    <div className="min-h-screen bg-background px-6 py-8 sm:px-8 md:px-10 lg:px-12 xl:px-16 mt-12">
       <div className="max-w-[1600px] mx-auto space-y-12">
         <section className="space-y-8">
           <div>
@@ -107,7 +115,8 @@ const Articles = () => {
               Exploration
             </h2>
             <p className="text-muted-foreground text-lg max-w-md">
-              Discover stories, thinking, and expertise from writers on any topic.
+              Discover stories, thinking, and expertise from writers on any
+              topic.
             </p>
           </div>
 
@@ -115,7 +124,9 @@ const Articles = () => {
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => updateQueryParams({ category: cat === "all" ? null : cat })}
+                onClick={() =>
+                  updateQueryParams({ category: cat === "all" ? null : cat })
+                }
                 className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                   currentCategory === cat
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
@@ -132,7 +143,13 @@ const Articles = () => {
               <ArticleListSkeleton count={5} />
             ) : articles.length === 0 ? (
               <div className="py-20">
-                <NotFoundPage content={searchQuery ? `No matches found for "${searchQuery}"` : "No articles found"} />
+                <NotFoundPage
+                  content={
+                    searchQuery
+                      ? `No matches found for "${searchQuery}"`
+                      : "No articles found"
+                  }
+                />
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
@@ -164,21 +181,31 @@ const Articles = () => {
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious 
+                    <PaginationPrevious
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        if (pagination.hasPrevPage) updateQueryParams({ page: (currentPage - 1).toString() });
+                        if (pagination.hasPrevPage)
+                          updateQueryParams({
+                            page: (currentPage - 1).toString(),
+                          });
                       }}
-                      className={!pagination.hasPrevPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      className={
+                        !pagination.hasPrevPage
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
                     />
                   </PaginationItem>
-                  
-                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => {
+
+                  {Array.from(
+                    { length: pagination.totalPages },
+                    (_, i) => i + 1
+                  ).map((page) => {
                     // Simple pagination: show all or logic for ellipsis if many
                     if (
-                      page === 1 || 
-                      page === pagination.totalPages || 
+                      page === 1 ||
+                      page === pagination.totalPages ||
                       (page >= currentPage - 1 && page <= currentPage + 1)
                     ) {
                       return (
@@ -196,7 +223,10 @@ const Articles = () => {
                           </PaginationLink>
                         </PaginationItem>
                       );
-                    } else if (page === currentPage - 2 || page === currentPage + 2) {
+                    } else if (
+                      page === currentPage - 2 ||
+                      page === currentPage + 2
+                    ) {
                       return (
                         <PaginationItem key={page}>
                           <PaginationEllipsis />
@@ -211,9 +241,16 @@ const Articles = () => {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        if (pagination.hasNextPage) updateQueryParams({ page: (currentPage + 1).toString() });
+                        if (pagination.hasNextPage)
+                          updateQueryParams({
+                            page: (currentPage + 1).toString(),
+                          });
                       }}
-                      className={!pagination.hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      className={
+                        !pagination.hasNextPage
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
                     />
                   </PaginationItem>
                 </PaginationContent>

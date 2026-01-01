@@ -30,7 +30,7 @@ const Hero: React.FC = () => {
             className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-slow"
             style={{ animationDelay: "100ms" }}
           >
-            Pensieve is a modern publishing platform where readers find dynamic
+            Pensiv is a modern publishing platform where readers find dynamic
             thinking, and where expert and undiscovered voices can share their
             writing.
           </p>
@@ -61,7 +61,6 @@ const Hero: React.FC = () => {
                   variant="outline"
                   className="rounded-full text-base px-6 py-6 group"
                   size="lg"
-                  
                 >
                   Start Writing
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

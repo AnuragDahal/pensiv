@@ -1,11 +1,11 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/NavBar";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 
 export const metadata = {
   title: "About",
-  description: "Learn more about Pensieve, your personal writing space.",
-  keywords: ["about", "pensieve", "writing", "blog", "cms"],
+  description: "Learn more about Pensiv, your personal writing space.",
+  keywords: ["about", "Pensiv", "writing", "blog", "cms"],
   authors: [{ name: "Anurag Dahal" }],
   creator: "Anurag Dahal",
   publisher: "Anurag Dahal",

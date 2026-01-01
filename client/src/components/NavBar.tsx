@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { Menu, Search, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -43,11 +44,8 @@ const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-2xl font-serif font-bold text-navy transition-all duration-300 hover:opacity-80"
-          >
-            Pensieve
+          <Link href="/">
+            <Image src="/logo.png" alt="Pensiv" width={50} height={50} className="rounded-sm" />
           </Link>
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">

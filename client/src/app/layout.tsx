@@ -5,7 +5,6 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { GlobalUserPanel } from "@/components/global-user-panel";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -18,11 +17,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Pensieve",
-    template: "%s | Pensieve",
+    default: "Pensiv",
+    template: "%s | Pensiv",
   },
   description:
-    "Experience the joy of writing with Pensieve. A personal space for your thoughts, ideas, and stories.",
+    "Experience the joy of writing with Pensiv. A personal space for your thoughts, ideas, and stories.",
   keywords: [
     "writing",
     "blogging",
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
     "thoughts",
     "ideas",
     "stories",
-    "pensieve",
+    "Pensiv",
   ],
   authors: [{ name: "Anurag Dahal" }],
   creator: "Anurag Dahal",
@@ -52,10 +51,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://pensiv.vercel.app",
-    siteName: "Pensieve",
-    title: "Pensieve - Your's Writing Space",
+    siteName: "Pensiv",
+    title: "Pensiv - Your's Writing Space",
     description:
-      "Experience the joy of writing with Pensieve. A personal space for your thoughts, ideas, and stories.",
+      "Experience the joy of writing with Pensiv. A personal space for your thoughts, ideas, and stories.",
     images: [
       {
         url: "/opengraph-image.jpg",

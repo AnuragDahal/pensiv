@@ -8,7 +8,9 @@ import SignupForm from "./_components/signup-form";
 function SignupContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  const loginUrl = callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login";
+  const loginUrl = callbackUrl
+    ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/login";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -29,7 +31,7 @@ function SignupContent() {
               Back to home
             </Link>
             <h1 className="text-3xl md:text-4xl font-serif font-semibold mb-2">
-              Join Pensieve
+              Join Pensiv
             </h1>
             <p className="text-muted-foreground">
               Create an account to start writing and sharing
@@ -48,7 +50,7 @@ function SignupContent() {
       </div>
     </div>
   );
-};
+}
 
 const Signup: React.FC = () => {
   return (
