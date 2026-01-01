@@ -11,24 +11,27 @@ importers:
 
   .:
     dependencies:
-      '@types/bcryptjs':
-        specifier: ^2.4.6
-        version: 2.4.6
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.2
+      cookie-parser:
+        specifier: ^1.4.7
+        version: 1.4.7
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
       marked:
         specifier: ^17.0.1
         version: 17.0.1
-      module-alias:
-        specifier: ^2.2.3
-        version: 2.2.3
       mongoose:
         specifier: ^8.9.5
         version: 8.9.5
@@ -51,6 +54,9 @@ importers:
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
       '@types/cookie-parser':
         specifier: ^1.4.8
         version: 1.4.8(@types/express@5.0.0)
@@ -78,18 +84,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.35.0
         version: 8.35.0(eslint@9.29.0)(typescript@5.7.3)
-      cookie-parser:
-        specifier: ^1.4.7
-        version: 1.4.7
-      cors:
-        specifier: ^2.8.5
-        version: 2.8.5
       eslint:
         specifier: ^9.29.0
         version: 9.29.0
-      express:
-        specifier: ^4.21.2
-        version: 4.21.2
       globals:
         specifier: ^16.2.0
         version: 16.2.0
@@ -906,9 +903,6 @@ packages:
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
-
-  module-alias@2.2.3:
-    resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
 
   mongodb-connection-string-url@3.0.2:
     resolution: {integrity: sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==}
@@ -2136,8 +2130,6 @@ snapshots:
       brace-expansion: 2.0.2
 
   minimist@1.2.8: {}
-
-  module-alias@2.2.3: {}
 
   mongodb-connection-string-url@3.0.2:
     dependencies:

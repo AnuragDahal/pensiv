@@ -1,4 +1,3 @@
-import "module-alias/register";
 import { connect } from "./shared/database";
 import {
   authRoutes,
