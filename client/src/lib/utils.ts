@@ -12,4 +12,8 @@ export function getInitials(name: string) {
     .join("");
 }
 
+// Re-export utilities for convenience
+export { calculateReadingTime, formatReadingTime } from "./utils/reading-time";
+export { isValidUrl, validateSocialUrl } from "./utils/validators";
+
 

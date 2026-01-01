@@ -43,11 +43,17 @@ export interface Article {
   content: string;
   coverImage: string;
   author: {
+    id?: string;
     name: string;
     avatar: string;
   };
   category: string;
+  tags: string[];
+  views: number;
+  likesCount: number;
+  status: "draft" | "published";
   createdAt: string;
+  updatedAt?: string;
   isFeatured?: boolean;
   estimatedReadTime: number;
 }
@@ -64,6 +70,10 @@ export interface Recommended {
   content: string;
   isFeatured: boolean;
   createdAt: string;
+  views: number;
+  likesCount: number;
+  status: "draft" | "published";
+  updatedAt?: string;
   author: {
     id: string;
     name: string;
