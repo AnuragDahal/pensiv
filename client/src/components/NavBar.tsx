@@ -69,7 +69,7 @@ const Navbar: React.FC = () => {
               About
             </Link>
           </nav>{" "}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4">
             <form onSubmit={handleSearch} className="relative group">
               <div
                 className={`relative transition-all duration-300 ${

@@ -1,9 +1,14 @@
+"use client";
+
 import type React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Star } from "lucide-react";
 import Image from "next/image";
 import Profile from "@/components/profile";
+import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuthStore } from "@/store/auth-store";
 
 interface ArticleCardProps {
   title: string;
@@ -31,8 +36,36 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   estimatedReadTime,
   featured = false,
 }) => {
+  const queryClient = useQueryClient();
+  const { getTokens } = useAuthStore();
+  const { accessToken } = getTokens();
+
+  const handlePrefetch = () => {
+    queryClient.prefetchQuery({
+      queryKey: ["article", slug],
+      queryFn: async () => {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/posts/slug/${slug}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        // Return the same structure as useArticle expects
+        return res.data.data;
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+  };
+
   return (
-    <Link href={`/article/${slug}`} className="group block h-full">
+    <Link
+      href={`/article/${slug}`}
+      className="group block h-full"
+      onMouseEnter={handlePrefetch}
+      prefetch={true}
+    >
       <article
         className={`overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-lg h-full flex flex-col ${
           featured

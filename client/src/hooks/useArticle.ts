@@ -3,8 +3,8 @@
 import { useAuthStore } from "@/store/auth-store";
 import { ArticleResponse } from "@/types/article";
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 /** Hook return shape */
 export interface UseArticleResult {
@@ -22,16 +22,19 @@ export interface UseArticleResult {
  * The hook automatically maps the backend response to the TS types above.
  */
 export const useArticle = (slug: string): UseArticleResult => {
-  const [data, setData] = useState<ArticleResponse>();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>();
   const { getTokens } = useAuthStore();
   const { accessToken } = getTokens();
+  const queryClient = useQueryClient();
 
-  const fetch = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
-    setError(undefined);
-    try {
+  // Use React Query to fetch article data (will use prefetched data if available)
+  const {
+    data: articleData,
+    isLoading: loading,
+    error: queryError,
+    refetch: refetchQuery,
+  } = useQuery({
+    queryKey: ["article", slug],
+    queryFn: async () => {
       const resp = await axios.get<{ data: ArticleResponse }>(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts/slug/${slug}`,
         {
@@ -40,26 +43,24 @@ export const useArticle = (slug: string): UseArticleResult => {
           },
         }
       );
-      setData(resp.data.data);
-    } catch (e: any) {
-      setError(
-        e?.response?.data?.message ?? e.message ?? "Failed to load article"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [slug, accessToken]);
+      return resp.data.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!slug,
+  });
+
+  const data = articleData;
 
   const togglePostLikes = async (id: string) => {
-    // Optimistic update
+    // Optimistic update using React Query
     const previousData = data;
     if (!previousData) return;
 
     const isLiked = previousData.likes.isLikedByUser;
     const newCount = isLiked ? previousData.likes.count - 1 : previousData.likes.count + 1;
 
-    // Apply optimistic state
-    setData({
+    // Apply optimistic update to cache
+    queryClient.setQueryData(["article", slug], {
       ...previousData,
       likes: {
         count: newCount,
@@ -80,7 +81,7 @@ export const useArticle = (slug: string): UseArticleResult => {
     } catch (err) {
       console.log(err);
       // Revert on error
-      setData(previousData);
+      queryClient.setQueryData(["article", slug], previousData);
       toast.error("Failed to toggle like");
     }
   };
@@ -90,7 +91,7 @@ export const useArticle = (slug: string): UseArticleResult => {
     if (!previousData) return;
 
     // Helper to update a comment in the array
-    const updateComment = (comments: any[]) => 
+    const updateComment = (comments: any[]) =>
       comments.map(c => {
         if (c.id === commentId) {
           const isLiked = c.likes.isLikedByUser;
@@ -124,8 +125,8 @@ export const useArticle = (slug: string): UseArticleResult => {
         return c;
       });
 
-    // Apply optimistic state
-    setData({
+    // Apply optimistic update to cache
+    queryClient.setQueryData(["article", slug], {
       ...previousData,
       comments: updateComment(previousData.comments)
     });
@@ -140,27 +141,22 @@ export const useArticle = (slug: string): UseArticleResult => {
           },
         }
       );
-      // We don't necessarily need to set data again from response 
-      // unless the backend returns the new count which might be different due to other users.
-      // But for speed, optimistic + background refetch is best.
     } catch (err) {
       console.log(err);
       // Revert on error
-      setData(previousData);
+      queryClient.setQueryData(["article", slug], previousData);
       toast.error("Failed to toggle comment like");
     }
   };
-
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
 
   return {
     data,
     loading,
     togglePostLikes,
     toggleCommentLike,
-    error,
-    refetch: () => fetch(true),
+    error: queryError ? "Failed to load article" : undefined,
+    refetch: () => {
+      refetchQuery();
+    },
   };
 };

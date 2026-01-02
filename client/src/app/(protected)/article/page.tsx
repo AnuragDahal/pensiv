@@ -2,7 +2,6 @@
 import NotFoundPage from "@/components/NotFoundPage";
 import { useAuthStore } from "@/store/auth-store";
 import axios from "axios";
-import { useEffect, useState, useCallback } from "react";
 import ArticleCard from "./_components/ArticleCard";
 import { ArticleListSkeleton } from "@/components/article/ArticleListSkeleton";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -15,6 +14,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useQuery } from "@tanstack/react-query";
 
 interface Author {
   name: string;
@@ -46,39 +46,46 @@ const Articles = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [pagination, setPagination] = useState<PaginationData | null>(null);
-
   const { isAuthenticated, isAuthInitialized } = useAuthStore();
   const searchQuery = searchParams.get("q") || "";
 
   const currentCategory = searchParams.get("category") || "all";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  const fetchArticles = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams(searchParams.toString());
+  // Fetch articles with React Query for automatic caching
+  const {
+    data: articlesData,
+    isLoading: queryLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["articles", currentCategory, currentPage, searchQuery],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (currentCategory && currentCategory !== "all") {
+        params.set("category", currentCategory);
+      }
+      params.set("page", currentPage.toString());
+
+      // Send search query to backend for full database search
+      if (searchQuery) {
+        params.set("q", searchQuery);
+      }
 
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/api/posts?${params.toString()}`
       );
-      const { posts, pagination: meta } = res.data.data;
-      setArticles(posts);
-      setPagination(meta);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchParams]);
+      return res.data.data;
+    },
+    enabled: isAuthInitialized && isAuthenticated,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
 
-  useEffect(() => {
-    if (isAuthInitialized && isAuthenticated) {
-      fetchArticles();
-    }
-  }, [isAuthInitialized, isAuthenticated, fetchArticles]);
+  // Show loading while auth is initializing or query is loading
+  const loading = !isAuthInitialized || queryLoading;
+
+  // Get articles directly from backend (backend handles search)
+  const articles: Article[] = articlesData?.posts || [];
+  const pagination = articlesData?.pagination || null;
 
   const updateQueryParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
