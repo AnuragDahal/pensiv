@@ -1,26 +1,31 @@
-// src/app/article/[id]/page.tsx
 "use client";
 import ArticleRenderer from "@/components/article/ArticleRenderer";
 import ArticleSkeleton from "@/components/article/ArticleSkeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useArticle } from "@/hooks/useArticle";
 import { useComment } from "@/hooks/useComment";
-import { getInitials } from "@/lib/utils";
 import { ArticleResponse } from "@/types/article";
-import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import AddComment from "../_components/AddComment";
 import { CommentList } from "../_components/CommentList";
 import { LikeButton } from "../_components/like-button";
-import RecommendedArticles from "../_components/RecommendedArticles";
 import { ShareButton } from "../_components/share-button";
 import Profile from "@/components/profile";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Edit2 } from "lucide-react";
+import RecommendedArticles from "@/app/(protected)/article/_components/RecommendedArticles";
+import Image from "next/image";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { data, loading, refetch, togglePostLikes, toggleCommentLike } = useArticle(slug!);
+  const router = useRouter();
+  const { user } = useAuth();
+  const { data, loading, refetch, togglePostLikes, toggleCommentLike } =
+    useArticle(slug!);
   const { addComment } = useComment(refetch);
   const article = data as ArticleResponse;
+
+  const isAuthor = user?._id === article?.post.author.id;
 
   const isInitialLoading = loading && !data; // first load only
   if (isInitialLoading) return <ArticleSkeleton />;
@@ -82,6 +87,19 @@ export default function ArticlePage() {
                 title={article.post.title}
                 text={article.post.title}
               />
+              {isAuthor && (
+                <Button
+                  onClick={() =>
+                    router.push(`/article/edit/${article.post.id}`)
+                  }
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1.5 rounded-full"
+                >
+                  <Edit2 size={16} />
+                  <span className="text-sm font-medium">Edit</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>

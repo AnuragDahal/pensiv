@@ -15,7 +15,7 @@ type SocialLinks = {
 };
 
 type User = {
-  id: string;
+  _id: string;
   email: string;
   name?: string;
   avatar?: string;
