@@ -1,6 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import ArticleClientPage from "./article-client-page";
 import { ArticleResponse } from "@/types/article";
+import { headers } from "next/headers";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -10,10 +11,16 @@ interface Props {
 // Function to fetch article data
 async function getArticleData(slug: string): Promise<ArticleResponse | null> {
   try {
+    const headersList = await headers();
+    const cookieHeader = headersList.get("cookie");
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/posts/slug/${slug}`,
       {
-        next: { revalidate: 60 }, // Cache for 60 seconds
+        headers: {
+          Cookie: cookieHeader || "",
+        },
+        next: { revalidate: 0 }, // Don't cache for dynamic auth checks
       }
     );
 
@@ -46,7 +53,11 @@ export async function generateMetadata(
 
   const { post } = data;
   const description = post.content
-    ? post.content.substring(0, 150).replace(/[#*`]/g, "").trim() + "..."
+    ? post.content
+        .replace(/<[^>]*>?/gm, "") // Strip HTML tags
+        .replace(/[#*`]/g, "") // Strip markdown chars if any remain
+        .substring(0, 150)
+        .trim() + "..."
     : "Read this article on Pensiv";
 
   return {

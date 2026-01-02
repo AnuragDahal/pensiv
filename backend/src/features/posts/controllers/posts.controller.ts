@@ -276,11 +276,23 @@ export const getPostForEdit = asyncHandler(
 
 export const getUserPostBySlug = asyncHandler(async (req: Request, res: Response) => {
   const slug = req.params.slug;
+  // Try to get user ID if authenticated, but don't fail if not
   const userId = req.user?._id?.toString();
 
   const post = await getPostBySlug(slug);
   if (!post) {
     throw new APIError(API_RESPONSES.RESOURCE_NOT_FOUND, 404);
+  }
+
+  // PRIVACY CHECK:
+  // If the post is NOT published, only the author can see it.
+  if (post.status !== "published") {
+    if (!userId || post.userId.toString() !== userId) {
+      throw new APIError(
+        "This article is private or a draft.",
+        HTTP_STATUS_CODES.FORBIDDEN
+      );
+    }
   }
 
   const responseData = await buildFullPostResponse(post._id.toString(), userId);

@@ -94,6 +94,16 @@ export default function ArticleClientPage({ slug }: ArticleClientPageProps) {
                 <ShareButton
                   title={article.post.title || ""}
                   text={article.post.title || ""}
+                  image={article.post.coverImage || "/apple-touch-icon.png"}
+                  description={
+                    article.post.content
+                      ? article.post.content
+                          .replace(/<[^>]*>?/gm, "")
+                          .replace(/[#*`]/g, "")
+                          .substring(0, 100)
+                          .trim() + "..."
+                      : "Read this article on Pensiv"
+                  }
                 />
               </div>
 

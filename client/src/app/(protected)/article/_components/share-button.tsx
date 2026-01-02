@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -19,17 +18,27 @@ import {
   FaReddit,
   FaWhatsapp,
 } from "react-icons/fa";
+import Image from "next/image";
+
+interface ShareButtonProps {
+  title: string;
+  text?: string;
+  description?: string; // Optional: Short description for the preview
+  url?: string; // Optional: Override auto-detected URL
+  image?: string; // Optional: Show a preview of the social card
+}
 
 export const ShareButton = ({
   title,
   text,
-}: {
-  title: string;
-  text: string;
-}) => {
+  description,
+  url,
+  image,
+}: ShareButtonProps) => {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
-  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const currentUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  const domain = typeof window !== "undefined" ? window.location.hostname : "pensiv.vercel.app";
 
   const handleCopyLink = async () => {
     try {
@@ -101,11 +110,36 @@ export const ShareButton = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Share this article</DialogTitle>
-          <DialogDescription>
-            Share this article with your friends and followers
-          </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+
+        <div className="space-y-6 pt-2">
+          {/* Social Card Preview - To show users what gets shared */}
+          {image && (
+            <div className="rounded-xl border border-gray-200 overflow-hidden bg-gray-50 dark:bg-gray-900/50">
+               <div className="relative aspect-[1.91/1] w-full">
+                 <Image 
+                   src={image} 
+                   alt={title}
+                   fill
+                   className="object-cover"
+                 />
+               </div>
+               <div className="p-3">
+                 <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">
+                   {domain}
+                 </div>
+                 <h4 className="font-semibold text-gray-900 truncate pr-4">
+                   {title}
+                 </h4>
+                 {description && (
+                   <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                     {description}
+                   </p>
+                 )}
+               </div>
+            </div>
+          )}
+
           {/* Social Media Links */}
           <div className="grid grid-cols-5 gap-2">
             {shareLinks.map((platform) => (
@@ -129,7 +163,7 @@ export const ShareButton = ({
 
           {/* Copy Link */}
           <div className="space-y-2">
-            <p className="text-sm font-medium">Or copy link</p>
+            <p className="text-sm font-medium text-gray-700">Or copy link</p>
             <div className="flex items-center gap-2">
               <input
                 type="text"
