@@ -1,232 +1,86 @@
-"use client";
-import ArticleRenderer from "@/components/article/ArticleRenderer";
-import ArticleSkeleton from "@/components/article/ArticleSkeleton";
-import { useArticle } from "@/hooks/useArticle";
-import { useComment } from "@/hooks/useComment";
+import type { Metadata, ResolvingMetadata } from "next";
+import ArticleClientPage from "./article-client-page";
 import { ArticleResponse } from "@/types/article";
-import { useParams, useRouter } from "next/navigation";
-import AddComment from "../_components/AddComment";
-import { CommentList } from "../_components/CommentList";
-import { LikeButton } from "../_components/like-button";
-import { ShareButton } from "../_components/share-button";
-import Profile from "@/components/profile";
-import { useAuth } from "@/hooks/use-auth";
-import { Button } from "@/components/ui/button";
-import { Edit2 } from "lucide-react";
-import RecommendedArticles from "@/app/(protected)/article/_components/RecommendedArticles";
-import Image from "next/image";
-import { useEffect } from "react";
 
-export default function ArticlePage() {
-  const { slug } = useParams<{ slug: string }>();
-  const router = useRouter();
-  const { user } = useAuth();
-  const { data, loading, refetch, togglePostLikes, toggleCommentLike } =
-    useArticle(slug!);
-  const { addComment } = useComment(refetch);
+interface Props {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
-  const isInitialLoading = loading && !data;
-
-  // Update Open Graph meta tags when article data loads
-  useEffect(() => {
-    if (data && data.post) {
-      const article = data as ArticleResponse;
-      const siteUrl = window.location.origin;
-      const currentUrl = window.location.href;
-
-      // Update or create meta tags
-      const updateMetaTag = (property: string, content: string) => {
-        let tag = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
-        if (!tag) {
-          tag = document.createElement("meta");
-          tag.setAttribute("property", property);
-          document.head.appendChild(tag);
-        }
-        tag.content = content;
-      };
-
-      const updateMetaName = (name: string, content: string) => {
-        let tag = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
-        if (!tag) {
-          tag = document.createElement("meta");
-          tag.setAttribute("name", name);
-          document.head.appendChild(tag);
-        }
-        tag.content = content;
-      };
-
-      // Create description from content
-      const description = article.post.content
-        ? article.post.content.substring(0, 150).replace(/[#*`]/g, '').trim() + '...'
-        : "Read this article on Pensiv";
-
-      // Update document title
-      document.title = `${article.post.title || "Article"} | Pensiv`;
-
-      // Open Graph tags
-      updateMetaTag("og:title", article.post.title || "Article");
-      updateMetaTag("og:description", description);
-      updateMetaTag("og:image", article.post.coverImage || `${siteUrl}/logo.png`);
-      updateMetaTag("og:url", currentUrl);
-      updateMetaTag("og:type", "article");
-      updateMetaTag("og:site_name", "Pensiv");
-
-      // Twitter Card tags
-      updateMetaName("twitter:card", "summary_large_image");
-      updateMetaName("twitter:title", article.post.title || "Article");
-      updateMetaName("twitter:description", description);
-      updateMetaName("twitter:image", article.post.coverImage || `${siteUrl}/logo.png`);
-
-      // Article specific tags
-      if (article.post.author?.name) {
-        updateMetaTag("article:author", article.post.author.name);
+// Function to fetch article data
+async function getArticleData(slug: string): Promise<ArticleResponse | null> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/posts/slug/${slug}`,
+      {
+        next: { revalidate: 60 }, // Cache for 60 seconds
       }
-      if (article.post.createdAt) {
-        updateMetaTag("article:published_time", article.post.createdAt);
-      }
-      if (article.post.tags && article.post.tags.length > 0) {
-        article.post.tags.forEach((tag) => {
-          updateMetaTag("article:tag", tag);
-        });
-      }
+    );
+
+    if (!res.ok) {
+      return null;
     }
-  }, [data]);
 
-  if (isInitialLoading) return <ArticleSkeleton />;
+    const json = await res.json();
+    return json.data;
+  } catch (error) {
+    console.error("Failed to fetch article for metadata:", error);
+    return null;
+  }
+}
 
-  // Ensure we have the complete article data before rendering
-  if (!data || !data.post) return null;
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getArticleData(slug);
+  const previousImages = (await parent).openGraph?.images || [];
 
-  const article = data as ArticleResponse;
-  const isAuthor = user?._id === article?.post?.author?.id;
+  if (!data?.post) {
+    return {
+      title: "Article Not Found | Pensiv",
+      description: "The article you are looking for does not exist.",
+    };
+  }
 
-  return (
-    <main className="min-h-screen bg-white pb-20 mt-8">
-      {/* ----- Hero Section ----- */}
-      <div className="max-w-3xl mx-auto px-4 pt-12 pb-8">
-        <div className="space-y-6">
-          <div className="flex flex-wrap gap-2">
-            {(article.post.tags || []).map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
+  const { post } = data;
+  const description = post.content
+    ? post.content.substring(0, 150).replace(/[#*`]/g, "").trim() + "..."
+    : "Read this article on Pensiv";
 
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
-            {article.post.title || "Untitled"}
-          </h1>
+  return {
+    title: `${post.title} | Pensiv`,
+    description: description,
+    openGraph: {
+      title: post.title,
+      description: description,
+      url: `https://pensiv.vercel.app/article/${slug}`, // Ideally use env var for base URL
+      siteName: "Pensiv",
+      images: [
+        {
+          url: post.coverImage || "/logo.png",
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+        ...previousImages,
+      ],
+      type: "article",
+      authors: [post.author?.name || "Pensiv User"],
+      publishedTime: post.createdAt,
+      tags: post.tags,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: description,
+      images: [post.coverImage || "/logo.png"],
+    },
+  };
+}
 
-          <div className="py-6 border-y border-gray-100 space-y-4">
-            {/* Author Info Row */}
-            <div className="flex items-center gap-3">
-              <Profile
-                name={article.post.author?.name || "Anonymous"}
-                avatar={article.post.author?.avatar || ""}
-              />
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 truncate">
-                  {article.post.author?.name || "Anonymous"}
-                </p>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-                  <span className="truncate">
-                    {new Date(article.post.createdAt || Date.now()).toLocaleDateString(
-                      undefined,
-                      { month: "short", day: "numeric", year: "numeric" }
-                    )}
-                  </span>
-                  <span>•</span>
-                  <span className="whitespace-nowrap">
-                    {Math.ceil((article.post.content?.length || 0) / 200)} min read
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons Row */}
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <LikeButton
-                  likes={article.likes || { count: 0, isLikedByUser: false }}
-                  onToggle={togglePostLikes}
-                  id={article.post.id || ""}
-                />
-                <ShareButton
-                  title={article.post.title || ""}
-                  text={article.post.title || ""}
-                />
-              </div>
-
-              {/* Edit button on the right for authors */}
-              {isAuthor && article.post.id && (
-                <Button
-                  onClick={() =>
-                    router.push(`/article/edit/${article.post.id}`)
-                  }
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1.5 rounded-full text-xs sm:text-sm px-3 sm:px-4"
-                >
-                  <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="font-medium">Edit</span>
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ----- Thumbnail Placeholder ----- */}
-      <div className="max-w-4xl mx-auto px-4 mb-12">
-        <div className="aspect-[4/3] md:aspect-[16/9] lg:aspect-[21/9] w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center overflow-hidden relative">
-          <Image
-            src={article.post.coverImage || "/placeholder.svg"}
-            alt={article.post.title || "cover"}
-            width={1200}
-            height={675}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </div>
-
-      {/* ----- Content ----- */}
-
-      <ArticleRenderer content={article.post.content || ""} />
-
-      {/* ----- Comments Section ----- */}
-      <section className="max-w-3xl mx-auto px-4 mt-12">
-        <div className="flex items-center gap-2 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Comments</h2>
-          <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
-            {article.comments?.length || 0}
-          </span>
-        </div>
-        <AddComment onAddComment={addComment} articleId={article.post.id || ""} />
-        <div className="space-y-8 mt-8">
-          {(!article.comments || article.comments.length === 0) ? (
-            <div className="text-center py-12 bg-gray-50 rounded-2xl">
-              <p className="text-gray-500 mt-2">
-                No comments yet. Start the conversation!
-              </p>
-            </div>
-          ) : (
-            <CommentList
-              comments={article.comments}
-              onRefresh={refetch}
-              onCommentLike={toggleCommentLike}
-              postId={article.post.id || ""}
-            />
-          )}
-        </div>
-      </section>
-
-      {/* ----- Recommended Articles ----- */}
-      {article.recommended && article.recommended.length > 0 && (
-        <RecommendedArticles articles={article.recommended} />
-      )}
-    </main>
-  );
+export default async function ArticlePage({ params }: Props) {
+  const { slug } = await params;
+  return <ArticleClientPage slug={slug} />;
 }
