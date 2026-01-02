@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
 import ImageUpload from "@/components/ui/image-upload";
 import axios from "axios";
@@ -27,6 +28,8 @@ import {
   Twitter,
   Globe,
   ExternalLink,
+  UserCircle,
+  Link as LinkIcon,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -239,12 +242,11 @@ export default function SettingsPage() {
       <SettingsBreadcrumb currentPage="Profile" />
       {/* Profile Settings Content */}
       <div className="space-y-6">
-        {/* Profile Section */}
         <Card className="rounded-2xl md:rounded-3xl border-border/50 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30 pb-4 md:pb-6">
-            <CardTitle className="text-lg md:text-xl">Public Profile</CardTitle>
+            <CardTitle className="text-lg md:text-xl">Profile Settings</CardTitle>
             <CardDescription className="text-sm">
-              This information will be displayed publicly.
+              Manage your public profile and social links.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6 md:pt-8">
@@ -252,6 +254,19 @@ export default function SettingsPage() {
               onSubmit={handleUpdateProfile}
               className="space-y-6 md:space-y-8"
             >
+              <Tabs defaultValue="profile" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="profile" className="gap-2">
+                    <UserCircle size={16} />
+                    Profile Info
+                  </TabsTrigger>
+                  <TabsTrigger value="social" className="gap-2">
+                    <LinkIcon size={16} />
+                    Social Links
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="profile" className="space-y-6 md:space-y-8 mt-0">
               {/* Avatar Upload */}
               <div className="space-y-4">
                 <Label className="text-sm md:text-base">Profile Picture</Label>
@@ -343,46 +358,9 @@ export default function SettingsPage() {
                   placeholder="Share a bit about yourself..."
                 />
               </div>
+                </TabsContent>
 
-              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2 md:pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={!hasChanges() || isUpdating}
-                  className="rounded-lg sm:rounded-full px-6 h-11 font-medium"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isUpdating || !hasChanges()}
-                  className="rounded-lg sm:rounded-full px-6 md:px-8 h-11 md:h-12 font-bold shadow-lg shadow-primary/20 gap-2"
-                >
-                  {isUpdating ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save Changes"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Social Links Section */}
-        <Card className="rounded-2xl md:rounded-3xl border-border/50 shadow-sm overflow-hidden">
-          <CardHeader className="bg-muted/30 pb-4 md:pb-6">
-            <CardTitle className="text-lg md:text-xl">Social Links</CardTitle>
-            <CardDescription className="text-sm">
-              Add your social media profiles to appear on your public profile.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 md:pt-8">
-            <div className="space-y-5 md:space-y-6">
+                <TabsContent value="social" className="space-y-5 md:space-y-6 mt-0">
               {/* GitHub */}
               <div className="space-y-2">
                 <Label
@@ -504,12 +482,42 @@ export default function SettingsPage() {
                   </p>
                 )}
               </div>
-            </div>
 
-            <p className="text-xs text-muted-foreground mt-6 flex items-center gap-1.5">
-              <ExternalLink size={12} />
-              All links are optional. Leave blank to hide from your profile.
-            </p>
+              <p className="text-xs text-muted-foreground mt-6 flex items-center gap-1.5">
+                <ExternalLink size={12} />
+                All links are optional. Leave blank to hide from your profile.
+              </p>
+                </TabsContent>
+              </Tabs>
+
+              {/* Action Buttons - Outside tabs but inside form */}
+              <Separator className="bg-border/50" />
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2 md:pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={!hasChanges() || isUpdating}
+                  className="rounded-lg sm:rounded-full px-6 h-11 font-medium"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isUpdating || !hasChanges()}
+                  className="rounded-lg sm:rounded-full px-6 md:px-8 h-11 md:h-12 font-bold shadow-lg shadow-primary/20 gap-2"
+                >
+                  {isUpdating ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
       </div>

@@ -100,8 +100,10 @@ const Articles = () => {
     "all",
     "technology",
     "lifestyle",
-    "business",
-    "coding",
+    "finance",
+    "productivity",
+    "travel",
+    "food",
     "design",
     "health",
   ];

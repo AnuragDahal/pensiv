@@ -1,7 +1,10 @@
 "use client";
 import ArticleCard from "@/app/(protected)/article/_components/ArticleCard";
 import FeaturedArticle from "@/app/(protected)/article/_components/FeaturedArticle";
-import { ArticleListSkeleton, FeaturedArticleSkeleton } from "@/components/article/ArticleListSkeleton";
+import {
+  ArticleListSkeleton,
+  FeaturedArticleSkeleton,
+} from "@/components/article/ArticleListSkeleton";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/NavBar";
@@ -11,7 +14,16 @@ import { useHome } from "@/hooks/useHome";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const categories = ["Technology", "Lifestyle", "Business", "Coding", "Design", "Health"];
+const categories = [
+  "Technology",
+  "Lifestyle",
+  "Finance",
+  "Productivity",
+  "Design",
+  "Travel",
+  "Food",
+  "Health",
+];
 
 const Index = () => {
   const { loading, recentArticles, featuredArticle } = useHome();

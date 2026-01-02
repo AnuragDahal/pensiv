@@ -14,6 +14,10 @@ import {
   Star,
   Zap,
   ChevronRight,
+  Github,
+  Linkedin,
+  Twitter,
+  Globe,
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -75,6 +79,56 @@ export default function ProfilePage() {
               <p className="text-muted-foreground text-sm mt-2 line-clamp-2">
                 {user.bio || "No biography provided yet."}
               </p>
+
+              {/* Social Links */}
+              {user.socialLinks && Object.keys(user.socialLinks).length > 0 && (
+                <div className="flex items-center gap-2 mt-4">
+                  {user.socialLinks.github && (
+                    <a
+                      href={user.socialLinks.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="GitHub"
+                    >
+                      <Github size={18} />
+                    </a>
+                  )}
+                  {user.socialLinks.linkedin && (
+                    <a
+                      href={user.socialLinks.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="LinkedIn"
+                    >
+                      <Linkedin size={18} />
+                    </a>
+                  )}
+                  {user.socialLinks.twitter && (
+                    <a
+                      href={user.socialLinks.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="Twitter / X"
+                    >
+                      <Twitter size={18} />
+                    </a>
+                  )}
+                  {user.socialLinks.portfolio && (
+                    <a
+                      href={user.socialLinks.portfolio}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="Portfolio / Website"
+                    >
+                      <Globe size={18} />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Edit Button */}

@@ -49,19 +49,19 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
                 priority
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50" />
-              <div className="absolute left-6 bottom-6 right-6">
-                <Badge className="mb-3 bg-accent text-white hover:bg-accent/90">
+              <div className="absolute left-4 sm:left-6 bottom-4 sm:bottom-6 right-4 sm:right-6">
+                <Badge className="mb-2 sm:mb-3 bg-accent text-white hover:bg-accent/90 text-xs sm:text-sm">
                   {category}
                 </Badge>
-                <h2 className="text-white mb-2 drop-shadow-sm">{title}</h2>
-                <div className="flex items-center gap-3 text-white/90">
+                <h2 className="text-white mb-2 drop-shadow-sm text-lg sm:text-xl md:text-2xl line-clamp-2 font-bold">{title}</h2>
+                <div className="flex items-center gap-2 sm:gap-3 text-white/90">
                   <Profile name={author?.name} avatar={author?.avatar} />
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm">
-                    <span className="font-medium">{author?.name || "Anonymous"}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs sm:text-sm">
+                    <span className="font-medium line-clamp-1">{author?.name || "Anonymous"}</span>
                     <span className="hidden sm:inline-block">•</span>
                     <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>
+                      <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <span className="whitespace-nowrap">
                         {new Date(date).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
