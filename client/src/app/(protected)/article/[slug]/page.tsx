@@ -34,7 +34,7 @@ export default function ArticlePage() {
   const isAuthor = user?._id === article.post.author?.id;
 
   return (
-    <main className="min-h-screen bg-white pb-20">
+    <main className="min-h-screen bg-white pb-20 mt-8">
       {/* ----- Hero Section ----- */}
       <div className="max-w-3xl mx-auto px-4 pt-12 pb-8">
         <div className="space-y-6">
@@ -53,41 +53,47 @@ export default function ArticlePage() {
             {article.post.title || "Untitled"}
           </h1>
 
-          <div className="flex items-center justify-between py-6 border-y border-gray-100">
+          <div className="py-6 border-y border-gray-100 space-y-4">
+            {/* Author Info Row */}
             <div className="flex items-center gap-3">
               <Profile
                 name={article.post.author?.name || "Anonymous"}
                 avatar={article.post.author?.avatar || ""}
               />
-              <div>
-                <p className="font-semibold text-gray-900">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 truncate">
                   {article.post.author?.name || "Anonymous"}
                 </p>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <span>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+                  <span className="truncate">
                     {new Date(article.post.createdAt || Date.now()).toLocaleDateString(
                       undefined,
-                      { month: "long", day: "numeric", year: "numeric" }
+                      { month: "short", day: "numeric", year: "numeric" }
                     )}
                   </span>
                   <span>•</span>
-                  <span>
+                  <span className="whitespace-nowrap">
                     {Math.ceil((article.post.content?.length || 0) / 200)} min read
                   </span>
                 </div>
               </div>
             </div>
-            {/* Post Tool Bar */}
-            <div className="flex items-center gap-2">
-              <LikeButton
-                likes={article.likes || { count: 0, isLikedByUser: false }}
-                onToggle={togglePostLikes}
-                id={article.post.id || ""}
-              />
-              <ShareButton
-                title={article.post.title || ""}
-                text={article.post.title || ""}
-              />
+
+            {/* Action Buttons Row */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <LikeButton
+                  likes={article.likes || { count: 0, isLikedByUser: false }}
+                  onToggle={togglePostLikes}
+                  id={article.post.id || ""}
+                />
+                <ShareButton
+                  title={article.post.title || ""}
+                  text={article.post.title || ""}
+                />
+              </div>
+
+              {/* Edit button on the right for authors */}
               {isAuthor && article.post.id && (
                 <Button
                   onClick={() =>
@@ -95,10 +101,10 @@ export default function ArticlePage() {
                   }
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1.5 rounded-full"
+                  className="flex items-center gap-1.5 rounded-full text-xs sm:text-sm px-3 sm:px-4"
                 >
-                  <Edit2 size={16} />
-                  <span className="text-sm font-medium">Edit</span>
+                  <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="font-medium">Edit</span>
                 </Button>
               )}
             </div>
