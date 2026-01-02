@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Edit2 } from "lucide-react";
 import RecommendedArticles from "@/app/(protected)/article/_components/RecommendedArticles";
 import Image from "next/image";
+import { useEffect } from "react";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -25,13 +26,79 @@ export default function ArticlePage() {
   const { addComment } = useComment(refetch);
 
   const isInitialLoading = loading && !data;
+
+  // Update Open Graph meta tags when article data loads
+  useEffect(() => {
+    if (data && data.post) {
+      const article = data as ArticleResponse;
+      const siteUrl = window.location.origin;
+      const currentUrl = window.location.href;
+
+      // Update or create meta tags
+      const updateMetaTag = (property: string, content: string) => {
+        let tag = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
+        if (!tag) {
+          tag = document.createElement("meta");
+          tag.setAttribute("property", property);
+          document.head.appendChild(tag);
+        }
+        tag.content = content;
+      };
+
+      const updateMetaName = (name: string, content: string) => {
+        let tag = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
+        if (!tag) {
+          tag = document.createElement("meta");
+          tag.setAttribute("name", name);
+          document.head.appendChild(tag);
+        }
+        tag.content = content;
+      };
+
+      // Create description from content
+      const description = article.post.content
+        ? article.post.content.substring(0, 150).replace(/[#*`]/g, '').trim() + '...'
+        : "Read this article on Pensiv";
+
+      // Update document title
+      document.title = `${article.post.title || "Article"} | Pensiv`;
+
+      // Open Graph tags
+      updateMetaTag("og:title", article.post.title || "Article");
+      updateMetaTag("og:description", description);
+      updateMetaTag("og:image", article.post.coverImage || `${siteUrl}/logo.png`);
+      updateMetaTag("og:url", currentUrl);
+      updateMetaTag("og:type", "article");
+      updateMetaTag("og:site_name", "Pensiv");
+
+      // Twitter Card tags
+      updateMetaName("twitter:card", "summary_large_image");
+      updateMetaName("twitter:title", article.post.title || "Article");
+      updateMetaName("twitter:description", description);
+      updateMetaName("twitter:image", article.post.coverImage || `${siteUrl}/logo.png`);
+
+      // Article specific tags
+      if (article.post.author?.name) {
+        updateMetaTag("article:author", article.post.author.name);
+      }
+      if (article.post.createdAt) {
+        updateMetaTag("article:published_time", article.post.createdAt);
+      }
+      if (article.post.tags && article.post.tags.length > 0) {
+        article.post.tags.forEach((tag) => {
+          updateMetaTag("article:tag", tag);
+        });
+      }
+    }
+  }, [data]);
+
   if (isInitialLoading) return <ArticleSkeleton />;
 
   // Ensure we have the complete article data before rendering
   if (!data || !data.post) return null;
 
   const article = data as ArticleResponse;
-  const isAuthor = user?._id === article.post.author?.id;
+  const isAuthor = user?._id === article?.post?.author?.id;
 
   return (
     <main className="min-h-screen bg-white pb-20 mt-8">
