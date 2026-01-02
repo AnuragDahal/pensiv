@@ -78,9 +78,8 @@ We believe in the power of open source and community collaboration. Contribution
 - **RESTful API** - Well-documented, production-ready API
 - **Real-time Updates** - Instant reaction and comment updates
 - **Responsive Design** - Mobile-first, beautiful UI on all devices
-- **Dark Mode** - System-aware theme switching
 - **Code Syntax Highlighting** - Beautiful code blocks with highlight.js
-- **Search & Filtering** - Full-text search across titles, content, tags, and authors
+- **Search & Filtering** - fuzzy search across titles, content, tags, and authors
 
 ### Developer Features
 - **TypeScript** - Full type safety across the stack
@@ -155,17 +154,26 @@ Create `.env` files in both backend and client directories:
 
 **Backend (`backend/.env`):**
 ```env
+# Server Configuration
 PORT=5000
 NODE_ENV=development
-MONGO_URI=mongodb://localhost:27017/pensiv
-ACCESS_TOKEN_SECRET=your_generated_secret
-REFRESH_TOKEN_SECRET=your_generated_secret
+
+# Database
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/database-name
+
+# JWT Secrets (Generate strong random strings)
+ACCESS_TOKEN_SECRET=your_access_token_secret_here
+REFRESH_TOKEN_SECRET=your_refresh_token_secret_here
+
+# Frontend URL
 FRONTEND_URL=http://localhost:3000
 ```
 
 **Frontend (`client/.env.local`):**
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_SUPABASE_URL=your-supa-base-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 > **📖 Detailed Setup Instructions**: See [INSTALLATION.md](INSTALLATION.md) for complete environment configuration, MongoDB setup, and troubleshooting.
@@ -292,8 +300,6 @@ pnpm build        # Build TypeScript to dist/
 pnpm prod         # Run production build
 pnpm lint         # Run ESLint
 pnpm format       # Format code with Prettier
-pnpm seed         # Seed database with sample data
-pnpm seed:full    # Comprehensive database seeding
 ```
 
 ### Frontend
