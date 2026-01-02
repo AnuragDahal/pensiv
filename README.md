@@ -8,6 +8,7 @@
   *Share your thoughts, build your audience, and manage content with ease*
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+  [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/AnuragDahal/pensiv/releases)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
   [![Next.js](https://img.shields.io/badge/Next.js-16.0-black)](https://nextjs.org/)
   [![Node.js](https://img.shields.io/badge/Node.js-20+-green)](https://nodejs.org/)
@@ -16,11 +17,44 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [About](#-about)
+- [Open Source](#-open-source)
+- [Key Features](#-key-features)
+- [Tech Stack](#️-tech-stack)
+- [Prerequisites](#-prerequisites)
+- [Quick Start](#-quick-start)
+- [API Documentation](#-api-documentation)
+- [Project Structure](#-project-structure)
+- [Deployment](#-deployment)
+- [Development Scripts](#️-development-scripts)
+- [Security Features](#-security-features)
+- [Contributing](#-contributing)
+- [Documentation](#-documentation)
+- [License](#-license)
+- [Support](#-community--support)
+
+---
+
 ## 📖 About
 
 **Pensiv** is a production-ready, full-stack content management system designed for modern bloggers, writers, and content creators. Built with a focus on performance, scalability, and developer experience, Pensiv provides everything you need to create, manage, and share compelling content.
 
 The platform features a beautiful, responsive interface with a powerful rich-text editor, real-time engagement metrics, and comprehensive content management tools. Whether you're building a personal blog, a team publication, or a content-driven business, Pensiv scales to meet your needs.
+
+## 🌟 Open Source
+
+**Pensiv is free and open source software** released under the [MIT License](LICENSE). This means you can:
+
+- ✅ Use it for personal or commercial projects
+- ✅ Modify and customize it to your needs
+- ✅ Distribute and sell your modifications
+- ✅ Use it in proprietary software
+
+We believe in the power of open source and community collaboration. Contributions, bug reports, and feature requests are welcome! See our [Contributing Guidelines](#-contributing) to get started.
+
+**Star ⭐ this repository if you find it useful!**
 
 ## ✨ Key Features
 
@@ -44,9 +78,8 @@ The platform features a beautiful, responsive interface with a powerful rich-tex
 - **RESTful API** - Well-documented, production-ready API
 - **Real-time Updates** - Instant reaction and comment updates
 - **Responsive Design** - Mobile-first, beautiful UI on all devices
-- **Dark Mode** - System-aware theme switching
 - **Code Syntax Highlighting** - Beautiful code blocks with highlight.js
-- **Search & Filtering** - Full-text search across titles, content, tags, and authors
+- **Search & Filtering** - fuzzy search across titles, content, tags, and authors
 
 ### Developer Features
 - **TypeScript** - Full type safety across the stack
@@ -92,49 +125,34 @@ The platform features a beautiful, responsive interface with a powerful rich-tex
 
 ## 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
+- **Node.js** v20.x or higher
+- **pnpm** v10.x or higher (recommended)
+- **MongoDB** v8.x or higher (local or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
+- **Git** for cloning the repository
 
-- **Node.js** - v20.x or higher
-- **pnpm** - v10.x or higher (recommended) or npm
-- **MongoDB** - v8.x or higher (local or Atlas cluster)
-- **Git** - For cloning the repository
+## 🚀 Quick Start
 
-## 🚀 Getting Started
-
-### 1. Clone the Repository
+### 1. Clone and Install
 
 ```bash
-git clone https://github.com/yourusername/blog-cms.git
-cd blog-cms
-```
+# Clone the repository
+git clone https://github.com/AnuragDahal/pensiv.git
+cd pensiv
 
-### 2. Install Dependencies
-
-#### Backend
-```bash
+# Install backend dependencies
 cd backend
+pnpm install
+
+# Install frontend dependencies
+cd ../client
 pnpm install
 ```
 
-#### Frontend
-```bash
-cd client
-pnpm install
-```
+### 2. Configure Environment
 
-### 3. Environment Configuration
+Create `.env` files in both backend and client directories:
 
-#### Backend Setup
-
-Create a `.env` file in the `backend` directory:
-
-```bash
-cd backend
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-
+**Backend (`backend/.env`):**
 ```env
 # Server Configuration
 PORT=5000
@@ -143,141 +161,71 @@ NODE_ENV=development
 # Database
 MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/database-name
 
-# JWT Secrets (generate strong random strings)
+# JWT Secrets (Generate strong random strings)
 ACCESS_TOKEN_SECRET=your_access_token_secret_here
 REFRESH_TOKEN_SECRET=your_refresh_token_secret_here
 
 # Frontend URL
 FRONTEND_URL=http://localhost:3000
-
-# Email Configuration (Optional)
-GMAIL_USER=your_gmail_username
-GMAIL_PASS=your_gmail_password
-
-# ImageKit (Optional)
-IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
-IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
-IMAGEKIT_URL_ENDPOINT=your_imagekit_url_endpoint
-
-# Stripe (Optional)
-STRIPE_SECRET_KEY=your_stripe_secret_key
-
-# Unsplash API Keys (Optional)
-UNSPLASH_ACCESS_KEY=your_unsplash_access_key
-UNSPLASH_ACCESS_KEY2=your_unsplash_access_key2
-UNSPLASH_SECRET_KEY2=your_unsplash_secret_key2
 ```
 
-#### Frontend Setup
-
-Create a `.env.local` file in the `client` directory:
-
+**Frontend (`client/.env.local`):**
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_SUPABASE_URL=your-supa-base-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
-### 4. Database Setup
+> **📖 Detailed Setup Instructions**: See [INSTALLATION.md](INSTALLATION.md) for complete environment configuration, MongoDB setup, and troubleshooting.
 
-The application will automatically connect to MongoDB on startup. Optionally, seed the database with sample data:
+### 3. Run the Application
 
-```bash
-cd backend
-pnpm run seed:full
-```
-
-### 5. Run the Application
-
-#### Development Mode
-
-**Backend** (in one terminal):
+**Backend** (Terminal 1):
 ```bash
 cd backend
 pnpm dev
 ```
-Server runs on `http://localhost:5000`
 
-**Frontend** (in another terminal):
+**Frontend** (Terminal 2):
 ```bash
 cd client
 pnpm dev
 ```
-Client runs on `http://localhost:3000`
 
-#### Production Build
+Visit `http://localhost:3000` to see your application running!
 
-**Backend**:
-```bash
-cd backend
-pnpm build
-pnpm prod
-```
-
-**Frontend**:
-```bash
-cd client
-pnpm build
-pnpm start
-```
-
-### 6. Using Docker (Optional)
-
-Run the entire stack with Docker Compose:
+### Using Docker
 
 ```bash
 docker-compose up -d
 ```
 
-This will start:
-- Backend API on `http://localhost:5000`
-- Frontend on `http://localhost:3000`
-- MongoDB on `localhost:27017`
+This starts MongoDB, backend, and frontend in containers.
 
 ## 📚 API Documentation
 
-The project includes a comprehensive Postman collection for API testing:
+### Quick Start
 
-### Import into Postman
+Import the Postman collection from `backend/postman_collection.json` for complete API testing:
+
+```bash
 1. Open Postman
-2. Click **Import**
-3. Import `backend/postman_collection.json`
-4. Import environment file:
-   - `backend/postman_environment_local.json` (for local development)
-   - `backend/postman_environment_production.json` (for production)
+2. Import `backend/postman_collection.json`
+3. Import environment files from `backend/` directory
+```
 
-### API Endpoints Overview
+### Key Endpoints
 
-#### Authentication
-- `POST /api/auth/signup` - Register new user
-- `POST /api/auth/login` - Login
-- `POST /api/auth/refresh` - Refresh access token
-- `GET /api/auth/me` - Get current user
-- `PATCH /api/auth/update` - Update profile
-- `PATCH /api/auth/update-password` - Change password
-- `POST /api/auth/logout` - Logout
+- **Authentication**: `/api/auth/*` - Signup, Login, Profile management
+- **Posts**: `/api/posts/*` - CRUD operations, likes, search
+- **Comments**: `/api/comments/*` - Create, update, delete, replies, likes
 
-#### Posts
-- `GET /api/posts` - Get all published posts (public)
-- `GET /api/posts/home` - Get featured and recent posts
-- `POST /api/posts` - Create post (auth required)
-- `GET /api/posts/:id` - Get single post
-- `PUT /api/posts/:id` - Update post
-- `DELETE /api/posts/:id` - Delete post
-- `PATCH /api/posts/:id/like` - Like/unlike post
-
-#### Comments
-- `POST /api/comments` - Create comment
-- `GET /api/comments/:id` - Get comment
-- `PUT /api/comments/:id` - Update comment
-- `DELETE /api/comments/:id` - Delete comment
-- `PATCH /api/comments/:id/like` - Like/unlike comment
-- `POST /api/comments/reply/:id` - Reply to comment
-
-**Detailed Documentation**: See `backend/POSTMAN_GUIDE.md` for complete API reference
+> **📖 Complete API Reference**: See [backend/POSTMAN_GUIDE.md](backend/POSTMAN_GUIDE.md) for detailed endpoint documentation
 
 ## 📁 Project Structure
 
 ```
-blog-cms/
+pensiv/
 ├── backend/                    # Backend API server
 │   ├── src/
 │   │   ├── config/            # Configuration files
@@ -322,42 +270,26 @@ blog-cms/
 
 ## 🌐 Deployment
 
-### Vercel Deployment (Recommended)
+### Vercel (Recommended)
 
-Both frontend and backend are optimized for Vercel serverless deployment.
+Optimized for serverless deployment:
 
-#### Backend Deployment
-1. Push your code to GitHub
+1. Push code to GitHub
 2. Connect repository to Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy with automatic builds on push
+3. Configure environment variables
+4. Deploy automatically on push
 
-#### Frontend Deployment
-1. Connect frontend to Vercel
-2. Set `NEXT_PUBLIC_API_URL` environment variable
-3. Deploy
+**Configuration files**: `backend/vercel.json`, `client/next.config.js`
 
-**Configuration files included**:
-- `backend/vercel.json` - Serverless function configuration
-- `client/next.config.js` - Next.js optimization
-
-### Docker Deployment
-
-Build and deploy using Docker:
+### Docker
 
 ```bash
-# Build images
-docker-compose build
-
-# Run containers
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop containers
-docker-compose down
+docker-compose up -d      # Start all services
+docker-compose logs -f    # View logs
+docker-compose down       # Stop services
 ```
+
+> **📖 Detailed Deployment Guide**: See [INSTALLATION.md](INSTALLATION.md#docker-installation) for Docker setup and troubleshooting
 
 ## 🛠️ Development Scripts
 
@@ -368,8 +300,6 @@ pnpm build        # Build TypeScript to dist/
 pnpm prod         # Run production build
 pnpm lint         # Run ESLint
 pnpm format       # Format code with Prettier
-pnpm seed         # Seed database with sample data
-pnpm seed:full    # Comprehensive database seeding
 ```
 
 ### Frontend
@@ -405,37 +335,55 @@ pnpm format       # Format code with Prettier
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+We welcome contributions from the community! Here's how to get started:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'feat: add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
 
-### Code Quality Standards
-- Write TypeScript with strict mode
-- Follow existing code style (use ESLint/Prettier)
-- Add comments for complex logic
-- Write meaningful commit messages
+### Quick Guidelines
+
+- Use TypeScript with strict mode
+- Follow ESLint/Prettier configurations
+- Write meaningful commit messages ([Conventional Commits](https://www.conventionalcommits.org/))
 - Test your changes thoroughly
+
+> **📖 Full Contributing Guide**: See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines, code standards, and development workflow
+
+## 📖 Documentation
+
+- **[Installation Guide](INSTALLATION.md)** - Complete setup instructions, environment configuration, and troubleshooting
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute, code standards, and PR process
+- **[API Documentation](backend/POSTMAN_GUIDE.md)** - Complete API reference and Postman guide
+- **[Security Policy](SECURITY.md)** - Security best practices and vulnerability reporting
+- **[Changelog](CHANGELOG.md)** - Version history and release notes
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Pensiv is open source software** licensed under the [MIT License](LICENSE).
+
+This means you are free to use, modify, and distribute this software for any purpose, including commercial use. See the [LICENSE](LICENSE) file for the full license text.
 
 ## 🙏 Acknowledgments
 
-- [Next.js](https://nextjs.org/) - React framework
-- [TipTap](https://tiptap.dev/) - Rich text editor
-- [Radix UI](https://www.radix-ui.com/) - UI primitives
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
-- [MongoDB](https://www.mongodb.com/) - Database
-- [Vercel](https://vercel.com/) - Hosting platform
+Built with these amazing technologies:
 
-## 📞 Support
+- [Next.js](https://nextjs.org/) - React framework for production
+- [TipTap](https://tiptap.dev/) - Headless rich text editor
+- [Radix UI](https://www.radix-ui.com/) - Unstyled, accessible UI primitives
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [MongoDB](https://www.mongodb.com/) - NoSQL database
+- [Vercel](https://vercel.com/) - Deployment and hosting platform
 
-For support, please open an issue in the GitHub repository or contact the development team.
+## 💬 Community & Support
+
+- **Issues**: [Report bugs or request features](https://github.com/AnuragDahal/pensiv/issues)
+- **Discussions**: [Ask questions and share ideas](https://github.com/AnuragDahal/pensiv/discussions)
+- **Pull Requests**: [Contribute to the project](https://github.com/AnuragDahal/pensiv/pulls)
+
+For support, open an issue on GitHub or start a discussion in the community forum.
 
 ---
 
@@ -443,7 +391,7 @@ For support, please open an issue in the GitHub repository or contact the develo
 
   **Built with ❤️ using TypeScript, Next.js, and Node.js**
 
-  By [Anurag Dahal](https://github.com/yourusername)
+  Created by [Anurag Dahal](https://github.com/AnuragDahal)
 
   <img src="https://avatars.githubusercontent.com/u/182152497?s=200&v=4" alt="Codixra Labs Logo" width="30"/>
 
@@ -451,6 +399,12 @@ For support, please open an issue in the GitHub repository or contact the develo
 
   ---
 
-  [Report Bug](https://github.com/yourusername/blog-cms/issues) · [Request Feature](https://github.com/yourusername/blog-cms/issues)
+  **[⭐ Star on GitHub](https://github.com/AnuragDahal/pensiv)** · **[🐛 Report Bug](https://github.com/AnuragDahal/pensiv/issues)** · **[✨ Request Feature](https://github.com/AnuragDahal/pensiv/issues)**
+
+  ---
+
+  ### Release v1.0.0
+
+  *First stable release - January 2026*
 
 </div>

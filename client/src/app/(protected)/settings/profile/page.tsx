@@ -13,12 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect, useRef } from "react";
 import ImageUpload from "@/components/ui/image-upload";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { SettingsBreadcrumb } from "@/app/(protected)/settings/_components/SettingsBreadcrumb";
+import { AvatarCropper } from "@/components/ui/avatar-cropper";
 import {
   User,
   Loader2,
@@ -27,6 +29,9 @@ import {
   Twitter,
   Globe,
   ExternalLink,
+  UserCircle,
+  Link as LinkIcon,
+  Upload,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -38,6 +43,9 @@ export default function SettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState(""); // For blob preview
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
+  const [tempImageForCrop, setTempImageForCrop] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Social Links state
   const [githubUrl, setGithubUrl] = useState("");
@@ -146,6 +154,58 @@ export default function SettingsPage() {
     setUrlErrors({});
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    // Create temporary preview for cropper
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setTempImageForCrop(e.target?.result as string);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setAvatarFile(croppedFile);
+    // Create preview URL for display
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setAvatarPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(croppedFile);
+    setShowCropper(false);
+    setTempImageForCrop("");
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setTempImageForCrop("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(initialValues.avatar);
+    setAvatarFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -239,12 +299,11 @@ export default function SettingsPage() {
       <SettingsBreadcrumb currentPage="Profile" />
       {/* Profile Settings Content */}
       <div className="space-y-6">
-        {/* Profile Section */}
         <Card className="rounded-2xl md:rounded-3xl border-border/50 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30 pb-4 md:pb-6">
-            <CardTitle className="text-lg md:text-xl">Public Profile</CardTitle>
+            <CardTitle className="text-lg md:text-xl">Profile Settings</CardTitle>
             <CardDescription className="text-sm">
-              This information will be displayed publicly.
+              Manage your public profile and social links.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6 md:pt-8">
@@ -252,12 +311,25 @@ export default function SettingsPage() {
               onSubmit={handleUpdateProfile}
               className="space-y-6 md:space-y-8"
             >
+              <Tabs defaultValue="profile" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="profile" className="gap-2">
+                    <UserCircle size={16} />
+                    Profile Info
+                  </TabsTrigger>
+                  <TabsTrigger value="social" className="gap-2">
+                    <LinkIcon size={16} />
+                    Social Links
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="profile" className="space-y-6 md:space-y-8 mt-0">
               {/* Avatar Upload */}
               <div className="space-y-4">
                 <Label className="text-sm md:text-base">Profile Picture</Label>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                   <div className="relative group">
-                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-border/50 bg-muted">
+                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border/50 bg-muted">
                       {avatarPreview ? (
                         <img
                           src={avatarPreview}
@@ -271,31 +343,37 @@ export default function SettingsPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex-1 w-full">
-                    <ImageUpload
-                      mode="deferred"
-                      onImageSelect={(file) => {
-                        setAvatarFile(file);
-                        if (file) {
-                          // Create preview URL for display (separate from actual avatar URL)
-                          const reader = new FileReader();
-                          reader.onload = (e) => {
-                            setAvatarPreview(e.target?.result as string);
-                          };
-                          reader.readAsDataURL(file);
-                        } else {
-                          // If file is null (removed), reset to original avatar
-                          setAvatarPreview(avatar);
-                        }
-                      }}
-                      onImageUpload={() => {}} // Required but unused in deferred mode
-                      currentImage={avatarPreview}
-                      label=""
-                      className="w-full"
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Use a square image for best results.
+                  <div className="flex-1 w-full space-y-2">
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="gap-2"
+                      >
+                        <Upload size={16} />
+                        Choose Image
+                      </Button>
+                      {avatarFile && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={handleRemoveAvatar}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Upload a square image. You'll be able to crop it before saving.
                     </p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
                   </div>
                 </div>
               </div>
@@ -343,46 +421,9 @@ export default function SettingsPage() {
                   placeholder="Share a bit about yourself..."
                 />
               </div>
+                </TabsContent>
 
-              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2 md:pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={!hasChanges() || isUpdating}
-                  className="rounded-lg sm:rounded-full px-6 h-11 font-medium"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isUpdating || !hasChanges()}
-                  className="rounded-lg sm:rounded-full px-6 md:px-8 h-11 md:h-12 font-bold shadow-lg shadow-primary/20 gap-2"
-                >
-                  {isUpdating ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save Changes"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Social Links Section */}
-        <Card className="rounded-2xl md:rounded-3xl border-border/50 shadow-sm overflow-hidden">
-          <CardHeader className="bg-muted/30 pb-4 md:pb-6">
-            <CardTitle className="text-lg md:text-xl">Social Links</CardTitle>
-            <CardDescription className="text-sm">
-              Add your social media profiles to appear on your public profile.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 md:pt-8">
-            <div className="space-y-5 md:space-y-6">
+                <TabsContent value="social" className="space-y-5 md:space-y-6 mt-0">
               {/* GitHub */}
               <div className="space-y-2">
                 <Label
@@ -504,14 +545,54 @@ export default function SettingsPage() {
                   </p>
                 )}
               </div>
-            </div>
 
-            <p className="text-xs text-muted-foreground mt-6 flex items-center gap-1.5">
-              <ExternalLink size={12} />
-              All links are optional. Leave blank to hide from your profile.
-            </p>
+              <p className="text-xs text-muted-foreground mt-6 flex items-center gap-1.5">
+                <ExternalLink size={12} />
+                All links are optional. Leave blank to hide from your profile.
+              </p>
+                </TabsContent>
+              </Tabs>
+
+              {/* Action Buttons - Outside tabs but inside form */}
+              <Separator className="bg-border/50" />
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2 md:pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={!hasChanges() || isUpdating}
+                  className="rounded-lg sm:rounded-full px-6 h-11 font-medium"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isUpdating || !hasChanges()}
+                  className="rounded-lg sm:rounded-full px-6 md:px-8 h-11 md:h-12 font-bold shadow-lg shadow-primary/20 gap-2"
+                >
+                  {isUpdating ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
+
+        {/* Avatar Cropper Dialog */}
+        {showCropper && tempImageForCrop && (
+          <AvatarCropper
+            image={tempImageForCrop}
+            onCropComplete={handleCropComplete}
+            onCancel={handleCropCancel}
+            open={showCropper}
+          />
+        )}
       </div>
     </>
   );

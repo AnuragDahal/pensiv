@@ -5,13 +5,14 @@ import {
   postsRoutes,
   fetchAllPosts,
   getHomePosts,
+  getUserPostBySlug,
 } from "./features";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Request, Response } from "express";
 import { corsOptions } from "./config/cors";
 import { asyncHandler } from "./shared/utils";
-import { isAuthenticated } from "./middlewares";
+import { isAuthenticated, optionalAuth } from "./middlewares";
 import { commentsRoutes } from "./features/comments";
 
 // Note: dotenv.config() is called in config/env.ts - no need to call again
@@ -46,6 +47,7 @@ app.get("/", asyncHandler(async (_req: Request, res: Response): Promise<void> =>
 // Public routes
 app.get("/api/posts", fetchAllPosts);
 app.get("/api/posts/home", getHomePosts);
+app.get("/api/posts/slug/:slug", optionalAuth, getUserPostBySlug);
 
 // Protected routes
 app.use("/api/auth", authRoutes);

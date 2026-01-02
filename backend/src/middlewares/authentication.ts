@@ -65,3 +65,33 @@ export const isAuthenticated = (
     });
   }
 };
+
+export const optionalAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+      // No token, but that's okay. Continue as anonymous.
+      return next();
+    }
+
+    if (env.ACCESS_TOKEN_SECRET) {
+      try {
+        const decoded = jwt.verify(token, env.ACCESS_TOKEN_SECRET) as JwtPayload;
+        req.user = decoded;
+      } catch (err) {
+        // Token invalid/expired? Ignore it and proceed as anonymous
+        // or log it if necessary.
+      }
+    }
+    next();
+  } catch (error) {
+    // If anything fails unexpectedly, just continue as anonymous
+    next();
+  }
+};

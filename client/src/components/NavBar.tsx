@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const Navbar: React.FC = () => {
               About
             </Link>
           </nav>{" "}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4">
             <form onSubmit={handleSearch} className="relative group">
               <div
                 className={`relative transition-all duration-300 ${
@@ -97,7 +97,7 @@ const Navbar: React.FC = () => {
               </div>
             </form>
 
-            {!isLoggedIn && (
+            {!isLoggedIn && !isLoading && (
               <>
                 <Link href="/login">
                   <Button variant="outline" className="rounded-full">
@@ -170,7 +170,8 @@ const Navbar: React.FC = () => {
             >
               About
             </Link>
-            {!isLoggedIn && (
+
+            {!isLoggedIn && !isLoading && (
               <>
                 <Link
                   href="/signup"
@@ -184,18 +185,9 @@ const Navbar: React.FC = () => {
                   className="py-2 font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  LogIn
+                  Login
                 </Link>
               </>
-            )}
-            {isLoggedIn && (
-              <Link
-                href="/api/auth/logout"
-                className="py-2 font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Logout
-              </Link>
             )}
           </div>
         </div>

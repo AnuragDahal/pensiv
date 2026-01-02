@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { GlobalUserPanel } from "@/components/global-user-panel";
+import { QueryProvider } from "@/components/providers/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,12 +58,21 @@ export const metadata: Metadata = {
       "Experience the joy of writing with Pensiv. A personal space for your thoughts, ideas, and stories.",
     images: [
       {
-        url: "/opengraph-image.jpg",
+        url: "/logo.png",
         width: 1200,
         height: 630,
-        alt: "Feel free to write anything you want",
+        alt: "Pensiv - Your Writing Space",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pensiv - Your's Writing Space",
+    description:
+      "Experience the joy of writing with Pensiv. A personal space for your thoughts, ideas, and stories.",
+    images: ["/logo.png"],
+    creator: "@pensiv",
+    site: "@pensiv",
   },
   icons: {
     icon: "/favicon.ico",
@@ -90,16 +100,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en"
+     suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <AuthProvider>
-          <Toaster richColors />
-          {children}
-          <GlobalUserPanel />
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <Toaster richColors />
+            {children}
+            <GlobalUserPanel />
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

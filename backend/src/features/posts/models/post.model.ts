@@ -15,26 +15,18 @@ const postSchema = new mongoose.Schema<IPostModel>(
     shortDescription: { type: String },
     slug: { type: String, unique: true },
     category: { type: String },
-    coverImage: { type: String }, // newly added field
-    content: { type: String, required: true }, // markdown raw text
-    htmlContent: { type: String }, // store rendered HTML (optional but HIGHLY recommended)
+    coverImage: { type: String },
+    content: { type: String, required: true },
+    htmlContent: { type: String },
     tags: [{ type: String }],
-
-    // counts only (for speed)
     likesCount: { type: Number, default: 0 },
     dislikesCount: { type: Number, default: 0 },
-
-    // auto-featured or manually featured
     isFeatured: { type: Boolean, default: false },
-
-    // for recommendation algorithm
     views: { type: Number, default: 0 },
-
-    // draft/published status
     status: {
       type: String,
       enum: ["draft", "published"],
-      default: "published", // Existing posts default to published
+      default: "published",
     },
 
     createdAt: { type: Date, default: Date.now },
@@ -45,7 +37,7 @@ const postSchema = new mongoose.Schema<IPostModel>(
       transform: function (__doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
-        delete ret.__v; // Exclude version key
+        delete ret.__v;
       },
     },
   }
@@ -101,13 +93,18 @@ postSchema.virtual("commentsCount", {
 postSchema.index(
   {
     title: "text",
+    shortDescription: "text",
     content: "text",
     tags: "text",
+    category: "text",
   },
   {
+    // higher weights for more important fields
     weights: {
       title: 10,
-      tags: 5,
+      tags: 8,
+      category: 6,
+      shortDescription: 4,
       content: 1,
     },
     name: "ArticleSearchIndex",

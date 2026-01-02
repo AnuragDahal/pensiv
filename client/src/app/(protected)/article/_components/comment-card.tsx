@@ -35,7 +35,7 @@ export const CommentCard = ({
   const [replyText, setReplyText] = useState("");
 
   const { user } = useAuthStore();
-  const isAuthor = user?.id === comment.author.id;
+  const isAuthor = user?._id === comment.author.id;
 
   // Get initials from author name
   const getInitials = (name: string) => {

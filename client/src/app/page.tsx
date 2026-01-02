@@ -13,20 +13,28 @@ import { Input } from "@/components/ui/input";
 import { useHome } from "@/hooks/useHome";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const categories = [
   "Technology",
-  "Design",
-  "Health",
-  "Finance",
   "Lifestyle",
+  "Finance",
   "Productivity",
+  "Design",
   "Travel",
   "Food",
+  "Health",
 ];
 
 const Index = () => {
   const { loading, recentArticles, featuredArticle } = useHome();
+
+  const handleSubscribe = () => {
+    toast.success(
+      "Thank you for subscribing! The feature is not implemented yet."
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -125,7 +133,9 @@ const Index = () => {
                   type="email"
                   placeholder="Your email address"
                 />
-                <Button className="rounded-full px-6">Subscribe</Button>
+                <Button onClick={handleSubscribe} className="rounded-full px-6">
+                  Subscribe
+                </Button>
               </div>
             </div>
           </div>

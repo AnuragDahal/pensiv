@@ -1,10 +1,17 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Instagram, Twitter, Facebook, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import { toast } from "sonner";
 const Footer: React.FC = () => {
+  const handleSubscribe = () => {
+    toast.success(
+      "Thank you for subscribing! The feature is not implemented yet."
+    );
+  };
   return (
     <footer className="border-t border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -98,7 +105,9 @@ const Footer: React.FC = () => {
                 type="email"
                 placeholder="Your email"
               />
-              <Button className="rounded-full">Subscribe</Button>
+              <Button onClick={handleSubscribe} className="rounded-full">
+                Subscribe
+              </Button>
             </div>
           </div>
         </div>

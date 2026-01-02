@@ -1,8 +1,28 @@
 {
-  "name": "backend",
+  "name": "pensiv-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend API for Pensiv - A modern, full-stack blogging platform",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnuragDahal/pensiv.git"
+  },
+  "keywords": [
+    "blog",
+    "cms",
+    "content-management",
+    "nodejs",
+    "express",
+    "mongodb",
+    "typescript",
+    "api"
+  ],
+  "author": "Anurag Dahal",
+  "license": "MIT",
+  "homepage": "https://github.com/AnuragDahal/pensiv#readme",
+  "bugs": {
+    "url": "https://github.com/AnuragDahal/pensiv/issues"
+  },
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "dev": "nodemon",
@@ -14,9 +34,6 @@
     "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts",
     "seed:full": "ts-node -r tsconfig-paths/register scripts/comprehensive-seed.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.29.0",
     "@types/bcrypt": "^5.0.2",
@@ -44,6 +61,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fuse.js": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
     "marked": "^12.0.2",
     "mongoose": "^8.9.5",

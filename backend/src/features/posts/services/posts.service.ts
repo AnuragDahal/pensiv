@@ -4,6 +4,7 @@ import User from "../../auth/models/user.model";
 import { IPostModelResponse } from "../../../types/posts";
 import { Types } from "mongoose";
 import { Post } from "../models/post.model";
+import Fuse from "fuse.js";
 
 export const createPost = async (data: any) => {
   const post = await Post.create(data);
@@ -74,29 +75,6 @@ export const getFilteredArticles = async (query: {
     filters.push({ userId: Types.ObjectId.createFromHexString(userId) });
   }
 
-  // 3. Handle Universal Search (q) - search across Title, Content, Tags, Category, and Author Name
-  if (q) {
-    // Find users matching search term for author search
-    const users = await User.find({
-      $or: [
-        { name: { $regex: q, $options: "i" } },
-        { email: { $regex: q, $options: "i" } },
-      ],
-    }).select("_id");
-    const matchedAuthorIds = users.map((u) => u._id);
-
-    // Search across Title, Content, Tags, Category, and Author Name
-    filters.push({
-      $or: [
-        { title: { $regex: q, $options: "i" } },
-        { content: { $regex: q, $options: "i" } },
-        { tags: { $regex: q, $options: "i" } },
-        { category: { $regex: q, $options: "i" } },
-        { userId: { $in: matchedAuthorIds } },
-      ],
-    });
-  }
-
   // 4. Combine filters using $and if multiple conditions exist
   if (filters.length > 0) {
     mongoQuery.$and = filters;
@@ -113,7 +91,75 @@ export const getFilteredArticles = async (query: {
     sort.createdAt = -1;
   }
 
-  // 6. Execution
+  // 6. Handle fuzzy search with Fuse.js for TRUE typo tolerance
+  if (q) {
+    // Fetch more articles for fuzzy searching (fetch all that match filters, or reasonable limit)
+    const allPosts = await Post.find(mongoQuery)
+      .populate("userId", "name avatar")
+      .sort(sort)
+      .limit(1000) // Reasonable limit for fuzzy search pool
+      .lean();
+
+    // Configure Fuse.js for typo-tolerant fuzzy search
+    const fuse = new Fuse(allPosts, {
+      keys: [
+        { name: "title", weight: 10 },
+        { name: "tags", weight: 8 },
+        { name: "category", weight: 6 },
+        { name: "shortDescription", weight: 4 },
+        { name: "content", weight: 1 },
+        { name: "userId.name", weight: 5 }, // Search author name
+      ],
+      threshold: 0.4, // 0.0 = exact match, 1.0 = match anything (0.4 is good for typo tolerance)
+      includeScore: true,
+      ignoreLocation: true,
+      minMatchCharLength: 2,
+      useExtendedSearch: false,
+    });
+
+    // Perform fuzzy search
+    const fuseResults = fuse.search(q);
+    const fuzzyMatchedPosts = fuseResults.map((result) => result.item);
+
+    // Apply pagination manually on fuzzy results
+    const paginatedPosts = fuzzyMatchedPosts.slice(skip, skip + limitNum);
+    const totalPosts = fuzzyMatchedPosts.length;
+    const totalPages = Math.ceil(totalPosts / limitNum);
+
+    const formatAuthor = (author: any) => {
+      if (!author) return null;
+      if (typeof author === "string" || author instanceof Types.ObjectId) {
+        return { id: author.toString(), name: "Anonymous", avatar: "" };
+      }
+      const { _id, id, ...rest } = author;
+      return { id: (_id || id || "").toString(), ...rest };
+    };
+
+    return {
+      posts: paginatedPosts.map((post: any) => ({
+        id: post._id,
+        title: post.title,
+        slug: post.slug,
+        tags: post.tags,
+        coverImage: post.coverImage,
+        isFeatured: post.isFeatured,
+        createdAt: post.createdAt,
+        author: formatAuthor(post.userId),
+        category: post.category,
+        shortDescription: post.shortDescription,
+        content: post.content,
+      })),
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalPosts,
+        hasNextPage: pageNum < totalPages,
+        hasPrevPage: pageNum > 1,
+      },
+    };
+  }
+
+  // 7. Normal execution (no search query)
   const [posts, totalPosts] = await Promise.all([
     Post.find(mongoQuery)
       .populate("userId", "name avatar")
