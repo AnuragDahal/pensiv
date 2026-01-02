@@ -14,12 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ImageUpload from "@/components/ui/image-upload";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { SettingsBreadcrumb } from "@/app/(protected)/settings/_components/SettingsBreadcrumb";
+import { AvatarCropper } from "@/components/ui/avatar-cropper";
 import {
   User,
   Loader2,
@@ -30,6 +31,7 @@ import {
   ExternalLink,
   UserCircle,
   Link as LinkIcon,
+  Upload,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -41,6 +43,9 @@ export default function SettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState(""); // For blob preview
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
+  const [tempImageForCrop, setTempImageForCrop] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Social Links state
   const [githubUrl, setGithubUrl] = useState("");
@@ -147,6 +152,58 @@ export default function SettingsPage() {
     setTwitterUrl(initialValues.twitterUrl);
     setPortfolioUrl(initialValues.portfolioUrl);
     setUrlErrors({});
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    // Create temporary preview for cropper
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setTempImageForCrop(e.target?.result as string);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setAvatarFile(croppedFile);
+    // Create preview URL for display
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setAvatarPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(croppedFile);
+    setShowCropper(false);
+    setTempImageForCrop("");
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setTempImageForCrop("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(initialValues.avatar);
+    setAvatarFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -272,7 +329,7 @@ export default function SettingsPage() {
                 <Label className="text-sm md:text-base">Profile Picture</Label>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                   <div className="relative group">
-                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-border/50 bg-muted">
+                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border/50 bg-muted">
                       {avatarPreview ? (
                         <img
                           src={avatarPreview}
@@ -286,31 +343,37 @@ export default function SettingsPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex-1 w-full">
-                    <ImageUpload
-                      mode="deferred"
-                      onImageSelect={(file) => {
-                        setAvatarFile(file);
-                        if (file) {
-                          // Create preview URL for display (separate from actual avatar URL)
-                          const reader = new FileReader();
-                          reader.onload = (e) => {
-                            setAvatarPreview(e.target?.result as string);
-                          };
-                          reader.readAsDataURL(file);
-                        } else {
-                          // If file is null (removed), reset to original avatar
-                          setAvatarPreview(avatar);
-                        }
-                      }}
-                      onImageUpload={() => {}} // Required but unused in deferred mode
-                      currentImage={avatarPreview}
-                      label=""
-                      className="w-full"
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Use a square image for best results.
+                  <div className="flex-1 w-full space-y-2">
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="gap-2"
+                      >
+                        <Upload size={16} />
+                        Choose Image
+                      </Button>
+                      {avatarFile && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={handleRemoveAvatar}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Upload a square image. You'll be able to crop it before saving.
                     </p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
                   </div>
                 </div>
               </div>
@@ -520,6 +583,16 @@ export default function SettingsPage() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Avatar Cropper Dialog */}
+        {showCropper && tempImageForCrop && (
+          <AvatarCropper
+            image={tempImageForCrop}
+            onCropComplete={handleCropComplete}
+            onCancel={handleCropCancel}
+            open={showCropper}
+          />
+        )}
       </div>
     </>
   );
