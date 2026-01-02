@@ -107,12 +107,12 @@ export const ShareButton = ({
           <span className="text-sm font-medium">Share</span>
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Share this article</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-2 pb-4">
           {/* Social Card Preview - To show users what gets shared */}
           {image && (
             <div className="rounded-xl border border-gray-200 overflow-hidden bg-gray-50 dark:bg-gray-900/50">
@@ -141,7 +141,7 @@ export const ShareButton = ({
           )}
 
           {/* Social Media Links */}
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-2">
             {shareLinks.map((platform) => (
               <a
                 key={platform.name}
