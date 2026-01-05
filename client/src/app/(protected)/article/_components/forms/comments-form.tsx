@@ -2,13 +2,13 @@ import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import axios from "axios";
-import { toast } from "sonner";
+import apiClient from "@/lib/api/client";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { useAuthStore } from "@/store/auth-store";
+import { API_ENDPOINTS } from "@/lib/constants";
+import { toast } from "sonner";
 
 const commentSchema = z.object({
   content: z.string().min(1, "Comment content is required"),
@@ -29,8 +29,6 @@ export const CommentsForm = ({
   name,
 }: CommentsFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
 
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
@@ -48,29 +46,14 @@ export const CommentsForm = ({
   const onSubmit = async (data: z.infer<typeof commentSchema>) => {
     try {
       setIsLoading(true);
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
-        data,
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await apiClient.post(API_ENDPOINTS.COMMENTS.CREATE, data);
       form.reset({ content: "", postId });
       toast.success("Comment submitted successfully!");
       if (onCommentAdded) {
         onCommentAdded();
       }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message || "Failed to submit comment"
-        );
-      } else {
-        toast.error("Failed to submit comment");
-      }
+    } catch (error) {
+      toast.error("Failed to submit comment");
     } finally {
       setIsLoading(false);
     }

@@ -149,15 +149,9 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoadingUser: true });
 
         try {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-              withCredentials: true,
-            }
-          );
+          // Dynamic import to avoid top-level circular dependency
+          const { default: apiClient } = await import("@/lib/api/client");
+          const response = await apiClient.get("/api/auth/me");
 
           if (response.data?.data) {
             set({ user: response.data.data, isLoadingUser: false });

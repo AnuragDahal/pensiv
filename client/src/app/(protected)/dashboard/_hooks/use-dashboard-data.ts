@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { useAuth } from "@/hooks/use-auth";
 
 export interface Article {
@@ -59,7 +59,7 @@ export interface DashboardData {
 }
 
 export function useDashboardData() {
-  const { user, accessToken, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -165,7 +165,7 @@ export function useDashboardData() {
   );
 
   const fetchDashboardData = useCallback(async () => {
-    if (!isAuthenticated || !accessToken) {
+    if (!isAuthenticated) {
       setLoading(false);
       return;
     }
@@ -175,14 +175,8 @@ export function useDashboardData() {
       setError(null);
 
       // Fetch all user articles
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/me`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
+      const response = await apiClient.get(
+        `/api/posts/me`
       );
 
       const articles: Article[] = response.data.data || [];
@@ -237,7 +231,6 @@ export function useDashboardData() {
     }
   }, [
     isAuthenticated,
-    accessToken,
     calculateStats,
     calculateCategoryDistribution,
     generateMockActivity,
@@ -255,3 +248,4 @@ export function useDashboardData() {
     user,
   };
 }
+

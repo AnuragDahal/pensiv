@@ -4,9 +4,8 @@ import { useState } from "react";
 import { ArticlesTable } from "@/components/article/ArticlesTable";
 import type { Article as ArticleType } from "@/components/article/ArticlesTable";
 import type { Article } from "../_hooks/use-dashboard-data";
-import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/use-auth";
 
 interface RecentArticlesTableProps {
   articles: Article[];
@@ -17,20 +16,13 @@ export function RecentArticlesTable({
   articles,
   onArticleDeleted,
 }: RecentArticlesTableProps) {
-  const { accessToken } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async (id: string) => {
     setIsDeleting(true);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
+      await apiClient.delete(
+        `/api/posts/${id}`
       );
       toast.success("Article deleted successfully");
       if (onArticleDeleted) {

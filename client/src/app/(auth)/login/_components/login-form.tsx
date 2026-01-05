@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 import { useAuthStore } from "@/store/auth-store";
-import apiClient from "@/lib/api/client";
 import { loginSchema, type LoginFormData } from "@/lib/schemas";
 import { API_ENDPOINTS, ROUTES } from "@/lib/constants";
 
@@ -44,7 +44,7 @@ export default function LoginForm() {
   const onSubmit = async (values: LoginFormData) => {
     try {
       setIsLoading(true);
-      const res = await apiClient.post(
+      const res = await axios.post(
         API_ENDPOINTS.AUTH.LOGIN,
         {
           email: values.email,

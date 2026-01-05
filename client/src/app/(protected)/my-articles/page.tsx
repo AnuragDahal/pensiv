@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,8 +44,6 @@ interface Article {
 }
 
 export default function MyArticlesPage() {
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,18 +54,10 @@ export default function MyArticlesPage() {
   const articlesPerPage = 10;
 
   const fetchArticles = useCallback(async () => {
-    if (!accessToken) return;
-
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/me`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
+      const response = await apiClient.get(
+        `/api/posts/me`
       );
       setArticles(response.data.data || []);
       setFilteredArticles(response.data.data || []);
@@ -77,7 +67,7 @@ export default function MyArticlesPage() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, []);
 
   useEffect(() => {
     fetchArticles();
@@ -108,14 +98,8 @@ export default function MyArticlesPage() {
   const handleDeleteArticle = async (id: string) => {
     setIsDeleting(true);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
+      await apiClient.delete(
+        `/api/posts/${id}`
       );
       toast.success("Article deleted successfully");
       fetchArticles();

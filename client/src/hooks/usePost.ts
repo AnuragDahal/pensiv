@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store/auth-store";
+import apiClient from "@/lib/api/client";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -11,8 +11,6 @@ export default function usePost(
   const [likeCount, setLikeCount] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [isLoading, setIsLoading] = useState(false);
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
 
   // Sync state when props change (when article data is refetched)
   useEffect(() => {
@@ -32,15 +30,8 @@ export default function usePost(
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
 
     try {
-      const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${postId}/like`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      const response = await apiClient.patch(
+        `/api/posts/${postId}/like`
       );
 
       // Update with actual server response
@@ -68,3 +59,4 @@ export default function usePost(
 
   return { handleLike, likeCount, isLiked, isLoading };
 }
+

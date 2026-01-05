@@ -1,27 +1,19 @@
-import { useAuthStore } from "@/store/auth-store";
+import apiClient from "@/lib/api/client";
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export function useComment(onSuccess?: () => void) {
   const [isLoading, setIsLoading] = useState(false);
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
+
   const handleLike = async (commentId: string) => {
     if (isLoading) return;
 
     setIsLoading(true);
 
     try {
-      const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}/like`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      const response = await apiClient.patch(
+        `/api/comments/${commentId}/like`
       );
 
       // Update with actual server response
@@ -54,15 +46,9 @@ export function useComment(onSuccess?: () => void) {
 
     setIsLoading(true);
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/reply/${commentId}`,
-        { content },
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      await apiClient.post(
+        `/api/comments/reply/${commentId}`,
+        { content }
       );
       
       const refresh = onSuccessParam || onSuccess;
@@ -83,15 +69,9 @@ export function useComment(onSuccess?: () => void) {
   const addComment = async (content: string, postId: string) => {
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/`,
-        { content, postId },
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      const response = await apiClient.post(
+        `/api/comments/`,
+        { content, postId }
       );
 
       if (response.status === 201) {
@@ -114,15 +94,9 @@ export function useComment(onSuccess?: () => void) {
     content: string,
     postId: string
   ) => {
-    const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`,
-      { content, postId },
-      {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
+    const response = await apiClient.put(
+      `/api/comments/${commentId}`,
+      { content, postId }
     );
     if (response.status === 200) {
       await onSuccess?.();
@@ -133,14 +107,8 @@ export function useComment(onSuccess?: () => void) {
   };
 
   const deleteComment = async (commentId: string) => {
-    const response = await axios.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`,
-      {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
+    const response = await apiClient.delete(
+      `/api/comments/${commentId}`
     );
     if (response.status === 200) {
       toast.success("Comment deleted successfully!");
@@ -158,3 +126,4 @@ export function useComment(onSuccess?: () => void) {
     isLoading,
   };
 }
+

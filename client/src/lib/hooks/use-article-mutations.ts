@@ -13,7 +13,7 @@ export function useArticleMutations() {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post(API_ENDPOINTS.POSTS.LIST, data);
+      const response = await apiClient.post(API_ENDPOINTS.POSTS.CREATE, data);
 
       toast.success("Article created successfully!");
 
@@ -42,7 +42,10 @@ export function useArticleMutations() {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.put(API_ENDPOINTS.POSTS.SINGLE(id), data);
+      const response = await apiClient.put(
+        API_ENDPOINTS.POSTS.SINGLE(id),
+        data
+      );
 
       toast.success("Article updated successfully!");
 

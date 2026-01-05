@@ -115,7 +115,8 @@ export const API_ENDPOINTS = {
   },
   // Posts
   POSTS: {
-    LIST: (params?: string) => `/api/posts${params}`,
+    LIST: `/api/posts`,
+    SEARCH: (query: string) => `/api/posts/${query}`,
     HOME: "/api/posts/home",
     MY_POSTS: "/api/posts/me",
     CREATE: "/api/posts",
