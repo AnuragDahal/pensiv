@@ -101,6 +101,14 @@ export const ROUTES = {
   SETTINGS_GENERAL: "/settings/general",
 } as const;
 
+// Social Links
+export const SOCIAL_LINKS = {
+  TWITTER: "https://x.com/anurag_0620",
+  INSTAGRAM: "https://www.instagram.com/anurag.dahal.73",
+  GITHUB: "https://github.com/AnuragDahal/pensiv",
+  MAIL: "mailto:dahal.codecraft@gmail.com",
+} as const;
+
 // API Endpoints
 export const API_ENDPOINTS = {
   // Auth

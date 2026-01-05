@@ -2,10 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { Instagram, Twitter, Facebook, Mail } from "lucide-react";
+import { Instagram, Twitter, Mail, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { SOCIAL_LINKS } from "@/lib/constants";
 const Footer: React.FC = () => {
   const handleSubscribe = () => {
     toast.success(
@@ -29,29 +30,56 @@ const Footer: React.FC = () => {
                 variant="outline"
                 size="icon"
                 className="rounded-full hover:bg-lavender/10 hover:text-navy"
+                asChild
               >
-                <Twitter className="h-4 w-4" />
+                <a
+                  href={SOCIAL_LINKS.TWITTER}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter"
+                >
+                  <Twitter className="h-4 w-4" />
+                </a>
               </Button>
               <Button
                 variant="outline"
                 size="icon"
                 className="rounded-full hover:bg-lavender/10 hover:text-navy"
+                asChild
               >
-                <Instagram className="h-4 w-4" />
+                <a
+                  href={SOCIAL_LINKS.INSTAGRAM}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
               </Button>
               <Button
                 variant="outline"
                 size="icon"
                 className="rounded-full hover:bg-lavender/10 hover:text-navy"
+                asChild
               >
-                <Facebook className="h-4 w-4" />
+                <a
+                  href={SOCIAL_LINKS.GITHUB}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                >
+                  <Github className="h-4 w-4" />
+                </a>
               </Button>
               <Button
                 variant="outline"
                 size="icon"
                 className="rounded-full hover:bg-lavender/10 hover:text-navy"
+                asChild
               >
-                <Mail className="h-4 w-4" />
+                <a href={SOCIAL_LINKS.MAIL} aria-label="Mail">
+                  <Mail className="h-4 w-4" />
+                </a>
               </Button>
             </div>
           </div>
@@ -69,7 +97,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
-                  href="/articles"
+                  href="/article"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Articles
