@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
 import Image from "next/image";
+import { formatReadingTime } from "@/lib/utils";
 
 interface ArticleHeaderProps {
   title: string;
@@ -46,7 +47,7 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
               </span>
               <span className="hidden sm:flex items-center">
                 <Clock className="h-3 w-3 mr-1" />
-                {estimatedReadTime} min read
+                {formatReadingTime(estimatedReadTime)}
               </span>
             </div>
           </div>

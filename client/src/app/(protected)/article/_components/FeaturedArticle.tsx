@@ -2,6 +2,7 @@ import Profile from "@/components/profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatReadingTime } from "@/lib/utils";
 import { ArrowRight, Calendar } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -67,7 +68,7 @@ const FeaturedArticle: React.FC<FeaturedArticleProps> = ({
                           day: "numeric",
                           year: "numeric",
                         })}{" "}
-                        · {estimatedReadTime} min read
+                        · {formatReadingTime(estimatedReadTime)}
                       </span>
                     </div>
                   </div>

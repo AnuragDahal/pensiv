@@ -3,12 +3,13 @@
 import type React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Star } from "lucide-react";
 import Image from "next/image";
 import Profile from "@/components/profile";
 import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { useAuthStore } from "@/store/auth-store";
+import { formatReadingTime } from "@/lib/utils";
+import { Star } from "lucide-react";
+import apiClient from "@/lib/api/client";
+import { API_ENDPOINTS } from "@/lib/constants";
 
 interface ArticleCardProps {
   title: string;
@@ -20,9 +21,8 @@ interface ArticleCardProps {
     avatar: string;
   };
   category: string;
-  date: string;
-  estimatedReadTime: number;
   featured?: boolean;
+  estimatedReadTime: number;
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({
@@ -32,26 +32,15 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   coverImage,
   author,
   category,
-  date,
+  featured,
   estimatedReadTime,
-  featured = false,
 }) => {
   const queryClient = useQueryClient();
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
-
   const handlePrefetch = () => {
     queryClient.prefetchQuery({
       queryKey: ["article", slug],
       queryFn: async () => {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/posts/slug/${slug}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        const res = await apiClient.get(API_ENDPOINTS.POSTS.SINGLE(slug));
         // Return the same structure as useArticle expects
         return res.data.data;
       },
@@ -128,7 +117,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
                   day: "numeric",
                 })}
               </span> */}
-              {estimatedReadTime} min read
+              {formatReadingTime(estimatedReadTime)}
             </div>
           </div>
         </div>

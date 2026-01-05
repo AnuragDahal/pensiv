@@ -1,7 +1,6 @@
 "use client";
 import NotFoundPage from "@/components/NotFoundPage";
 import { useAuthStore } from "@/store/auth-store";
-import axios from "axios";
 import ArticleCard from "./_components/ArticleCard";
 import { ArticleListSkeleton } from "@/components/article/ArticleListSkeleton";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -15,6 +14,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useQuery } from "@tanstack/react-query";
+import { calculateReadingTime } from "@/lib/utils";
+import apiClient from "@/lib/api/client";
+import { API_ENDPOINTS, ARTICLE_CATEGORIES } from "@/lib/constants";
 
 interface Author {
   name: string;
@@ -33,14 +35,6 @@ interface Article {
   isFeatured?: boolean;
 }
 
-interface PaginationData {
-  currentPage: number;
-  totalPages: number;
-  totalPosts: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-}
-
 const Articles = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -53,11 +47,7 @@ const Articles = () => {
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
   // Fetch articles with React Query for automatic caching
-  const {
-    data: articlesData,
-    isLoading: queryLoading,
-    isError,
-  } = useQuery({
+  const { data: articlesData, isLoading: queryLoading } = useQuery({
     queryKey: ["articles", currentCategory, currentPage, searchQuery],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -71,8 +61,8 @@ const Articles = () => {
         params.set("q", searchQuery);
       }
 
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts?${params.toString()}`
+      const res = await apiClient.get(
+        API_ENDPOINTS.POSTS.SEARCH(params.toString())
       );
       return res.data.data;
     },
@@ -103,17 +93,7 @@ const Articles = () => {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const categories = [
-    "all",
-    "technology",
-    "lifestyle",
-    "finance",
-    "productivity",
-    "travel",
-    "food",
-    "design",
-    "health",
-  ];
+  const categories = ["all", ...ARTICLE_CATEGORIES];
 
   return (
     <div className="min-h-screen bg-background px-6 py-8 sm:px-8 md:px-10 lg:px-12 xl:px-16 mt-12">
@@ -174,10 +154,7 @@ const Articles = () => {
                       avatar: article.author?.avatar || "",
                     }}
                     category={article.category}
-                    date={article.createdAt}
-                    estimatedReadTime={Math.ceil(
-                      article.content.trim().split(/\s+/).length / 200
-                    )}
+                    estimatedReadTime={calculateReadingTime(article.content)}
                     featured={article.isFeatured}
                   />
                 ))}

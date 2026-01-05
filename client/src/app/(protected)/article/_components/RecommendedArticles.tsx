@@ -1,5 +1,6 @@
 import { Article } from "@/types/article";
 import ArticleCard from "./ArticleCard";
+import { calculateReadingTime } from "@/lib/utils";
 
 interface RecommendedArticlesProps {
   articles: Array<Article>;
@@ -20,11 +21,8 @@ const RecommendedArticles = ({ articles }: RecommendedArticlesProps) => {
             excerpt={rec.shortDescription}
             coverImage={rec.coverImage}
             author={rec.author}
-            date={rec.createdAt}
             category={rec.category}
-            estimatedReadTime={Math.ceil(
-              rec.content.trim().split(/\s+/).length / 200
-            )}
+            estimatedReadTime={calculateReadingTime(rec.content)}
             featured={rec.isFeatured}
           />
         ))}

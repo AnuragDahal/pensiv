@@ -79,7 +79,8 @@ export const ARTICLE_STATUS = {
   PUBLISHED: "published",
 } as const;
 
-export type ArticleStatus = (typeof ARTICLE_STATUS)[keyof typeof ARTICLE_STATUS];
+export type ArticleStatus =
+  (typeof ARTICLE_STATUS)[keyof typeof ARTICLE_STATUS];
 
 // Routes
 export const ROUTES = {
@@ -114,9 +115,10 @@ export const API_ENDPOINTS = {
   },
   // Posts
   POSTS: {
-    LIST: "/api/posts",
+    LIST: (params?: string) => `/api/posts${params}`,
     HOME: "/api/posts/home",
     MY_POSTS: "/api/posts/me",
+    CREATE: "/api/posts",
     SINGLE: (id: string) => `/api/posts/${id}`,
     EDIT: (id: string) => `/api/posts/edit/${id}`,
     BY_SLUG: (slug: string) => `/api/posts/slug/${slug}`,
