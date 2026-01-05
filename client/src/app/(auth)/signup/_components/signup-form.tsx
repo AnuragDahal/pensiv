@@ -16,9 +16,9 @@ import React from "react";
 import { toast } from "sonner";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import apiClient from "@/lib/api/client";
-import { signupSchema, type SignupFormData } from "@/lib/schemas";
 import { API_ENDPOINTS, ROUTES } from "@/lib/constants";
+import axios from "axios";
+import { SignupFormData, signupSchema } from "@/lib/schemas";
 
 export default function SignupForm() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -43,14 +43,11 @@ export default function SignupForm() {
   const onSubmit = async (values: SignupFormData) => {
     try {
       setIsLoading(true);
-      const res = await apiClient.post(
-        API_ENDPOINTS.AUTH.SIGNUP,
-        {
-          name: values.name,
-          email: values.email,
-          password: values.password,
-        }
-      );
+      const res = await axios.post(API_ENDPOINTS.AUTH.SIGNUP, {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
 
       // Extract tokens from response
       const { accessToken, refreshToken } = res.data.data;
@@ -64,7 +61,7 @@ export default function SignupForm() {
       toast.success(res.data.message);
 
       // Small delay to ensure auth state is updated
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Redirect to callback URL if it exists, otherwise go to home
       const callbackUrl = searchParams.get("callbackUrl");

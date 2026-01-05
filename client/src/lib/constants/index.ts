@@ -124,7 +124,7 @@ export const API_ENDPOINTS = {
   // Posts
   POSTS: {
     LIST: `/api/posts`,
-    SEARCH: (query: string) => `/api/posts/${query}`,
+    SEARCH: (query: string) => `/api/posts?${query}`,
     HOME: "/api/posts/home",
     MY_POSTS: "/api/posts/me",
     CREATE: "/api/posts",

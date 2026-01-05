@@ -40,7 +40,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     queryClient.prefetchQuery({
       queryKey: ["article", slug],
       queryFn: async () => {
-        const res = await apiClient.get(API_ENDPOINTS.POSTS.SINGLE(slug));
+        const res = await apiClient.get(API_ENDPOINTS.POSTS.BY_SLUG(slug));
         // Return the same structure as useArticle expects
         return res.data.data;
       },

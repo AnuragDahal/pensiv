@@ -1,10 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronUp, LogOut, Settings, User, FileText, LayoutDashboard, Pencil, FilePlus2, Plus } from "lucide-react";
+import {
+  ChevronUp,
+  LogOut,
+  Settings,
+  User,
+  FileText,
+  LayoutDashboard,
+  Plus,
+} from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "@/hooks/use-auth";
+import axios from "axios";
+import { useAuthStore } from "@/store/auth-store";
 import { getInitials } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface UserPanelProps {
   userName?: string;
@@ -14,8 +24,17 @@ interface UserPanelProps {
 
 export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { logout } = useAuth();
+  const { logout } = useAuthStore();
+  const router = useRouter();
 
+  const handleLogout = async () => {
+    const response = await axios.post("/api/auth/logout");
+    if (response.status === 200) {
+      logout();
+      router.replace("/login");
+    }
+    setIsOpen(false);
+  };
   const menuItems = [
     {
       icon: LayoutDashboard,
@@ -28,16 +47,16 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
       href: "/profile",
     },
     {
-      icon:Plus,
-      label:"Create",
-      href:"/article/create"
+      icon: Plus,
+      label: "Create",
+      href: "/article/create",
     },
     {
       icon: FileText,
       label: "My Articles",
       href: "/my-articles",
     },
-    
+
     {
       icon: Settings,
       label: "Settings",
@@ -123,9 +142,9 @@ export function UserPanel({ userName, userEmail, userImage }: UserPanelProps) {
 
             {/* Logout */}
             <button
-              onClick={() => {
-                logout();
+              onClick={async () => {
                 setIsOpen(false);
+                await handleLogout();
               }}
               className="w-full px-4 py-2.5 flex items-center gap-3 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150 text-left"
             >

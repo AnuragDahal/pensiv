@@ -59,10 +59,13 @@ const Articles = () => {
       // Send search query to backend for full database search
       if (searchQuery) {
         params.set("q", searchQuery);
+        return await apiClient.get(
+          API_ENDPOINTS.POSTS.SEARCH(params.toString())
+        );
       }
 
       const res = await apiClient.get(
-        API_ENDPOINTS.POSTS.SEARCH(params.toString())
+        API_ENDPOINTS.POSTS.SEARCH(params.toString() ?? "")
       );
       return res.data.data;
     },
