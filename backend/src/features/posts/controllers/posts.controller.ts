@@ -89,23 +89,26 @@ export const getAllPostsOfAuthenticatedUser = asyncHandler(
         HTTP_STATUS_CODES.UNAUTHORIZED
       );
     }
-    const posts = await getPostsByUserId(req.user._id)
-      .select("-__v")
-      .populate({
-        path: "comments",
-        populate: {
-          path: "userId",
-          select: "name email avatar replies",
-        },
-      })
-      .populate("userId", "name email avatar bio");
 
-    // Return empty array for new users instead of throwing error
+    // Allow searching and filtering for own posts
+    // Default to 'all' status if not specified to show drafts + published
+    const status = req.query.status ? String(req.query.status) : "all";
+    const limit = req.query.limit ? String(req.query.limit) : "1000"; // Default to high limit if frontend expects all, or let frontend handle pagination
+    
+    const query = {
+      ...req.query,
+      userId: req.user._id.toString(),
+      status,
+      limit, // Pass the limit
+    };
+
+    const responseData = await getFilteredArticles(query as any);
+
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.OK,
       message: API_RESPONSES.RESOURCE_FETCHED,
-      data: posts || [],
+      data: responseData, // Now returns { posts, pagination }
     });
   }
 );
@@ -148,10 +151,11 @@ export const getAllPostByUserId = asyncHandler(
 
 export const fetchAllPosts = asyncHandler(
   async (req: Request, res: Response) => {
-    const query = req.query;
+    // Explicitly enforce published status for public search
+    const query = { ...req.query, status: "published" };
 
     // Backend decides: WHERE to search, HOW to filter, WHAT order to return
-    const responseData = await getFilteredArticles(query);
+    const responseData = await getFilteredArticles(query as any);
 
     return sendResponse({
       res,
