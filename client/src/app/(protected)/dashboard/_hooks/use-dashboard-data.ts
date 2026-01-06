@@ -179,7 +179,11 @@ export function useDashboardData() {
         `/api/posts/me`
       );
 
-      const articles: Article[] = response.data.data || [];
+      // Handle new response structure: { posts: [], pagination: {} }
+      const responseData = response.data.data;
+      const articles: Article[] = Array.isArray(responseData) 
+        ? responseData 
+        : (responseData?.posts || []);
 
       // Calculate all metrics - even if empty
       const stats = calculateStats(articles);

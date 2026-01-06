@@ -55,6 +55,7 @@ type AuthState = {
   // New: Fetch user from /auth/me
   fetchUser: () => Promise<void>;
   refetchUser: () => Promise<void>;
+  refreshSession: () => Promise<string | null>;
 };
 
 // =======================
@@ -129,11 +130,33 @@ export const useAuthStore = create<AuthState>()(
         if (!accessToken) return true;
 
         try {
-          const payload = JSON.parse(atob(accessToken.split(".")[1]));
+          // Validate token structure (should have 3 parts: header.payload.signature)
+          const parts = accessToken.split(".");
+          if (parts.length !== 3) {
+            console.warn("[AUTH] Invalid token structure");
+            return true;
+          }
+
+          // Decode and parse the payload (second part)
+          const payload = JSON.parse(atob(parts[1]));
+          
+          // Check if token has expiration and if it's expired
+          if (!payload.exp) {
+            console.warn("[AUTH] Token missing expiration");
+            return true;
+          }
+
           const currentTime = Date.now() / 1000;
-          return payload.exp < currentTime;
+          const isExpired = payload.exp < currentTime;
+          
+          if (isExpired) {
+            console.log("[AUTH] Token is expired");
+          }
+          
+          return isExpired;
         } catch (error) {
-          console.error("Error decoding token:", error);
+          // Any error in decoding = treat as expired/invalid
+          console.error("[AUTH] Error decoding token:", error);
           return true;
         }
       },
@@ -167,9 +190,52 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      // REFETCH USER (for manual refresh)
+      // REFETCH USER (for manual refresh - re-fetch profile data)
       refetchUser: async () => {
         return get().fetchUser();
+      },
+      
+      // REFRESH SESSION (Exchange refresh token for new access token)
+      refreshSession: async () => {
+        const { refreshToken } = get();
+        
+        if (!refreshToken) {
+          throw new Error("No refresh token available");
+        }
+
+        try {
+          // Dynamic import to avoid circular dependency
+          const { default: apiClient } = await import("@/lib/api/client");
+          
+          // Call refresh endpoint with the refresh token in body
+          // Note: using axios directly to avoid interceptor loop if we used apiClient here
+          // But apiClient is fine if we are careful, or better use a fresh instance/fetch
+          // Actually, let's use a specialized call that skips the interceptor logic or just standard axios
+          // We'll use apiClient but we need to be careful about infinite loops in interceptor.
+          // Ideally, the interceptor shouldn't intercept the refresh call itself.
+          
+          const response = await apiClient.post("/api/auth/refresh", { refreshToken });
+          
+          // Backend now returns both tokens: { accessToken, refreshToken }
+          const tokens = response.data.data;
+          
+          if (!tokens || !tokens.accessToken) {
+            throw new Error("Invalid refresh response");
+          }
+          
+          // Update BOTH tokens in the store
+          set({ 
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken || refreshToken, // Use new refresh token if provided, otherwise keep old
+          });
+          
+          console.log("[AUTH] Session refreshed successfully");
+          return tokens.accessToken;
+        } catch (error) {
+          console.error("[AUTH] Failed to refresh session:", error);
+          get().logout();
+          throw error;
+        }
       },
 
       // HYDRATE AUTH FROM STORAGE

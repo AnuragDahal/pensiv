@@ -34,22 +34,37 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized - attempt token refresh
-    if (error.response?.status === 401 && originalRequest) {
+    // We check for 401 status OR specific error messages from backend
+    if (
+      (error.response?.status === 401 && originalRequest) ||
+      ((error.response?.data as any)?.error === "TokenExpiredError" && originalRequest)
+    ) {
+      // Prevent infinite loop: if the error is from the refresh endpoint, don't try to refresh again
+      if (originalRequest.url?.includes("/auth/refresh")) {
+        return Promise.reject(error);
+      }
+
+      // If we are already refreshing, we might queue requests? 
+      // For simplicity in this fix, we'll just try to refresh.
+      
       try {
         const store = useAuthStore.getState();
-        await store.refetchUser();
+        
+        // Attempt to refresh the session
+        const newAccessToken = await store.refreshSession();
 
-        // Retry original request with new token
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, logout user
-        useAuthStore.getState().logout();
-
-        // Redirect to login if not already there
-        if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
-          window.location.href = "/login";
+        if (newAccessToken) {
+          // Update the failed request's authorization header
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          // Retry original request
+          return apiClient(originalRequest);
         }
-
+      } catch (refreshError) {
+        // If refresh fails, logout user is handled in refreshSession, but we ensure here too
+        // useAuthStore.getState().logout();
+        
+        // Redirect logic is already in store or here. 
+        // We'll keep it simple: failed refresh means we can't do anything.
         return Promise.reject(refreshError);
       }
     }

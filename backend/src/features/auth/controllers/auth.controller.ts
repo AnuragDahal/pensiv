@@ -107,7 +107,10 @@ export const accessTokenRefresh = asyncHandler(
     return sendResponse({
       res,
       status: HTTP_STATUS_CODES.OK,
-      data: newTokens.accessToken,
+      data: {
+        accessToken: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken,
+      },
       message: API_RESPONSES.RESOURCE_ACCEPTED,
     });
   }

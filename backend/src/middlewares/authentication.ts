@@ -23,6 +23,9 @@ export const isAuthenticated = (
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
 
+    console.log("[AUTH] Request to:", req.method, req.path);
+    console.log("[AUTH] Token present:", !!token);
+
     if (!token) {
       throw new APIError(
         API_RESPONSES.TOKEN_MISSING,
@@ -37,10 +40,22 @@ export const isAuthenticated = (
       );
     }
 
+    console.log("[AUTH] Verifying token...");
     const decoded = jwt.verify(token, env.ACCESS_TOKEN_SECRET) as JwtPayload;
+    console.log("[AUTH] Token verified successfully for user:", decoded._id);
     req.user = decoded;
     next();
   } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      sendResponse({
+        res,
+        status: HTTP_STATUS_CODES.UNAUTHORIZED,
+        message: API_RESPONSES.TOKEN_EXPIRED,
+        error: "TokenExpiredError",
+      });
+      return;
+    }
+
     if (error instanceof jwt.JsonWebTokenError) {
       sendResponse({
         res,
@@ -48,6 +63,7 @@ export const isAuthenticated = (
         message: API_RESPONSES.UNAUTHORIZED,
         error: API_RESPONSES.TOKEN_INVALID,
       });
+      return;
     }
 
     if (error instanceof APIError) {
@@ -56,6 +72,7 @@ export const isAuthenticated = (
         status: error.statusCode,
         message: error.message,
       });
+      return;
     }
 
     sendResponse({
