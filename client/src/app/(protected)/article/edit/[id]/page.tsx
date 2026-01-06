@@ -22,6 +22,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import apiClient from "@/lib/api/client";
 import axios from "axios";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -66,8 +67,6 @@ export default function EditArticlePage() {
   const [originalStatus, setOriginalStatus] = useState<"draft" | "published">("published");
   const router = useRouter();
   const params = useParams();
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
   const articleId = params.id as string;
 
   const form = useForm<z.infer<typeof articleSchema>>({
@@ -116,13 +115,8 @@ export default function EditArticlePage() {
     const fetchArticle = async () => {
       try {
         setIsFetching(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/posts/edit/${articleId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+        const response = await apiClient.get(
+          `/api/posts/edit/${articleId}`
         );
 
         const article = response.data.data;
@@ -156,10 +150,10 @@ export default function EditArticlePage() {
       }
     };
 
-    if (articleId && accessToken) {
+    if (articleId) {
       fetchArticle();
     }
-  }, [articleId, accessToken, router]);
+  }, [articleId, router]);
 
   // Update editor content when it's ready
   useEffect(() => {
@@ -210,8 +204,8 @@ export default function EditArticlePage() {
       // Update article
       toast.loading("Updating article...", { id: "update" });
 
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${articleId}`,
+      await apiClient.put(
+        `/api/posts/${articleId}`,
         {
           title: values.title,
           content: imageResult.updatedHtml,
@@ -219,12 +213,6 @@ export default function EditArticlePage() {
           tags: values.tags,
           coverImage: coverImageUrl,
           status: values.status,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
         }
       );
 

@@ -11,20 +11,11 @@ import Navbar from "@/components/NavBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useHome } from "@/hooks/useHome";
+import { calculateReadingTime } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-
-const categories = [
-  "Technology",
-  "Lifestyle",
-  "Finance",
-  "Productivity",
-  "Design",
-  "Travel",
-  "Food",
-  "Health",
-];
+import { ARTICLE_CATEGORIES } from "@/lib/constants";
 
 const Index = () => {
   const { loading, recentArticles, featuredArticle } = useHome();
@@ -45,7 +36,7 @@ const Index = () => {
         <section className="py-12 bg-muted/30">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-wrap gap-3 justify-center">
-              {categories.map((category) => (
+              {ARTICLE_CATEGORIES.map((category) => (
                 <Link
                   key={category}
                   href={`/article?category=${category.toLowerCase()}`}
@@ -69,13 +60,7 @@ const Index = () => {
             author={featuredArticle.author}
             category={featuredArticle.category}
             date={featuredArticle.createdAt}
-            estimatedReadTime={
-              featuredArticle.content
-                ? Math.ceil(
-                    featuredArticle.content.trim().split(/\s+/).length / 200
-                  )
-                : 0
-            }
+            estimatedReadTime={calculateReadingTime(featuredArticle.content)}
           />
         )}
         {/* Recent Articles */}
@@ -105,10 +90,7 @@ const Index = () => {
                     coverImage={article.coverImage}
                     author={article.author}
                     category={article.category}
-                    date={article.createdAt}
-                    estimatedReadTime={Math.ceil(
-                      article.content.trim().split(/\s+/).length / 200
-                    )}
+                    estimatedReadTime={calculateReadingTime(article.content)}
                     featured={article.isFeatured}
                   />
                 ))}

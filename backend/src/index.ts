@@ -44,14 +44,16 @@ app.get("/", asyncHandler(async (_req: Request, res: Response): Promise<void> =>
   res.send("Hello, World!");
 }));
 
-// Public routes
-app.get("/api/posts", fetchAllPosts);
-app.get("/api/posts/home", getHomePosts);
-app.get("/api/posts/slug/:slug", optionalAuth, getUserPostBySlug);
+// Public routes (no authentication required)
+app.get("/api/posts", fetchAllPosts); // Public search/list
+app.get("/api/posts/home", getHomePosts); // Public home posts
+app.get("/api/posts/slug/:slug", optionalAuth, getUserPostBySlug); // Public post view (optional auth for likes)
 
-// Protected routes
+// Auth routes (handles its own authentication internally)
 app.use("/api/auth", authRoutes);
-app.use("/api/posts", isAuthenticated, postsRoutes);
+
+// Protected routes (authentication required)
+app.use("/api/posts", isAuthenticated, postsRoutes); // All other post operations
 app.use("/api/comments", isAuthenticated, commentsRoutes);
 
 // Only start server if not in serverless environment (for local development)

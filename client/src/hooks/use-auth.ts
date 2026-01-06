@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/auth-store";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { API_ENDPOINTS } from "@/lib/constants";
 
 export function useAuth() {
   const router = useRouter();
@@ -23,9 +24,9 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      // Call Next.js logout endpoint to clear cookies
+      // Call Next.js logout endpoint to clear cookies via Proxy
       await axios.post(
-        "/api/auth/logout",
+        API_ENDPOINTS.AUTH.LOGOUT,
         {},
         { withCredentials: true }
       );
@@ -42,7 +43,7 @@ export function useAuth() {
   const refreshToken = async () => {
     try {
       const response = await axios.post(
-        `/api/auth/refresh`,
+        API_ENDPOINTS.AUTH.REFRESH,
         {},
         { withCredentials: true }
       );

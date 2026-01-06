@@ -44,6 +44,7 @@ export const getFilteredArticles = async (query: {
   sortBy?: string;
   sortOrder?: string;
   userId?: string;
+  status?: string;
 }) => {
   const {
     q,
@@ -53,6 +54,7 @@ export const getFilteredArticles = async (query: {
     sortBy,
     sortOrder = "desc",
     userId,
+    status,
   } = query;
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
@@ -62,8 +64,14 @@ export const getFilteredArticles = async (query: {
   const mongoQuery: any = {};
   const filters: any[] = [];
 
-  // Filter to show only published posts (exclude drafts from public endpoints)
-  filters.push({ status: "published" });
+  // Filter by status (default to "published" if not specified or set to anything but "all" or specific valid status)
+  // For "My Articles", we might pass "all" to see drafts and published
+  if (status && status !== "all") {
+    filters.push({ status });
+  } else if (!status) {
+    // Default to published for public queries
+    filters.push({ status: "published" });
+  }
 
   // 2. Handle Category Filter (when explicitly filtering by category)
   if (category && category !== "all") {

@@ -23,6 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -62,8 +63,6 @@ export default function CreateArticleForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const router = useRouter();
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
   const form = useForm<z.infer<typeof articleSchema>>({
     resolver: zodResolver(articleSchema),
     defaultValues: {
@@ -156,8 +155,8 @@ export default function CreateArticleForm() {
       // 3. Create article with uploaded images
       toast.loading("Creating article...", { id: "create" });
 
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
+      const response = await apiClient.post(
+        `/api/posts`,
         {
           title: values.title,
           content: imageResult.updatedHtml,
@@ -165,12 +164,6 @@ export default function CreateArticleForm() {
           tags: values.tags,
           coverImage: coverImageUrl,
           status: values.status,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
         }
       );
 

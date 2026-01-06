@@ -15,6 +15,7 @@ export async function POST() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${cookieStore.get("accessToken")?.value}`,
       },
     });
 

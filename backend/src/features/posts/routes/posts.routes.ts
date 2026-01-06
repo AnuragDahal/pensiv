@@ -16,7 +16,9 @@ import { postSchema, queryParams } from "../schemas/posts.schemas";
 
 const router = Router();
 
-router.get("/", zodValidator(queryParams), fetchAllPosts);
+// Note: GET / (fetchAllPosts) is defined as PUBLIC in index.ts
+// All routes here require authentication via the isAuthenticated middleware applied in index.ts
+
 router.get("/me", getAllPostsOfAuthenticatedUser);
 router.get("/edit/:id", getPostForEdit);
 router.get("/:id", getSinglePost);

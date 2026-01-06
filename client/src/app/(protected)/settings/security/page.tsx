@@ -14,11 +14,11 @@ import {
 import { SettingsBreadcrumb } from "@/app/(protected)/settings/_components/SettingsBreadcrumb";
 import { Shield, Key, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function SecuritySettingsPage() {
-  const { accessToken } = useAuth();
+  const { } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -75,17 +75,11 @@ export default function SecuritySettingsPage() {
 
     setIsUpdating(true);
     try {
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/update-password`,
+      await apiClient.patch(
+        `/api/auth/update-password`,
         {
           currentPassword,
           newPassword,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
         }
       );
 

@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect, useRef } from "react";
 import ImageUpload from "@/components/ui/image-upload";
-import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { SettingsBreadcrumb } from "@/app/(protected)/settings/_components/SettingsBreadcrumb";
@@ -36,7 +36,7 @@ import {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, refetchUser, accessToken } = useAuth();
+  const { user, refetchUser } = useAuth();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState("");
@@ -266,20 +266,14 @@ export default function SettingsPage() {
       if (portfolioUrl) socialLinks.portfolio = portfolioUrl;
 
       // Update backend with the avatar URL AND social links
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/update`,
+      await apiClient.patch(
+        `/api/auth/update`,
         {
           name,
           bio,
           avatar: avatarUrl,
           socialLinks:
             Object.keys(socialLinks).length > 0 ? socialLinks : undefined,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
         }
       );
 

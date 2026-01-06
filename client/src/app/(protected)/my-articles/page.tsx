@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,78 +44,71 @@ interface Article {
 }
 
 export default function MyArticlesPage() {
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
   const [articles, setArticles] = useState<Article[]>([]);
-  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  // Debounced query state to avoid excessive API calls
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "published">("all");
   const [currentPage, setCurrentPage] = useState(1);
   const articlesPerPage = 10;
 
-  const fetchArticles = useCallback(async () => {
-    if (!accessToken) return;
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
+  const fetchArticles = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/me`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
+      
+      const params = new URLSearchParams();
+      if (debouncedSearchQuery) params.set("q", debouncedSearchQuery);
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      // We request a high limit to keep client-side pagination simple for now, 
+      // but strictly speaking we are performing a backend search.
+      params.set("limit", "1000"); 
+
+      const response = await apiClient.get(
+        `/api/posts/me?${params.toString()}`
       );
-      setArticles(response.data.data || []);
-      setFilteredArticles(response.data.data || []);
+
+      // Handle the response structure { posts: [], pagination: {} }
+      if (response.data.data && response.data.data.posts) {
+        setArticles(response.data.data.posts);
+      } else if (Array.isArray(response.data.data)) {
+        // Fallback or if structure differences exist
+        setArticles(response.data.data);
+      } else {
+        setArticles([]);
+      }
     } catch (error) {
       console.error("Error fetching articles:", error);
       toast.error("Failed to load articles");
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [debouncedSearchQuery, statusFilter]);
 
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);
-
+  
+  // Reset page when search/filter changes
   useEffect(() => {
-    let filtered = articles;
-
-    // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((article) => article.status === statusFilter);
-    }
-
-    // Filter by search query
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (article) =>
-          article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          article.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }
-
-    setFilteredArticles(filtered);
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, articles]);
+  }, [debouncedSearchQuery, statusFilter]);
 
   const handleDeleteArticle = async (id: string) => {
     setIsDeleting(true);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
+      await apiClient.delete(
+        `/api/posts/${id}`
       );
       toast.success("Article deleted successfully");
       fetchArticles();
@@ -127,11 +120,11 @@ export default function MyArticlesPage() {
     }
   };
 
-  // Pagination
+  // Pagination on the fetched (and backend-filtered) results
   const indexOfLastArticle = currentPage * articlesPerPage;
   const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
-  const currentArticles = filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle);
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+  const currentArticles = articles.slice(indexOfFirstArticle, indexOfLastArticle);
+  const totalPages = Math.ceil(articles.length / articlesPerPage);
 
   if (loading) {
     return (
@@ -174,7 +167,7 @@ export default function MyArticlesPage() {
             My Articles
           </h1>
           <p className="text-muted-foreground mt-2">
-            Manage all your articles in one place ({filteredArticles.length} total)
+            Manage all your articles in one place ({articles.length} total)
           </p>
         </div>
 

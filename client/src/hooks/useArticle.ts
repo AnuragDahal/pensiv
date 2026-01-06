@@ -1,10 +1,10 @@
 // src/hooks/useArticle.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useAuthStore } from "@/store/auth-store";
+import apiClient from "@/lib/api/client";
 import { ArticleResponse } from "@/types/article";
-import axios from "axios";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { API_ENDPOINTS } from "@/lib/constants";
 
 /** Hook return shape */
 export interface UseArticleResult {
@@ -22,8 +22,6 @@ export interface UseArticleResult {
  * The hook automatically maps the backend response to the TS types above.
  */
 export const useArticle = (slug: string): UseArticleResult => {
-  const { getTokens } = useAuthStore();
-  const { accessToken } = getTokens();
   const queryClient = useQueryClient();
 
   // Use React Query to fetch article data (will use prefetched data if available)
@@ -35,13 +33,8 @@ export const useArticle = (slug: string): UseArticleResult => {
   } = useQuery({
     queryKey: ["article", slug],
     queryFn: async () => {
-      const resp = await axios.get<{ data: ArticleResponse }>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/slug/${slug}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      const resp = await apiClient.get<{ data: ArticleResponse }>(
+        API_ENDPOINTS.POSTS.BY_SLUG(slug)
       );
       return resp.data.data;
     },
@@ -57,7 +50,9 @@ export const useArticle = (slug: string): UseArticleResult => {
     if (!previousData) return;
 
     const isLiked = previousData.likes.isLikedByUser;
-    const newCount = isLiked ? previousData.likes.count - 1 : previousData.likes.count + 1;
+    const newCount = isLiked
+      ? previousData.likes.count - 1
+      : previousData.likes.count + 1;
 
     // Apply optimistic update to cache
     queryClient.setQueryData(["article", slug], {
@@ -69,15 +64,7 @@ export const useArticle = (slug: string): UseArticleResult => {
     });
 
     try {
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${id}/like`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await apiClient.patch(`/api/posts/${id}/like`);
     } catch (err) {
       console.log(err);
       // Revert on error
@@ -92,15 +79,15 @@ export const useArticle = (slug: string): UseArticleResult => {
 
     // Helper to update a comment in the array
     const updateComment = (comments: any[]) =>
-      comments.map(c => {
+      comments.map((c) => {
         if (c.id === commentId) {
           const isLiked = c.likes.isLikedByUser;
           return {
             ...c,
             likes: {
               count: isLiked ? c.likes.count - 1 : c.likes.count + 1,
-              isLikedByUser: !isLiked
-            }
+              isLikedByUser: !isLiked,
+            },
           };
         }
         // Also check replies
@@ -108,18 +95,18 @@ export const useArticle = (slug: string): UseArticleResult => {
           return {
             ...c,
             replies: c.replies.map((r: any) => {
-               if (r.id === commentId) {
+              if (r.id === commentId) {
                 const isLiked = r.likes.isLikedByUser;
                 return {
                   ...r,
                   likes: {
                     count: isLiked ? r.likes.count - 1 : r.likes.count + 1,
-                    isLikedByUser: !isLiked
-                  }
+                    isLikedByUser: !isLiked,
+                  },
                 };
               }
               return r;
-            })
+            }),
           };
         }
         return c;
@@ -128,19 +115,11 @@ export const useArticle = (slug: string): UseArticleResult => {
     // Apply optimistic update to cache
     queryClient.setQueryData(["article", slug], {
       ...previousData,
-      comments: updateComment(previousData.comments)
+      comments: updateComment(previousData.comments),
     });
 
     try {
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}/like`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await apiClient.patch(`/api/comments/${commentId}/like`);
     } catch (err) {
       console.log(err);
       // Revert on error

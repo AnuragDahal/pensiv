@@ -1,5 +1,5 @@
 import { Article } from "@/types/article";
-import axios from "axios";
+import apiClient from "@/lib/api/client";
 import { useEffect, useState } from "react";
 
 export const useHome = () => {
@@ -12,8 +12,8 @@ export const useHome = () => {
     if (showLoading) setLoading(true);
 
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/home`
+      const response = await apiClient.get(
+        `/api/posts/home`
       );
       setRecentArticles(response.data.data.recentPosts);
       setFeaturedArticle(response.data.data.featuredPost[0]);
