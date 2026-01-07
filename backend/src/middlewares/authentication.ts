@@ -5,6 +5,7 @@ import { APIError } from "../shared/utils";
 import { sendResponse } from "../shared/services/response.service";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { isTokenBlacklisted } from "../features/auth/services/blocked-token.service";
 
 interface JwtPayload {
   _id: string;
@@ -14,7 +15,7 @@ interface JwtPayload {
   exp?: number;
 }
 
-export const isAuthenticated = (
+export const isAuthenticated = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -31,6 +32,20 @@ export const isAuthenticated = (
         API_RESPONSES.TOKEN_MISSING,
         HTTP_STATUS_CODES.UNAUTHORIZED
       );
+    }
+
+    // Check if token is blacklisted
+    console.log("[AUTH] Checking token blacklist...");
+    const isBlacklisted = await isTokenBlacklisted(token);
+    if (isBlacklisted) {
+      console.log("[AUTH] Token is blacklisted");
+      sendResponse({
+        res,
+        status: HTTP_STATUS_CODES.UNAUTHORIZED,
+        message: "Token has been blacklisted. Please login again.",
+        error: "TokenBlacklisted",
+      });
+      return;
     }
 
     if (!env.ACCESS_TOKEN_SECRET) {

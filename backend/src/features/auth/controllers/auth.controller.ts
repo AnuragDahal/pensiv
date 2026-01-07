@@ -18,6 +18,7 @@ import {
   updateUser,
   getMeStats,
 } from "../services/auth.service";
+import { addTokenToBlocklist, isTokenBlacklisted } from "../services/blocked-token.service";
 
 export const userSignup = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -79,6 +80,16 @@ export const accessTokenRefresh = asyncHandler(
         HTTP_STATUS_CODES.BAD_REQUEST
       );
     }
+
+    // Check if refresh token is blacklisted
+    const isBlacklisted = await isTokenBlacklisted(refreshToken);
+    if (isBlacklisted) {
+      throw new APIError(
+        "Refresh token has been blacklisted. Please login again.",
+        HTTP_STATUS_CODES.FORBIDDEN
+      );
+    }
+
     const isValidRefreshToken = await validateRefreshToken(refreshToken);
     if (!isValidRefreshToken) {
       throw new APIError(
@@ -100,6 +111,15 @@ export const accessTokenRefresh = asyncHandler(
         API_RESPONSES.RESOURCE_CREATION_FAILED,
         HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR
       );
+    }
+
+    // Blacklist the old refresh token to prevent reuse
+    try {
+      await addTokenToBlocklist(refreshToken, "refresh", user._id);
+      console.log("[TOKEN_REFRESH] Old refresh token added to blocklist");
+    } catch (error) {
+      console.error("[TOKEN_REFRESH] Error blacklisting old token:", error);
+      // Continue even if blacklisting fails
     }
 
     setCookies(res, newTokens.accessToken, newTokens.refreshToken);
@@ -144,7 +164,41 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
 
 export const userLogout = asyncHandler(async (req: Request, res: Response) => {
   if (req.user?._id) {
-    await removeRefreshToken(req.user._id);
+    try {
+      // Get the access token from the request header
+      const authHeader = req.headers.authorization;
+      const accessToken = authHeader && authHeader.split(" ")[1];
+
+      // Get the refresh token from the user's database record
+      const user = await getUserById(req.user._id);
+      const refreshToken = user?.refreshToken;
+
+      // Add both tokens to the blocklist
+      const blocklistPromises = [];
+      
+      if (accessToken) {
+        console.log("[LOGOUT] Adding access token to blocklist");
+        blocklistPromises.push(
+          addTokenToBlocklist(accessToken, "access", req.user._id)
+        );
+      }
+
+      if (refreshToken) {
+        console.log("[LOGOUT] Adding refresh token to blocklist");
+        blocklistPromises.push(
+          addTokenToBlocklist(refreshToken, "refresh", req.user._id)
+        );
+      }
+
+      // Wait for both tokens to be added to blocklist
+      await Promise.all(blocklistPromises);
+
+      // Remove refresh token from user record
+      await removeRefreshToken(req.user._id);
+    } catch (error) {
+      console.error("[LOGOUT] Error during logout:", error);
+      // Continue with logout even if blocklist fails
+    }
   }
 
   const options = {
