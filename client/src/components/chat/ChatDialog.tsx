@@ -1,24 +1,32 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, X, Trash2, Sparkles, LogIn } from "lucide-react";
 import { useChat } from "@/lib/hooks";
-import { CHAT_CONFIG } from "@/lib/constants";
+import { CHAT_CONFIG, ROUTES } from "@/lib/constants";
 import { useAuthStore } from "@/store/auth-store";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+// Routes where chat should be hidden
+const HIDDEN_ROUTES: string[] = [ROUTES.LOGIN, ROUTES.SIGNUP];
+
 export function ChatDialog() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [showWelcomeBubble, setShowWelcomeBubble] = useState(true);
   const { messages, isLoading, sendMessage, clearChat, userMessageCount } =
     useChat();
   const { user, isAuthenticated } = useAuthStore();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Check if we should hide the chat
+  const isHidden = HIDDEN_ROUTES.includes(pathname);
 
   // Check if guest has reached message limit
   const isGuestLimitReached =
@@ -35,12 +43,13 @@ export function ChatDialog() {
 
   // Hide welcome bubble after configured timeout or when chat is opened
   useEffect(() => {
+    if (isHidden) return;
     const timer = setTimeout(
       () => setShowWelcomeBubble(false),
       CHAT_CONFIG.WELCOME_BUBBLE_TIMEOUT
     );
     return () => clearTimeout(timer);
-  }, []);
+  }, [isHidden]);
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -66,6 +75,11 @@ export function ChatDialog() {
       sendMessage(message);
     }
   };
+
+  // Don't render on auth pages
+  if (isHidden) {
+    return null;
+  }
 
   return (
     <>

@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import { GlobalUserPanel } from "@/components/global-user-panel";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { ChatDialog } from "@/components/chat";
+import { ChatWrapper } from "@/components/chat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -111,7 +111,7 @@ export default function RootLayout({
             <Toaster richColors />
             {children}
             <GlobalUserPanel />
-            <ChatDialog />
+            <ChatWrapper />
           </AuthProvider>
         </QueryProvider>
       </body>
