@@ -6,6 +6,7 @@ import {
   fetchAllPosts,
   getHomePosts,
   getUserPostBySlug,
+  chatRoutes,
 } from "./features";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -48,6 +49,7 @@ app.get("/", asyncHandler(async (_req: Request, res: Response): Promise<void> =>
 app.get("/api/posts", fetchAllPosts); // Public search/list
 app.get("/api/posts/home", getHomePosts); // Public home posts
 app.get("/api/posts/slug/:slug", optionalAuth, getUserPostBySlug); // Public post view (optional auth for likes)
+app.use("/api/chat", chatRoutes); // Public chat
 
 // Auth routes (handles its own authentication internally)
 app.use("/api/auth", authRoutes);

@@ -38,6 +38,7 @@ export interface IPostModel {
   status: "draft" | "published";
   createdAt: Date;
   updatedAt: Date;
+  embeddings?: number[];
 }
 export interface IPostModelResponse extends IPostModel {
   _id: Types.ObjectId;
