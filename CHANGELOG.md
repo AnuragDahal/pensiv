@@ -5,44 +5,40 @@ All notable changes to Pensiv will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-01-02
+---
 
-### 🎉 Initial Release
+## [1.1.0] - 2026-01-08
 
-First stable release of Pensiv - A modern, full-stack blogging platform.
+### ✨ New Features
 
-### ✨ Features
+#### AI Chat Assistant
+- Gemini-powered semantic search using post embeddings
+- Intelligent article recommendations based on user queries
+- Welcome bubble with "Need help finding articles?" prompt
+- Suggestion chips for quick conversation starters
+- Related articles displayed with clickable links
+- Markdown support for bold text in responses
 
-#### Content Management
-- Rich text editor powered by TipTap with code highlighting, image embedding, and link support
-- Draft and publish system with version control
-- Category and tag-based content organization
-- Cover image support with Unsplash(seeding cover image) and Supabase Intergration
+#### User Experience
+- User avatar display in chat for authenticated users
+- Guest message limit (3 messages) with sign-in prompt
+- Chat auto-closes when navigating to articles
+- Chat hidden on login/signup pages
 
-#### User Features
-- JWT-based authentication with refresh tokens
-- Customizable user profiles with bio, avatar, and social links
-- Engagement system (likes, comments, and replies)
-- Reading analytics and view tracking
-- Featured posts based on engagement metrics
-- Smart article recommendations based on tags and authors
+#### Security
+- Rate limiting for chat endpoint
+  - 5 requests/minute for guests
+  - 10 requests/minute for authenticated users
+- JWT-based authentication check for rate limit bypass
+- JWT token blacklisting 
+- JWT token refresh
 
-#### Technical Features
-- Server-side rendering with Next.js 16
-- RESTful API with comprehensive documentation
-- Real-time updates for reactions and comments
-- Responsive, mobile-first design
-- Code syntax highlighting with highlight.js
-- Full-text search across titles, content, tags, and authors
+### 🔧 Technical Improvements
+- Dynamic import for ChatDialog to prevent SSR issues
+- Cosine similarity algorithm for semantic article matching
+- Express-rate-limit middleware integration
 
-#### Developer Experience
-- Full TypeScript support across frontend and backend
-- Modular architecture with clean separation of concerns
-- Comprehensive API documentation with Postman collection
-- Docker support for containerized deployment
-- Vercel-optimized serverless deployment
-- Runtime environment validation with Zod
-- ESLint and Prettier configurations
+---
 
 ### 🛠️ Tech Stack
 
@@ -86,7 +82,45 @@ First stable release of Pensiv - A modern, full-stack blogging platform.
 
 ### 🔒 Security
 
-- JWT access and refresh tokens
+- JWT access and refresh 
+## [1.0.0] - 2026-01-02
+
+### 🎉 Initial Release
+
+First stable release of Pensiv - A modern, full-stack blogging platform.
+
+### ✨ Features
+
+#### Content Management
+- Rich text editor powered by TipTap with code highlighting, image embedding, and link support
+- Draft and publish system with version control
+- Category and tag-based content organization
+- Cover image support with Unsplash(seeding cover image) and Supabase Intergration
+
+#### User Features
+- JWT-based authentication with refresh tokens
+- Customizable user profiles with bio, avatar, and social links
+- Engagement system (likes, comments, and replies)
+- Reading analytics and view tracking
+- Featured posts based on engagement metrics
+- Smart article recommendations based on tags and authors
+
+#### Technical Features
+- Server-side rendering with Next.js 16
+- RESTful API with comprehensive documentation
+- Real-time updates for reactions and comments
+- Responsive, mobile-first design
+- Code syntax highlighting with highlight.js
+- Full-text search across titles, content, tags, and authors
+
+#### Developer Experience
+- Full TypeScript support across frontend and backend
+- Modular architecture with clean separation of concerns
+- Comprehensive API documentation with Postman collection
+- Docker support for containerized deployment
+- Vercel-optimized serverless deployment
+- Runtime environment validation with Zod
+- ESLint and Prettietokens
 - Password hashing with bcryptjs
 - Input validation with Zod schemas
 - CORS protection
@@ -99,4 +133,5 @@ First stable release of Pensiv - A modern, full-stack blogging platform.
 
 For upcoming features and improvements, see our [GitHub Issues](https://github.com/AnuragDahal/pensiv/issues).
 
+[1.1.0]: https://github.com/AnuragDahal/pensiv/releases/tag/v1.1.0
 [1.0.0]: https://github.com/AnuragDahal/pensiv/releases/tag/v1.0.0
