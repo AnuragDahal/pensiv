@@ -7,3 +7,4 @@ export { useArticleMutations } from "./use-article-mutations";
 export { useImageUpload } from "./use-image-upload";
 export { useDebounce } from "./use-debounce";
 export { useScroll } from "./use-scroll";
+export { useChat } from "./use-chat";

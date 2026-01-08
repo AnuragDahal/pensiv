@@ -121,6 +121,10 @@ export const API_ENDPOINTS = {
     UPDATE: "/api/auth/update",
     UPDATE_PASSWORD: "/api/auth/update-password",
   },
+  // Chat
+  CHAT: {
+    SEND: "/api/chat",
+  },
   // Posts
   POSTS: {
     LIST: `/api/posts`,

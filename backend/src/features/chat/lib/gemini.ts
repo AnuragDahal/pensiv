@@ -48,7 +48,7 @@ export const generateChatResponse = async (
 ): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash", // Use a newer model for better performance/cost
+      model: "gemini-2.5-flash-lite", // Use a newer model for better performance/cost
       config: {
         systemInstruction: systemInstruction,
       },
