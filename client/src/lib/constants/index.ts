@@ -109,6 +109,20 @@ export const SOCIAL_LINKS = {
   MAIL: "mailto:dahal.codecraft@gmail.com",
 } as const;
 
+// Chat Configuration
+export const CHAT_CONFIG = {
+  WELCOME_MESSAGE:
+    "Hello! I'm your Pensiv assistant. I can help you find articles, answer questions about blog content, and provide summaries. What would you like to know?",
+  WELCOME_BUBBLE_TEXT: "Need help finding articles?",
+  WELCOME_BUBBLE_TIMEOUT: 10000, // 10 seconds
+  SUGGESTIONS: [
+    "What articles do you have?",
+    "Tell me about productivity",
+    "Articles on web development",
+    "Health and wellness tips",
+  ],
+} as const;
+
 // API Endpoints
 export const API_ENDPOINTS = {
   // Auth

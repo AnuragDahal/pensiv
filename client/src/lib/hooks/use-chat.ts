@@ -1,41 +1,14 @@
 import { useState, useCallback } from "react";
 import apiClient from "@/lib/api/client";
-import { API_ENDPOINTS } from "@/lib/constants";
-
-export interface RelatedArticle {
-  title: string;
-  slug: string;
-  url: string;
-  description: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  relatedArticles?: RelatedArticle[];
-  timestamp: Date;
-}
-
-interface ChatResponse {
-  response: string;
-  relatedArticles: RelatedArticle[];
-}
-
-interface ApiResponse {
-  status: string;
-  statusCode: number;
-  message: string;
-  data: ChatResponse;
-}
+import { API_ENDPOINTS, CHAT_CONFIG } from "@/lib/constants";
+import type { ChatMessage, ChatApiResponse } from "@/types/chat";
 
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
       role: "assistant",
-      content:
-        "Hello! I'm your Pensiv assistant. I can help you find articles, answer questions about blog content, and provide summaries. What would you like to know?",
+      content: CHAT_CONFIG.WELCOME_MESSAGE,
       timestamp: new Date(),
     },
   ]);
@@ -57,7 +30,7 @@ export function useChat() {
     setError(null);
 
     try {
-      const response = await apiClient.post<ApiResponse>(
+      const response = await apiClient.post<ChatApiResponse>(
         API_ENDPOINTS.CHAT.SEND,
         { query }
       );
@@ -95,8 +68,7 @@ export function useChat() {
       {
         id: "welcome",
         role: "assistant",
-        content:
-          "Hello! I'm your Pensiv assistant. I can help you find articles, answer questions about blog content, and provide summaries. What would you like to know?",
+        content: CHAT_CONFIG.WELCOME_MESSAGE,
         timestamp: new Date(),
       },
     ]);

@@ -3,13 +3,14 @@
 import { cn } from "@/lib/utils";
 import { Bot, User } from "lucide-react";
 import Link from "next/link";
-import type { ChatMessage as ChatMessageType } from "@/lib/hooks/use-chat";
+import type { ChatMessage as ChatMessageType } from "@/types/chat";
 
 interface ChatMessageProps {
   message: ChatMessageType;
+  onLinkClick?: () => void;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, onLinkClick }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   return (
@@ -51,7 +52,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
               {message.relatedArticles.map((article) => (
                 <Link
                   key={article.slug}
-                  href={article.url || `/article/${article.slug}`}
+                  href={`/article/${article.slug}`}
+                  onClick={onLinkClick}
                   className={cn(
                     "text-xs underline-offset-2 hover:underline",
                     isUser ? "text-white/90" : "text-teal"
