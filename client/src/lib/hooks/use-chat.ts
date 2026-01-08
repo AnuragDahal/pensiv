@@ -75,11 +75,15 @@ export function useChat() {
     setError(null);
   }, []);
 
+  // Count user messages (for guest limit)
+  const userMessageCount = messages.filter((m) => m.role === "user").length;
+
   return {
     messages,
     isLoading,
     error,
     sendMessage,
     clearChat,
+    userMessageCount,
   };
 }

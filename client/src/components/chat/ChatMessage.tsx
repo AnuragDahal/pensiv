@@ -3,11 +3,14 @@
 import { cn } from "@/lib/utils";
 import { Bot, User } from "lucide-react";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { ChatMessage as ChatMessageType } from "@/types/chat";
 
 interface ChatMessageProps {
   message: ChatMessageType;
   onLinkClick?: () => void;
+  userAvatar?: string | null;
+  userName?: string | null;
 }
 
 /**
@@ -41,7 +44,25 @@ function parseMarkdown(text: string): React.ReactNode[] {
   return parts.length > 0 ? parts : [text];
 }
 
-export function ChatMessage({ message, onLinkClick }: ChatMessageProps) {
+/**
+ * Get initials from name for avatar fallback
+ */
+function getInitials(name?: string | null): string {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+export function ChatMessage({
+  message,
+  onLinkClick,
+  userAvatar,
+  userName,
+}: ChatMessageProps) {
   const isUser = message.role === "user";
 
   return (
@@ -51,18 +72,21 @@ export function ChatMessage({ message, onLinkClick }: ChatMessageProps) {
         isUser ? "flex-row-reverse" : "flex-row"
       )}
     >
-      <div
-        className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-          isUser ? "bg-coral" : "bg-navy"
-        )}
-      >
-        {isUser ? (
-          <User className="h-4 w-4 text-white" />
-        ) : (
+      {/* Avatar */}
+      {isUser ? (
+        <Avatar className="h-8 w-8 shrink-0">
+          {userAvatar ? (
+            <AvatarImage src={userAvatar} alt={userName || "User"} />
+          ) : null}
+          <AvatarFallback className="bg-coral text-white text-xs">
+            {getInitials(userName)}
+          </AvatarFallback>
+        </Avatar>
+      ) : (
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy">
           <Bot className="h-4 w-4 text-white" />
-        )}
-      </div>
+        </div>
+      )}
 
       <div
         className={cn(

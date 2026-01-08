@@ -115,6 +115,7 @@ export const CHAT_CONFIG = {
     "Hello! I'm your Pensiv assistant. I can help you find articles, answer questions about blog content, and provide summaries. What would you like to know?",
   WELCOME_BUBBLE_TEXT: "Need help finding articles?",
   WELCOME_BUBBLE_TIMEOUT: 10000, // 10 seconds
+  GUEST_MESSAGE_LIMIT: 3, // Max messages for non-logged-in users
   SUGGESTIONS: [
     "What articles do you have?",
     "Tell me about productivity",

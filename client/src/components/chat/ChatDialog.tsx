@@ -3,18 +3,29 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, X, Trash2, Sparkles } from "lucide-react";
+import { MessageCircle, X, Trash2, Sparkles, LogIn } from "lucide-react";
 import { useChat } from "@/lib/hooks";
 import { CHAT_CONFIG } from "@/lib/constants";
+import { useAuthStore } from "@/store/auth-store";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function ChatDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [showWelcomeBubble, setShowWelcomeBubble] = useState(true);
-  const { messages, isLoading, sendMessage, clearChat } = useChat();
+  const { messages, isLoading, sendMessage, clearChat, userMessageCount } =
+    useChat();
+  const { user, isAuthenticated } = useAuthStore();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Check if guest has reached message limit
+  const isGuestLimitReached =
+    !isAuthenticated && userMessageCount >= CHAT_CONFIG.GUEST_MESSAGE_LIMIT;
+  const remainingMessages = isAuthenticated
+    ? Infinity
+    : CHAT_CONFIG.GUEST_MESSAGE_LIMIT - userMessageCount;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -41,11 +52,19 @@ export function ChatDialog() {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    sendMessage(suggestion);
+    if (!isGuestLimitReached) {
+      sendMessage(suggestion);
+    }
   };
 
   const handleLinkClick = () => {
     setIsOpen(false);
+  };
+
+  const handleSend = (message: string) => {
+    if (!isGuestLimitReached) {
+      sendMessage(message);
+    }
   };
 
   return (
@@ -126,6 +145,8 @@ export function ChatDialog() {
                   key={message.id}
                   message={message}
                   onLinkClick={handleLinkClick}
+                  userAvatar={user?.avatar}
+                  userName={user?.name}
                 />
               ))}
 
@@ -141,11 +162,29 @@ export function ChatDialog() {
                   </div>
                 </div>
               )}
+
+              {/* Guest limit reached message */}
+              {isGuestLimitReached && (
+                <div className="p-4">
+                  <div className="rounded-xl bg-muted/50 border p-4 text-center">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      You've reached the free message limit. Sign in to continue
+                      chatting!
+                    </p>
+                    <Link href="/login" onClick={handleClose}>
+                      <Button size="sm" className="gap-2">
+                        <LogIn className="h-4 w-4" />
+                        Sign In
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </ScrollArea>
 
           {/* Suggestions */}
-          {messages.length <= 1 && !isLoading && (
+          {messages.length <= 1 && !isLoading && !isGuestLimitReached && (
             <div className="border-t px-4 py-3 bg-muted/20">
               <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
               <div className="flex flex-wrap gap-2">
@@ -162,8 +201,29 @@ export function ChatDialog() {
             </div>
           )}
 
+          {/* Guest message counter */}
+          {!isAuthenticated && !isGuestLimitReached && userMessageCount > 0 && (
+            <div className="px-4 py-2 bg-muted/30 border-t">
+              <p className="text-xs text-muted-foreground text-center">
+                {remainingMessages} free message{remainingMessages !== 1 ? "s" : ""}{" "}
+                remaining •{" "}
+                <Link
+                  href="/login"
+                  onClick={handleClose}
+                  className="text-teal hover:underline"
+                >
+                  Sign in for unlimited
+                </Link>
+              </p>
+            </div>
+          )}
+
           {/* Input */}
-          <ChatInput onSend={sendMessage} isLoading={isLoading} />
+          <ChatInput
+            onSend={handleSend}
+            isLoading={isLoading}
+            disabled={isGuestLimitReached}
+          />
         </div>
       </div>
 
