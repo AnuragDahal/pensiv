@@ -2,25 +2,24 @@ import { useState, useCallback } from "react";
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/constants";
 
+export interface RelatedArticle {
+  title: string;
+  slug: string;
+  url: string;
+  description: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
-  relatedArticles?: {
-    title: string;
-    slug: string;
-    description: string;
-  }[];
+  relatedArticles?: RelatedArticle[];
   timestamp: Date;
 }
 
 interface ChatResponse {
   response: string;
-  relatedArticles: {
-    title: string;
-    slug: string;
-    description: string;
-  }[];
+  relatedArticles: RelatedArticle[];
 }
 
 interface ApiResponse {

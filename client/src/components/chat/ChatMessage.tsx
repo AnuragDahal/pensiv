@@ -51,7 +51,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
               {message.relatedArticles.map((article) => (
                 <Link
                   key={article.slug}
-                  href={`/article/${article.slug}`}
+                  href={article.url || `/article/${article.slug}`}
                   className={cn(
                     "text-xs underline-offset-2 hover:underline",
                     isUser ? "text-white/90" : "text-teal"

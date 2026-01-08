@@ -32,7 +32,8 @@
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
     "seed": "ts-node -r tsconfig-paths/register scripts/seed.ts",
-    "seed:full": "ts-node -r tsconfig-paths/register scripts/comprehensive-seed.ts"
+    "seed:full": "ts-node -r tsconfig-paths/register scripts/comprehensive-seed.ts",
+    "generate-embeddings": "ts-node -r tsconfig-paths/register src/features/chat/generate-embeddings.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
