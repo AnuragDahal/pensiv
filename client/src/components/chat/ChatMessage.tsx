@@ -10,6 +10,37 @@ interface ChatMessageProps {
   onLinkClick?: () => void;
 }
 
+/**
+ * Parse simple markdown (bold text) and return React elements
+ */
+function parseMarkdown(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const regex = /\*\*(.+?)\*\*/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    // Add bold text
+    parts.push(
+      <strong key={match.index} className="font-semibold">
+        {match[1]}
+      </strong>
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : [text];
+}
+
 export function ChatMessage({ message, onLinkClick }: ChatMessageProps) {
   const isUser = message.role === "user";
 
@@ -41,7 +72,9 @@ export function ChatMessage({ message, onLinkClick }: ChatMessageProps) {
             : "bg-muted text-foreground rounded-tl-sm"
         )}
       >
-        <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+        <div className="text-sm whitespace-pre-wrap">
+          {parseMarkdown(message.content)}
+        </div>
 
         {message.relatedArticles && message.relatedArticles.length > 0 && (
           <div className="mt-2 border-t border-border/50 pt-2">

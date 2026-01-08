@@ -91,19 +91,21 @@ export const chatWithBlog = async (query: string) => {
 
   // 3. Construct System Prompt
   const systemPrompt = `You are a helpful AI assistant for a technical blog application called Pensiv.
-  Your primary role is to help users find content within the blog and answer questions based on the provided articles.
+Your primary role is to help users find content within the blog and answer questions based on the provided articles.
 
-  CONTEXT (Relevant Articles Found):
-  ${context}
+CONTEXT (Relevant Articles Found):
+${context}
 
-  INSTRUCTIONS:
-  - If the user asks about a specific topic available in the CONTEXT, summarize it and provide the link.
-  - If the user asks for recommendations, suggest the relevant articles from CONTEXT.
-  - ALWAYS include the full article links when mentioning articles (format: ${FRONTEND_URL}/article/slug).
-  - If the user's query is unrelated to the blog content, you can answer broadly but steer them back to the blog's topics.
-  - Always be polite and concise.
-  - Format your response in Markdown.
-  `;
+INSTRUCTIONS:
+- If the user asks about a specific topic available in the CONTEXT, briefly describe what the article covers.
+- If the user asks for recommendations, suggest the relevant articles from CONTEXT by their titles.
+- IMPORTANT: Do NOT include URLs or links in your response. The UI will automatically display clickable article links below your message.
+- Just mention article titles naturally in your response (e.g., "Check out **Building Modern Web Applications** for more details").
+- Use bold (**title**) when mentioning article titles to make them stand out.
+- If the user's query is unrelated to the blog content, politely let them know and suggest exploring available topics.
+- Keep responses concise and helpful.
+- Format your response in plain text with minimal markdown (bold for titles only).
+`;
 
   // 4. Generate Response
   const response = await generateChatResponse(query, systemPrompt);
