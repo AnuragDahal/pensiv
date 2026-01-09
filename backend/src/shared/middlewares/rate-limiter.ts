@@ -16,10 +16,7 @@ export const chatRateLimiter = rateLimit({
     statusCode: HTTP_STATUS_CODES.TOO_MANY_REQUESTS,
     message: "Too many requests. Please try again in a minute.",
   },
-  keyGenerator: (req) => {
-    // Use IP address as the key
-    return req.ip || req.socket.remoteAddress || "unknown";
-  },
+
 });
 
 /**
@@ -36,9 +33,7 @@ export const guestChatRateLimiter = rateLimit({
     statusCode: HTTP_STATUS_CODES.TOO_MANY_REQUESTS,
     message: "Too many requests. Please sign in for higher limits or try again later.",
   },
-  keyGenerator: (req) => {
-    return req.ip || req.socket.remoteAddress || "unknown";
-  },
+
   skip: (req) => {
     // Skip this limiter if user has auth token (they'll use the regular limiter)
     const authHeader = req.headers.authorization;

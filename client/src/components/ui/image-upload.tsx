@@ -147,14 +147,14 @@ export default function ImageUpload({
       {label && <Label className="text-sm font-medium">{label}</Label>}
       <div className="mt-2">
         {preview ? (
-          <div className="relative group">
+          <div className="relative group w-full h-48 rounded-lg overflow-hidden border">
             <Image
               src={
                 preview ||
                 "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?q=80&w=1074&auto=format&fit=crop"
               }
               alt="Preview"
-              className="w-full h-48 object-cover rounded-lg border"
+              className="object-cover"
               fill
               sizes="100vw"
               priority
