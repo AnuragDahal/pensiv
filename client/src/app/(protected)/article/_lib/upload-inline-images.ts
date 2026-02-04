@@ -30,32 +30,43 @@ export async function uploadInlineImages(
   let updatedHtml = htmlContent;
 
   // Upload each blob image to Supabase
-  for (const blobUrl of blobUrls) {
-    try {
+  try {
+    const uploadPromises = blobUrls.map(async (blobUrl) => {
       // Fetch blob and convert to File
       const response = await fetch(blobUrl);
       const blob = await response.blob();
-      const file = new File([blob], `inline-${Date.now()}.jpg`, {
-        type: blob.type,
-      });
+      // Add random suffix to avoid name collisions in parallel uploads
+      const file = new File(
+        [blob],
+        `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`,
+        {
+          type: blob.type,
+        }
+      );
 
       // Upload with retry mechanism
       const uploadedUrl = await uploadImageWithRetry(file, "content");
+      
+      return { blobUrl, uploadedUrl };
+    });
 
-      // Replace blob URL with Supabase URL
+    // Execute all uploads in parallel
+    const results = await Promise.all(uploadPromises);
+
+    // Replace blob URLs with Supabase URLs
+    for (const { blobUrl, uploadedUrl } of results) {
       updatedHtml = updatedHtml.replace(blobUrl, uploadedUrl);
-
       // Clean up blob URL
       URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-      console.error(`Failed to upload image ${blobUrl}:`, error);
-      return {
-        success: false,
-        originalHtml: htmlContent,
-        updatedHtml: htmlContent,
-        error: `Failed to upload inline images: ${(error as Error).message}`,
-      };
     }
+  } catch (error) {
+    console.error("Failed to upload inline images:", error);
+    return {
+      success: false,
+      originalHtml: htmlContent,
+      updatedHtml: htmlContent,
+      error: `Failed to upload inline images: ${(error as Error).message}`,
+    };
   }
 
   return { success: true, originalHtml: htmlContent, updatedHtml };

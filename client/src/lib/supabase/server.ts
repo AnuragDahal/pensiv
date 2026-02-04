@@ -12,10 +12,10 @@ export const createClient = async () => {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: any[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, options),
             );
           } catch (error) {
             // The `setAll` method was called from a Server Component.
@@ -25,6 +25,6 @@ export const createClient = async () => {
           }
         },
       },
-    }
+    },
   );
 };
