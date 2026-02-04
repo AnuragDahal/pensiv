@@ -115,42 +115,59 @@ export default function CreateArticleForm() {
       setIsLoading(true);
 
       // 1. Upload cover image (required)
+      // 1. Validate requirements
       if (!coverImageFile) {
         toast.error("Cover image is required");
         setIsLoading(false);
         return;
       }
 
-      let coverImageUrl = "";
-      toast.loading("Uploading cover image...", { id: "cover-upload" });
-      try {
-        coverImageUrl = await uploadImageWithRetry(coverImageFile, "covers");
-        toast.success("Cover image uploaded", { id: "cover-upload" });
-      } catch (error) {
-        toast.error("Failed to upload cover image after 3 attempts", {
-          id: "cover-upload",
+      // 2. Prepare parallel uploads
+      // Cover Image Upload Promise
+      const uploadCoverPromise = (async () => {
+        toast.loading("Uploading cover image...", { id: "cover-upload" });
+        try {
+          const url = await uploadImageWithRetry(coverImageFile, "covers");
+          toast.success("Cover image uploaded", { id: "cover-upload" });
+          return url;
+        } catch (error) {
+          toast.error("Failed to upload cover image after 3 attempts", {
+            id: "cover-upload",
+          });
+          throw error;
+        }
+      })();
+
+      // Inline Images Upload Promise
+      const uploadInlinePromise = (async () => {
+        toast.loading("Processing inline images...", { id: "inline-images" });
+        const result = await uploadInlineImages(values.content);
+        if (!result.success) {
+          toast.error(
+            result.error || "Failed to upload inline images after 3 attempts",
+            { id: "inline-images" }
+          );
+          throw new Error(result.error || "Inline image upload failed");
+        }
+        toast.success("All images uploaded successfully", {
+          id: "inline-images",
         });
+        return result;
+      })();
+
+      // 3. Execute uploads in parallel
+      let coverImageUrl = "";
+      let imageResult;
+
+      try {
+        [coverImageUrl, imageResult] = await Promise.all([
+          uploadCoverPromise,
+          uploadInlinePromise,
+        ]);
+      } catch (error) {
         setIsLoading(false);
         return;
       }
-
-      // 2. Upload inline images from content
-      toast.loading("Processing inline images...", { id: "inline-images" });
-      const imageResult = await uploadInlineImages(values.content);
-
-      if (!imageResult.success) {
-        toast.error(
-          imageResult.error ||
-            "Failed to upload inline images after 3 attempts",
-          { id: "inline-images" }
-        );
-        setIsLoading(false);
-        return;
-      }
-
-      toast.success("All images uploaded successfully", {
-        id: "inline-images",
-      });
 
       // 3. Create article with uploaded images
       toast.loading("Creating article...", { id: "create" });

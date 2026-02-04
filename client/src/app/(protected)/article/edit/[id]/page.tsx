@@ -166,40 +166,54 @@ export default function EditArticlePage() {
     try {
       setIsLoading(true);
 
-      let coverImageUrl = existingCoverImage;
+      // Prepare parallel uploads
+      // Cover Image Promise
+      const uploadCoverPromise = (async () => {
+        if (!coverImageFile) return existingCoverImage;
 
-      // Upload new cover image if user selected one
-      if (coverImageFile) {
         toast.loading("Uploading cover image...", { id: "cover-upload" });
         try {
-          coverImageUrl = await uploadImageWithRetry(coverImageFile, "covers");
+          const url = await uploadImageWithRetry(coverImageFile, "covers");
           toast.success("Cover image uploaded", { id: "cover-upload" });
+          return url;
         } catch (error) {
           toast.error("Failed to upload cover image after 3 attempts", {
             id: "cover-upload",
           });
-          setIsLoading(false);
-          return;
+          throw error;
         }
-      }
+      })();
 
-      // Upload inline images from content
-      toast.loading("Processing inline images...", { id: "inline-images" });
-      const imageResult = await uploadInlineImages(values.content);
+      // Inline Image Promise
+      const uploadInlinePromise = (async () => {
+        toast.loading("Processing inline images...", { id: "inline-images" });
+        const result = await uploadInlineImages(values.content);
+        if (!result.success) {
+          toast.error(
+            result.error || "Failed to upload inline images after 3 attempts",
+            { id: "inline-images" }
+          );
+          throw new Error(result.error || "Inline image upload failed");
+        }
+        toast.success("All images uploaded successfully", {
+          id: "inline-images",
+        });
+        return result;
+      })();
 
-      if (!imageResult.success) {
-        toast.error(
-          imageResult.error ||
-            "Failed to upload inline images after 3 attempts",
-          { id: "inline-images" }
-        );
+      // Execute in parallel
+      let coverImageUrl;
+      let imageResult;
+
+      try {
+        [coverImageUrl, imageResult] = await Promise.all([
+          uploadCoverPromise,
+          uploadInlinePromise,
+        ]);
+      } catch (error) {
         setIsLoading(false);
         return;
       }
-
-      toast.success("All images uploaded successfully", {
-        id: "inline-images",
-      });
 
       // Update article
       toast.loading("Updating article...", { id: "update" });
